@@ -406,6 +406,8 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 .panel .pk-img img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-slow) var(--ease-out); }
 .link-panel:hover .pk-img img { transform: scale(1.03); }
 .panel .pk-img .vis-tag { right: 10px; bottom: 10px; }
+.panel .pk-img.plan { display: grid; place-items: center; background: var(--line); }
+.panel .pk-img.plan svg { width: 100%; height: 100%; }
 
 /* tiles */
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -651,15 +653,15 @@ function monthly(price, down = 0.2, years = 12) { const P = price * (1 - down), 
 const MODELS = {
   'dum-s': { key: 'dum-s', name: 'Dům S', area: 15, len: 6, people: '2 osoby', loft: 'bez loftu', price: 790000, card: 'md-s', wide: 'md-s16', inside: 'md-s02', tags: [['Celoroční', 'nature']],
     line: 'Studio pro dva na víkendy i práci v klidu.', desc: 'Nejmenší dům s plnohodnotnou koupelnou a kuchyní. Rozkládací postel, pracovní místo u okna a kamna. Vejde se na menší zahradu a jde snadno převézt.',
-    rooms: [['Obytná část', 'Rozkládací postel 160 × 200 cm, pracovní deska u okna, úložný prostor pod lavicí'], ['Kuchyňská linka', 'Dubová dvířka, dvouplotýnková indukce, lednice 90 l, dřez'], ['Koupelna', 'Sprchový kout 80 × 80 cm, WC, umyvadlo, větrání s rekuperací'], ['Technika', 'Elektrické topení nebo kamna, ohřívač vody 50 l, LED osvětlení']],
+    rooms: [['Obytná část', 'Rozkládací postel 160 × 200 cm, pracovní deska u okna, úložný prostor pod lavicí', 'ds-prac'], ['Kuchyňská linka', 'Dubová dvířka, dvouplotýnková indukce, lednice 90 l, dřez', 'ds-kuch'], ['Koupelna', 'Sprchový kout 80 × 80 cm, WC, umyvadlo, větrání s rekuperací', 'ds-koup'], ['Technika', 'Elektrické topení nebo kamna, ohřívač vody 50 l, LED osvětlení', 'tech-s']],
     gallery: ['md-s16', 'md-s02', 'ds-kuch', 'ds-koup', 'ds-prac'] },
   'dum-m': { key: 'dum-m', name: 'Dům M', area: 22, len: 8, people: '2–4 osoby', loft: 'spací loft', price: 1190000, card: 'md-m', wide: 'md-m16', inside: 'md-m02', tags: [['Celoroční', 'nature'], ['Nejoblíbenější', 'accent']],
     line: 'Dům pro páry i malé rodiny, se spacím loftem pod střechou.', desc: 'Obývák s kamny a velkým oknem ve štítu, plná kuchyň, koupelna a spací loft s oknem do nebe. Nejčastější volba pro chatu i celoroční bydlení.',
-    rooms: [['Obytná část', 'Pohovka, kamna, velké okno ve štítu, jídelní pult pro 2–4 osoby'], ['Kuchyně', 'Dubová linka 240 cm, indukce, trouba, lednice 180 l, myčka 45 cm'], ['Koupelna', 'Sprchový kout 90 × 90 cm, WC, umyvadlo z kamene, žebřík na ručníky'], ['Loft', 'Postel 160 × 200 cm, střešní okno, schody s úložným prostorem'], ['Technika', 'Kamna nebo tepelné čerpadlo, ohřívač 80 l, rekuperace']],
+    rooms: [['Obytná část', 'Pohovka, kamna, velké okno ve štítu, jídelní pult pro 2–4 osoby', 'dm-obyv'], ['Kuchyně', 'Dubová linka 240 cm, indukce, trouba, lednice 180 l, myčka 45 cm', 'dm-kuch'], ['Koupelna', 'Sprchový kout 90 × 90 cm, WC, umyvadlo z kamene, žebřík na ručníky', 'dm-koup'], ['Loft', 'Postel 160 × 200 cm, střešní okno, schody s úložným prostorem', 'md-m02'], ['Technika', 'Kamna nebo tepelné čerpadlo, ohřívač 80 l, rekuperace', 'tech-m']],
     gallery: ['md-m16', 'md-m02', 'dm-obyv', 'dm-kuch', 'dm-koup'] },
   'dum-l': { key: 'dum-l', name: 'Dům L', area: 30, len: 10, people: '4 osoby', loft: 'ložnice + loft', price: 1590000, card: 'md-l', wide: 'md-l16', inside: 'md-l02', tags: [['Celoroční', 'nature'], ['Ukázkový dům', 'accent']],
     line: 'Největší model pro celoroční bydlení nebo pronájem.', desc: 'Obytná kuchyň s jídelním stolem pro čtyři, samostatná ložnice, loft a velká terasa. Tento model si můžete vyzkoušet na jednu noc v Chabeřicích.',
-    rooms: [['Obytná kuchyň', 'Dubová linka 320 cm, trouba, myčka 60 cm, jídelní stůl pro 4'], ['Ložnice', 'Postel 180 × 200 cm, šatní skříň, okno do lesa'], ['Loft', 'Dvě lůžka nebo pracovna, střešní okno'], ['Koupelna', 'Sprcha 100 × 90 cm, WC, pračka, kamenné umyvadlo'], ['Technika', 'Tepelné čerpadlo, ohřívač 120 l, rekuperace, příprava na solár']],
+    rooms: [['Obytná kuchyň', 'Dubová linka 320 cm, trouba, myčka 60 cm, jídelní stůl pro 4', 'md-l02'], ['Ložnice', 'Postel 180 × 200 cm, šatní skříň, okno do lesa', 'dl-loz'], ['Loft', 'Dvě lůžka nebo pracovna, střešní okno', 'dl-loft'], ['Koupelna', 'Sprcha 100 × 90 cm, WC, pračka, kamenné umyvadlo', 'dl-koup'], ['Technika', 'Tepelné čerpadlo, ohřívač 120 l, rekuperace, příprava na solár', 'tech-l']],
     gallery: ['md-l16', 'md-l02', 'dl-loz', 'dl-loft', 'dl-koup'] },
 };
 
@@ -692,6 +694,18 @@ function investCard() {
 function features() {
   const f = [['zaruka', 'Cena předem', 'Pevná cena ve smlouvě, platby podle milníků.'], ['rychlost', '10–14 týdnů', 'Od podpisu smlouvy po usazení u vás.'], ['umisteni', 'Bez základů', 'Stojí na podvozku a patkách, usazení za den.'], ['dum', 'Záruka 5 let', 'Na konstrukci, střechu a okna.'], ['drevo', 'České dřevo', 'Smrk a modřín z českých lesů, výroba v Chabeřicích.']];
   return `<section class="section tight" aria-label="Proč Nordhouse"><div class="wrap"><div class="features">${f.map(x => `<div class="feature reveal">${ic(x[0])}<b>${x[1]}</b><span>${x[2]}</span></div>`).join('')}</div></div></section>`;
+}
+function footprint(m) {
+  const w = m.area / m.len, W = 240, H = W * w / 10, x = (360 - W * m.len / 10) / 2, y = (270 - H) / 2, L = W * m.len / 10;
+  const n = v => String(Math.round(v * 100) / 100).replace('.', ',');
+  return `<svg viewBox="0 0 360 270" role="img" aria-label="Obrys ${m.name}: ${n(m.len)} × ${n(w)} m, ${m.area} m²">
+    <rect x="${x}" y="${y}" width="${L}" height="${H}" rx="3" fill="var(--surface-raised)" stroke="var(--ink)" stroke-width="2"/>
+    <line x1="${x}" y1="${y - 18}" x2="${x + L}" y2="${y - 18}" stroke="var(--line-strong)"/><line x1="${x}" y1="${y - 24}" x2="${x}" y2="${y - 12}" stroke="var(--line-strong)"/><line x1="${x + L}" y1="${y - 24}" x2="${x + L}" y2="${y - 12}" stroke="var(--line-strong)"/>
+    <text x="${x + L / 2}" y="${y - 26}" text-anchor="middle" font-size="13" fill="var(--ink-muted)">${n(m.len)} m</text>
+    <line x1="${x + L + 18}" y1="${y}" x2="${x + L + 18}" y2="${y + H}" stroke="var(--line-strong)"/><line x1="${x + L + 12}" y1="${y}" x2="${x + L + 24}" y2="${y}" stroke="var(--line-strong)"/><line x1="${x + L + 12}" y1="${y + H}" x2="${x + L + 24}" y2="${y + H}" stroke="var(--line-strong)"/>
+    <text x="${x + L + 30}" y="${y + H / 2 + 4}" font-size="13" fill="var(--ink-muted)">${n(w)} m</text>
+    <text x="${x + L / 2}" y="${y + H / 2 + 6}" text-anchor="middle" font-size="18" font-weight="500" fill="var(--ink)">${m.area} m²</text>
+  </svg>`;
 }
 function stayTeaser(img = 'hero-noc') {
   return `<section class="section"><div class="wrap"><div class="stay reveal">
@@ -880,7 +894,7 @@ ${heroImg({ img: m.wide, alt: `${m.name} na louce`, posM: '62% 50%', top: `<div 
 </div></div></section>
 <section class="section tight"><div class="wrap"><div class="gallery">${m.gallery.map((g, i) => `<figure><img src="${IMG(g)}" alt="${m.name}, ukázka ${i + 1}" loading="lazy">${vis}</figure>`).join('')}</div></div></section>
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Výbava</p><h2 class="h1">Co najdete uvnitř</h2></div>
-  <div class="two-col">${m.rooms.map(r => `<div class="panel flat"><h3 class="h3">${r[0]}</h3><p class="muted">${r[1]}</p></div>`).join('')}<div class="panel flat"><h3 class="h3">Půdorys</h3><p class="muted">Výkres s rozměry doplníme z výroby. Dispozici můžete upravit v konfigurátoru.</p></div></div></div></section>
+  <div class="cards">${m.rooms.map(r => `<div class="panel flat"><div class="pk-img"><img src="${IMG(r[2])}" alt="${m.name}: ${r[0].toLowerCase()}" loading="lazy">${vis}</div><h3 class="h3">${r[0]}</h3><p class="muted">${r[1]}</p></div>`).join('')}<div class="panel flat"><div class="pk-img plan">${footprint(m)}</div><h3 class="h3">Půdorys</h3><p class="muted">Výkres s rozměry doplníme z výroby. Dispozici můžete upravit v konfigurátoru.</p></div></div></div></section>
 <section class="section sunken"><div class="wrap"><div class="two-col">
   <div class="panel"><h3 class="h2">V ceně</h3><ul class="ticks"><li>Hotový dům s kuchyní, koupelnou a technikou</li><li>Modřínová fasáda a terasa se schody</li><li>Podvozek, patky a usazení</li><li>Doprava do 100 km od Chabeřic</li><li>Záruka 5 let</li></ul></div>
   <div class="panel"><h3 class="h2">Není v ceně</h3><ul class="ticks no"><li>Pozemek</li><li>Přípojky vody, elektřiny a odpadu na pozemku</li><li>Případná povolení podle obce</li><li>Doprava nad 100 km (cena v nabídce)</li></ul></div>
