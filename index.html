@@ -841,9 +841,9 @@ PAGES['domy'] = () => `
 ${heroImg({ img: 'hero-domy', alt: 'Dům L na rozkvetlé louce', pos: '50% 50%', posM: '68% 50%', eyebrow: 'Domy Nordhouse', title: 'Vyberte si velikost. Zbytek máme vymyšlený.', sub: 'Tři celoroční modely od 15 do 30 m². Stejné materiály, stejná záruka 5 let, hotovo za 10–14 týdnů.', btns: [['Navrhnout svůj dům', '#konfigurator'], ['Srovnat modely', '#srovnani']], label: 'Co mají všechny domy', bar: [B3('plocha', '15–30 m²', 'Dům S pro dva, Dům M se spacím loftem, Dům L s ložnicí a loftem.'), B3('celorocne', 'Celoroční', 'Zateplené stěny, podlaha i střecha, izolační trojskla. Bydlet se v nich dá i v zimě.'), B3('kalendar', '10–14 týdnů', 'Od podpisu smlouvy po usazení u vás. Termín držíme rezervací výrobního slotu.')], cta: ['Navrhnout dům', '#konfigurator'] })}
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Pro koho</p><h2 class="h1">Na co dům budete používat?</h2></div>
   <div class="tiles">
-    <a class="tile" href="#dum-l"><img src="${IMG('ls-01')}" alt="Pár na terase při západu slunce" loading="lazy"><div class="t-body"><h3 class="h2">Bydlení</h3><p>Celoroční domov pro dva až čtyři. Nejčastěji Dům M nebo L.</p></div></a>
-    <a class="tile" href="#dum-m"><img src="${IMG('ls-02')}" alt="Rodina u ohně vedle domu" loading="lazy"><div class="t-body"><h3 class="h2">Chata na víkendy</h3><p>Místo, kam se jezdí odpočívat. Bez stavby a bez údržby chaty.</p></div></a>
-    <a class="tile" href="#invest"><img src="${IMG('ls-06')}" alt="Hosté glampingu přijíždějí s kufrem" loading="lazy"><div class="t-body"><h3 class="h2">Pronájem a glamping</h3><p>Sestava 2–3 domů, která na sebe vydělá. Verze Invest.</p></div></a>
+    <a class="tile" href="#dum-l"><img src="${IMG('tile-bydleni')}" alt="Pár na terase Domu L při západu slunce" loading="lazy"><div class="t-body"><h3 class="h2">Bydlení</h3><p>Celoroční domov pro dva až čtyři. Nejčastěji Dům M nebo L.</p></div></a>
+    <a class="tile" href="#dum-m"><img src="${IMG('tile-chata')}" alt="Rodina u ohně vedle Domu M" loading="lazy"><div class="t-body"><h3 class="h2">Chata na víkendy</h3><p>Místo, kam se jezdí odpočívat. Bez stavby a bez údržby chaty.</p></div></a>
+    <a class="tile" href="#invest"><img src="${IMG('tile-glamping')}" alt="Hosté přijíždějí na glamping se třemi Domy M" loading="lazy"><div class="t-body"><h3 class="h2">Pronájem a glamping</h3><p>Sestava 2–3 domů, která na sebe vydělá. Verze Invest.</p></div></a>
   </div><p class="note" style="margin-top:12px">Vizualizace</p></div></section>
 <section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Modely</p><h2 class="h1">Tři domy a sestava pro pronájem</h2></div>
   <div class="cards four">${Object.values(MODELS).map(modelCard).join('')}${investCard()}</div></div></section>
@@ -860,7 +860,7 @@ ${heroImg({ img: 'hero-domy', alt: 'Dům L na rozkvetlé louce', pos: '50% 50%',
 <section class="section sunken"><div class="wrap"><div class="split">
   <div class="stack-lg"><p class="eyebrow">V ceně každého domu</p><h2 class="h1">Kupujete hotový dům, ne stavebnici.</h2>
     <ul class="ticks"><li>Zateplená konstrukce, izolační trojskla, modřínová fasáda</li><li>Kuchyň s dubovou linkou a spotřebiči</li><li>Koupelna se sprchou, WC a ohřevem vody</li><li>Elektroinstalace, osvětlení a vytápění</li><li>Podvozek, patky a usazení na místě</li><li>Doprava zdarma do 100 km od Chabeřic</li></ul></div>
-  <div class="media-r reveal"><img src="${IMG('int-02')}" alt="Dubová kuchyňská linka u okna" loading="lazy">${vis}</div></div></div></section>
+  <div class="media-r reveal"><img src="${IMG('dm-kuch')}" alt="Dubová kuchyňská linka Domu M" loading="lazy">${vis}</div></div></div></section>
 ${stayTeaser('hero-noc')}
 ${faqSection(FAQ_MAIN.slice(0, 5), 'Než si vyberete')}
 ${leadSection({ sunken: true })}`;
@@ -920,7 +920,7 @@ ${heroImg({ img: 'md-inv', alt: 'Tři domy Nordhouse jako glamping na louce', po
   <p class="note">Sleva za sadu 40 000 Kč za každý další kus. Ceny s DPH, orientační.</p></div></div></div></section>
 <section class="section sunken"><div class="wrap"><div class="split"><div class="stack-lg"><p class="eyebrow">Provoz</p><h2 class="h1">Pomůžeme vám s rozjezdem.</h2>
   <ul class="ticks"><li>Doporučíme rezervační systém a nastavení cen</li><li>Připravíme fotky domů pro Airbnb a Booking</li><li>Poradíme s ohlášením ubytování a místními poplatky</li></ul></div>
-  <div class="media-r reveal"><img src="${IMG('ls-06')}" alt="Hosté přijíždějí k domu" loading="lazy">${vis}</div></div></div></section>
+  <div class="media-r reveal"><img src="${IMG('tile-glamping')}" alt="Hosté přijíždějí na glamping se třemi Domy M" loading="lazy">${vis}</div></div></div></section>
 ${leadSection({ model: 'invest', eyebrow: 'Konzultace investice', title: 'Probereme váš pozemek a čísla.', text: 'Pošlete nám lokalitu a představu o počtu domů. Připravíme výpočet pro váš konkrétní pozemek.' })}`;
 
 PAGES['zkusebni-noc'] = () => `
