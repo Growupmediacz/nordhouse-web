@@ -402,6 +402,10 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
 .panel { background: var(--surface-raised); border-radius: var(--radius-md); padding: 32px; box-shadow: var(--shadow-card); display: grid; gap: 18px; align-content: start; }
 .panel.flat { box-shadow: none; background: var(--surface-sunken); }
+.panel .pk-img { position: relative; margin: -32px -32px 0; aspect-ratio: 4 / 3; overflow: hidden; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.panel .pk-img img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-slow) var(--ease-out); }
+.link-panel:hover .pk-img img { transform: scale(1.03); }
+.panel .pk-img .vis-tag { right: 10px; bottom: 10px; }
 
 /* tiles */
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -883,9 +887,9 @@ ${heroImg({ img: m.wide, alt: `${m.name} na louce`, posM: '62% 50%', top: `<div 
 </div>
 <div class="head" style="margin:64px 0 24px"><h2 class="h2">Balíčky navíc</h2></div>
 <div class="cards">
-  <div class="panel">${ic('solar', 'ico-l')}<h3 class="h3">Off-grid</h3><p class="muted small">Solární panely, baterie, nádrž na vodu a čistírna. Dům funguje i bez přípojek.</p><div class="price">+ 190 000 Kč</div></div>
-  <div class="panel">${ic('list')}<h3 class="h3">Terasa XL</h3><p class="muted small">Prodloužená terasa podél celé dlouhé strany domu.</p><div class="price">+ 45 000 Kč</div></div>
-  <a class="panel link-panel" href="#sada-dum-sauna">${ic('sauna')}<h3 class="h3">Sauna na podvozku</h3><p class="muted small">Ze stejného dřeva, propojená chodníkem. Při objednávce s domem sleva 40 000 Kč.</p><div class="price">+ 349 000 Kč</div><span class="link">Sada dům + sauna ${arrow}</span></a>
+  <div class="panel"><div class="pk-img"><img src="${IMG('pk-offgrid-' + m.key.slice(4))}" alt="${m.name} s off-grid balíčkem a solárními panely" loading="lazy">${vis}</div><h3 class="h3">Off-grid</h3><p class="muted small">Solární panely, baterie, nádrž na vodu a čistírna. Dům funguje i bez přípojek.</p><div class="price">+ 190 000 Kč</div></div>
+  <div class="panel"><div class="pk-img"><img src="${IMG('pk-terasa-' + m.key.slice(4))}" alt="${m.name} s terasou XL" loading="lazy">${vis}</div><h3 class="h3">Terasa XL</h3><p class="muted small">Prodloužená terasa podél celé dlouhé strany domu.</p><div class="price">+ 45 000 Kč</div></div>
+  <a class="panel link-panel" href="#sada-dum-sauna"><div class="pk-img"><img src="${IMG('pk-sauna-' + m.key.slice(4))}" alt="${m.name} a sauna na podvozku propojené chodníkem" loading="lazy">${vis}</div><h3 class="h3">Sauna na podvozku</h3><p class="muted small">Ze stejného dřeva, propojená chodníkem. Při objednávce s domem sleva 40 000 Kč.</p><div class="price">+ 349 000 Kč</div><span class="link">Sada dům + sauna ${arrow}</span></a>
 </div><p class="note" style="margin-top:16px">Ceny balíčků jsou orientační, upřesníme je v nabídce.</p></div></section>
 ${stayTeaser(m.key === 'dum-l' ? 'noc-prijezd' : 'hero-noc').replace('Ukázkový Dům L stojí v Chabeřicích u Zruče nad Sázavou, zhruba hodinu jízdy z Prahy. Vyzkoušejte si, jak se v něm spí, topí a vaří.', extra)}
 <section class="section sunken"><div class="wrap"><div class="head split"><div class="stack"><p class="eyebrow">Termín</p><h2 class="h1">Váš ${m.name} může stát u vás v květnu 2027.</h2><p class="lead">Nejbližší volný výrobní slot začíná v únoru. Rezervujete ho podpisem smlouvy.</p></div>${btnP('Rezervovat slot', '#poptavka')}</div>${steps()}</div></section>
