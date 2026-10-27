@@ -1,0 +1,1348 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nordhouse</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231E211D'/%3E%3Cg transform='translate(19.2 0) scale(1.6)' fill='none' stroke='%23F2ECE1' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M0 10V30M0 18A8 8 0 0 1 16 18V30'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: střídání světlých obsahových sekcí (Len) a tmavých scroll kapitol (Les); obsah max 1240 px, text max 680 px. Tokeny z design systému Nordhouse. */
+:root {
+  --forest-950: #151814; --forest-900: #1E211D; --forest-800: #2A2E28; --forest-700: #3A4036;
+  --moss-600: #4E5D42; --larch-700: #8A5A30; --larch-500: #B07A4A; --larch-300: #D6B08A;
+  --linen-25: #F2ECE1; --linen-50: #F7F3EC; --linen-100: #EFE8DC; --linen-200: #E3DACB; --stone-300: #AEB3A5;
+  --amber-400: #E8B04B; --amber-200: #F3D9A4;
+  --surface: #F7F3EC; --surface-raised: #FFFFFF; --surface-sunken: #EFE8DC;
+  --ink: #1E211D; --ink-muted: #5A6054; --line: #E3DACB; --line-strong: #8C8577;
+  --accent: #E8B04B; --accent-hover: #F3D9A4; --on-accent: #1E211D;
+  --wood-ink: #8A5A30; --nature-ink: #4E5D42; --success: #3F6B3A; --danger: #A8402F; --focus: #1E211D;
+  --chapter: #151814; --chapter-ink: #F2ECE1; --chapter-muted: #AEB3A5;
+  --scrim: rgba(21, 24, 20, 0.55);
+  --shadow-card: 0 1px 2px rgba(30,33,29,.06), 0 10px 30px rgba(30,33,29,.08);
+  --shadow-float: 0 18px 48px rgba(21,24,20,.22);
+  --radius-sm: 6px; --radius-md: 12px; --radius-lg: 20px; --radius-pill: 999px;
+  --dur-fast: 160ms; --dur-base: 280ms; --dur-slow: 600ms; --dur-reveal: 900ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --container: 1240px; --text-max: 680px; --header-h: 76px;
+  --font-display: Outfit, "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-text: Manrope, "Segoe UI", system-ui, sans-serif;
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --surface: #151814; --surface-raised: #1F231E; --surface-sunken: #0F110E;
+  --ink: #F2ECE1; --ink-muted: #AEB3A5; --line: #353B32; --line-strong: #737B6A;
+  --wood-ink: #D2A274; --nature-ink: #9DB08A; --success: #8CC283; --danger: #E58A73; --focus: #E8B04B;
+  --chapter: #0F110E;
+  --shadow-card: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --surface: #151814; --surface-raised: #1F231E; --surface-sunken: #0F110E;
+  --ink: #F2ECE1; --ink-muted: #AEB3A5; --line: #353B32; --line-strong: #737B6A;
+  --wood-ink: #D2A274; --nature-ink: #9DB08A; --success: #8CC283; --danger: #E58A73; --focus: #E8B04B;
+  --chapter: #0F110E;
+  --shadow-card: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--surface); color: var(--ink); font-family: var(--font-text); font-size: 16px; line-height: 26px; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--forest-950); }
+img, video { max-width: 100%; display: block; }
+a { color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.chapter :focus-visible, .hero :focus-visible, .site-header :focus-visible { outline-color: var(--amber-400); }
+
+.wrap { max-width: calc(var(--container) + 64px); margin: 0 auto; padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+@media (min-width: 720px) { .wrap { padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px)); } }
+.section { padding-block: 96px; }
+.section.tight { padding-block: 64px; }
+.section.sunken { background: var(--surface-sunken); }
+@media (max-width: 720px) { .section { padding-block: 64px; } .section.tight { padding-block: 48px; } }
+
+/* type */
+.eyebrow { font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted); margin: 0 0 16px; }
+.eyebrow.wood { color: var(--wood-ink); }
+.display-xl { font-family: var(--font-display); font-weight: 300; font-size: clamp(44px, 6.4vw, 76px); line-height: 1.04; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+.display-l { font-family: var(--font-display); font-weight: 300; font-size: clamp(36px, 4.8vw, 58px); line-height: 1.06; letter-spacing: -.015em; margin: 0; text-wrap: balance; }
+.h1 { font-family: var(--font-display); font-weight: 300; font-size: clamp(32px, 3.6vw, 42px); line-height: 1.12; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+.h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(24px, 2.4vw, 30px); line-height: 1.2; margin: 0; text-wrap: balance; }
+.h3 { font-family: var(--font-display); font-weight: 500; font-size: 21px; line-height: 28px; margin: 0; }
+.lead { font-size: 19px; line-height: 30px; color: var(--ink-muted); margin: 0; max-width: var(--text-max); }
+.muted { color: var(--ink-muted); }
+.small { font-size: 14px; line-height: 22px; }
+.caption { font-size: 12px; line-height: 18px; font-weight: 500; }
+.price { font-family: var(--font-display); font-size: 28px; line-height: 32px; font-weight: 400; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+p { margin: 0; }
+.stack > * + * { margin-top: 16px; }
+.stack-lg > * + * { margin-top: 24px; }
+.head { display: grid; gap: 16px; margin-bottom: 48px; max-width: 760px; }
+.head.split { max-width: none; grid-template-columns: 1fr auto; align-items: end; }
+@media (max-width: 720px) { .head.split { grid-template-columns: 1fr; } }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 10px; border: 0; cursor: pointer; text-decoration: none; border-radius: var(--radius-pill); padding: 14px 24px; font-size: 15px; line-height: 20px; font-weight: 600; transition: background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast); white-space: nowrap; }
+.btn svg { width: 18px; height: 18px; transition: transform var(--dur-base) var(--ease-out); }
+.btn:hover svg { transform: translateX(4px); }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+.btn-secondary:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.btn-ghost-light { background: rgba(242,236,225,.08); color: var(--linen-25); box-shadow: inset 0 0 0 1.5px rgba(242,236,225,.55); }
+.btn-ghost-light:hover { background: rgba(242,236,225,.16); }
+.btn-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.link { color: var(--ink); text-decoration: none; font-weight: 600; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat; transition: background-size var(--dur-base) var(--ease-out); display: inline-flex; gap: 8px; align-items: center; }
+.link:hover { background-size: 100% 1.5px; }
+.link svg { width: 18px; height: 18px; }
+
+/* header */
+.site-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50; height: var(--header-h); transition: background var(--dur-base), box-shadow var(--dur-base), color var(--dur-base); background: var(--surface); color: var(--ink); box-shadow: 0 1px 0 var(--line); }
+.site-header.over { background: transparent; color: var(--linen-25); box-shadow: none; }
+.site-header.over.scrolled, .site-header.scrolled { background: var(--surface); color: var(--ink); box-shadow: 0 1px 0 var(--line); }
+.has-hero .site-header { margin-bottom: calc(-1 * var(--header-h)); }
+.site-header .wrap { height: 100%; display: flex; align-items: center; gap: 32px; }
+.logo { display: inline-flex; align-items: center; text-decoration: none; }
+.logo svg { height: 30px; width: auto; }
+.logo .nord { stroke: var(--logo-nord, #5A6054); } .logo .house { stroke: var(--logo-house, #1E211D); }
+.site-header { --logo-nord: var(--ink-muted); --logo-house: var(--ink); }
+.site-header.over:not(.scrolled) { --logo-nord: #AEB3A5; --logo-house: #F2ECE1; }
+.nav { display: flex; gap: 36px; margin: 0 auto; }
+.nav a { text-decoration: none; font-size: 15px; font-weight: 500; opacity: .9; padding-block: 6px; border-bottom: 1.5px solid transparent; }
+.nav a:hover, .nav a[aria-current="page"] { opacity: 1; border-color: currentColor; }
+.header-cta { margin-left: 8px; }
+.site-header.over:not(.scrolled) .header-cta { background: transparent; color: #F2ECE1; box-shadow: inset 0 0 0 1.5px rgba(242,236,225,.85); }
+.site-header.over:not(.scrolled) .header-cta:hover { background: rgba(242,236,225,.12); }
+.menu-btn { display: none; margin-left: auto; background: none; border: 0; padding: 10px; cursor: pointer; color: inherit; }
+.menu-btn svg { width: 26px; height: 26px; }
+@media (max-width: 1180px) { .nav, .header-cta { display: none; } .menu-btn { display: inline-flex; } }
+.drawer { position: fixed; inset: 0; z-index: 70; background: var(--forest-950); color: var(--linen-25); padding: calc(env(safe-area-inset-top, 0px) + 20px) var(--gutter-r) calc(env(safe-area-inset-bottom, 0px) + 32px) var(--gutter-l); display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+.drawer[hidden] { display: none; }
+.drawer-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.drawer-top .logo { --logo-nord: #AEB3A5; --logo-house: #F2ECE1; }
+.drawer a.d-link { font-family: var(--font-display); font-size: 30px; line-height: 44px; font-weight: 300; text-decoration: none; }
+.drawer .btn { margin-top: 24px; align-self: flex-start; }
+
+/* hero */
+.hero { position: relative; min-height: min(92vh, 860px); display: grid; align-items: end; color: var(--linen-25); background: var(--forest-950); overflow: hidden; }
+.hero-media { position: absolute; inset: 0; }
+.hero-media img, .hero-media video { width: 100%; height: 100%; object-fit: cover; }
+.hero-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(21,24,20,.45) 0%, rgba(21,24,20,0) 28%, rgba(21,24,20,0) 45%, rgba(21,24,20,.78) 100%); }
+.hero-content { position: relative; padding-block: calc(var(--header-h) + 48px) 72px; }
+.hero .lead { color: rgba(242,236,225,.86); margin-top: 20px; }
+.hero .btn-row { margin-top: 32px; }
+.hero .eyebrow { color: var(--amber-200); }
+.vis-tag { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: 16px; z-index: 2; font-size: 11px; line-height: 16px; letter-spacing: .08em; text-transform: uppercase; color: rgba(242,236,225,.78); background: rgba(21,24,20,.42); padding: 4px 10px; border-radius: var(--radius-pill); backdrop-filter: blur(6px); }
+.hero-img .hero-media img { object-position: var(--pos); }
+@media (max-width: 720px) { .hero-img .hero-media img { object-position: var(--pos-m); } .hero-v3.hero-img .hero-media::after { background: linear-gradient(180deg, rgba(14,20,30,.45) 0%, rgba(14,20,30,.1) 30%, rgba(14,20,30,.55) 60%, rgba(14,20,30,.85) 100%); } }
+@media (min-width: 721px) { .hero-v3.hero-img .hero-media::after { background: linear-gradient(90deg, rgba(14,20,30,.78) 0%, rgba(14,20,30,.5) 38%, rgba(14,20,30,.08) 66%, rgba(14,20,30,0) 80%), linear-gradient(180deg, rgba(14,20,30,.5) 0%, rgba(14,20,30,0) 20%, rgba(14,20,30,0) 72%, rgba(14,20,30,.45) 100%); } }
+.hero-img .hero-title { max-width: 11em; }
+.hero-img .hero-sub { max-width: 620px; }
+.hero-tags { position: static !important; margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+.hero-v3 .detail-hero-price { margin-top: 24px; }
+.hero-video-mobile { display: none; }
+@media (max-width: 720px) { .hero-video-desktop { display: none; } .hero-video-mobile { display: block; } .hero { min-height: 88vh; } }
+.page-hero { position: relative; color: var(--linen-25); background: var(--forest-950); overflow: hidden; }
+.page-hero .hero-media::after { background: linear-gradient(90deg, rgba(21,24,20,.82) 0%, rgba(21,24,20,.35) 55%, rgba(21,24,20,.1) 100%); }
+.page-hero .hero-content { padding-block: 168px 88px; max-width: 720px; }
+.page-hero .lead { color: rgba(242,236,225,.86); margin-top: 20px; }
+@media (max-width: 720px) { .page-hero .hero-media::after { background: linear-gradient(180deg, rgba(21,24,20,.35), rgba(21,24,20,.85)); } .page-hero .hero-content { padding-block: 200px 48px; } }
+
+
+/* hero podle schváleného návrhu: video přes celou plochu, text vlevo, plovoucí lišta dole */
+.hero-v3 { min-height: max(680px, 100vh); align-items: center; }
+.hero-v3 .hero-media::after { background: linear-gradient(90deg, rgba(14,20,30,.66) 0%, rgba(14,20,30,.32) 42%, rgba(14,20,30,0) 68%), linear-gradient(180deg, rgba(14,20,30,.5) 0%, rgba(14,20,30,0) 20%, rgba(14,20,30,0) 72%, rgba(14,20,30,.45) 100%); }
+.hero-v3 .hero-content { width: 100%; padding-block: calc(var(--header-h) + 56px) 168px; }
+.hero-copy { max-width: 860px; }
+.hero-eyebrow { color: #F2ECE1 !important; font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: .2em; margin: 0 0 18px; }
+.hero-title { font-family: var(--font-display); font-weight: 300; font-size: clamp(44px, 6.4vw, 76px); line-height: 1.04; letter-spacing: -.02em; margin: 0; max-width: 7.4em; }
+.hero-sub { margin-top: 20px; font-size: 19px; line-height: 30px; color: rgba(242,236,225,.9); max-width: 680px; }
+.hero-v3 .btn-row { margin-top: 32px; gap: 12px; }
+.btn-xl { padding: 14px 24px; }
+.btn-cream { background: #F7F3EC; color: #1E211D; }
+.btn-cream:hover { background: #FFFFFF; }
+.btn-outline-cream { background: transparent; color: #F2ECE1; box-shadow: inset 0 0 0 1.5px rgba(242,236,225,.9); }
+.btn-outline-cream:hover { background: rgba(242,236,225,.12); }
+.hero-v3 > .vis-tag { right: max(16px, env(safe-area-inset-right, 0px)); bottom: 16px; }
+.hero-bar { position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%); z-index: 3; display: flex; align-items: stretch; background: rgba(247,243,236,.97); border-radius: var(--radius-pill); box-shadow: 0 16px 44px rgba(10,14,20,.28); color: var(--forest-900); }
+.hero-bar button { white-space: nowrap; position: relative; display: flex; align-items: center; gap: 14px; padding: 22px 34px; border: 0; background: none; font-size: 15px; font-weight: 500; cursor: pointer; color: inherit; border-radius: var(--radius-pill); }
+.hero-bar button + button::before { content: ""; position: absolute; left: 0; top: 30%; bottom: 30%; width: 1px; background: #D6CCBB; }
+.hero-bar button .ico { width: 24px; height: 24px; }
+.hero-bar .bar-cta { white-space: nowrap; display: flex; align-items: center; padding: 22px 40px; background: var(--amber-400); color: var(--forest-900); font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 0 var(--radius-pill) var(--radius-pill) 0; transition: background var(--dur-fast); }
+.hero-bar .bar-cta:hover { background: var(--amber-200); }
+.bar-pop { white-space: normal; position: absolute; left: 50%; bottom: calc(100% + 14px); transform: translateX(-50%) translateY(6px); width: 280px; background: var(--forest-900); color: #F2ECE1; padding: 14px 16px; border-radius: 12px; font-size: 14px; line-height: 21px; font-weight: 400; text-align: left; opacity: 0; pointer-events: none; transition: opacity var(--dur-base), transform var(--dur-base) var(--ease-out); box-shadow: var(--shadow-float); }
+.bar-pop b { display: block; font-weight: 600; margin-bottom: 2px; color: var(--amber-200); }
+.hero-bar button:hover .bar-pop, .hero-bar button:focus-visible .bar-pop, .hero-bar button[aria-expanded="true"] .bar-pop { opacity: 1; transform: translateX(-50%) translateY(0); }
+@media (min-width: 961px) { .site-header .wrap, .hero-v3 .hero-content { max-width: none; padding-left: max(clamp(32px, 5vw, 96px), env(safe-area-inset-left, 0px)); padding-right: max(clamp(32px, 5vw, 96px), env(safe-area-inset-right, 0px)); } }
+@media (max-width: 960px) { .hero-bar { display: none; } .hero-v3 .hero-content { padding-bottom: 72px; } }
+@media (max-width: 720px) { .hero-v3 { min-height: 92vh; align-items: end; } .hero-eyebrow { font-size: 12px; letter-spacing: .24em; margin-bottom: 18px; } .hero-sub { margin-top: 22px; } .hero-v3 .btn-row { margin-top: 28px; gap: 12px; } .btn-xl { padding: 15px 24px; font-size: 15px; } }
+
+
+/* průřez stěnou podle vizualizace */
+.wall3 { background: #F1EDE0; color: #1E211D; padding-block: 96px; }
+.wall3-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 56px; align-items: center; max-width: none; padding-left: max(clamp(32px, 5vw, 96px), env(safe-area-inset-left, 0px)); padding-right: max(clamp(32px, 5vw, 96px), env(safe-area-inset-right, 0px)); }
+.wall3-fig { position: relative; }
+.wall3-fig img { width: 100%; display: block; mix-blend-mode: multiply; -webkit-mask-image: radial-gradient(ellipse 72% 70% at 52% 48%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 72% 70% at 52% 48%, #000 62%, transparent 100%); }
+.wall3-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.wall3-lines polyline { fill: none; stroke: #1E211D; stroke-width: 1; vector-effect: non-scaling-stroke; opacity: .75; }
+.wall3-dot { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: #1E211D; color: #F2ECE1; font-size: 11px; font-weight: 700; display: grid; place-items: center; box-shadow: 0 0 0 3px rgba(241,237,224,.85); }
+.wall3-label { position: absolute; font-size: 13px; line-height: 1.35; color: #1E211D; transform: translateY(-50%); white-space: nowrap; }
+.wall3-vis { position: absolute; left: 0; bottom: 0; font-size: 11px; color: #5A6054; }
+.wall3-eyebrow { color: #8A5A30 !important; }
+.wall3-title { font-family: var(--font-display); font-weight: 300; font-size: clamp(32px, 3.6vw, 42px); line-height: 1.12; letter-spacing: -.01em; margin: 0 0 20px; }
+.wall3-lead { font-size: 19px; line-height: 30px; color: #5A6054; max-width: 560px; }
+.wall3-list { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 10px; max-width: 560px; }
+.wall3-list li { display: grid; grid-template-columns: 30px 1fr auto; gap: 14px; align-items: center; font-size: 15px; line-height: 22px; }
+.wall3-list .sw { width: 30px; height: 30px; border-radius: 6px; display: grid; place-items: end start; box-shadow: inset 0 0 0 1px rgba(30,33,29,.08); }
+.wall3-list .sw b { font-size: 10px; line-height: 1; padding: 0 0 4px 5px; color: rgba(30,33,29,.55); font-weight: 700; }
+.wall3-list em { font-style: normal; color: #5A6054; font-size: 14px; font-variant-numeric: tabular-nums; }
+.wall3-note { font-size: 12px; color: #5A6054; margin-top: 14px; }
+.wall3-stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 28px; padding-top: 28px; border-top: 1px solid #D9D0BF; }
+.wall3-stats div { display: grid; justify-items: center; text-align: center; gap: 8px; padding-inline: 12px; }
+.wall3-stats div + div { border-left: 1px solid #D9D0BF; }
+.wall3-stats .ico { width: 36px; height: 36px; color: #8A5A30; }
+.wall3-stats .ico svg { stroke-width: 1.2; }
+.wall3-stats b { font-family: var(--font-text); font-weight: 700; font-size: 12px; letter-spacing: .14em; white-space: nowrap; text-transform: uppercase; margin-top: 6px; }
+.wall3-stats span { font-size: 12px; line-height: 18px; color: #5A6054; }
+@media (max-width: 1100px) { .wall3-grid { grid-template-columns: 1fr; } .wall3-label, .wall3-lines { display: none; } }
+@media (max-width: 560px) { .wall3 { padding-block: 64px; } .wall3-stats { grid-template-columns: 1fr; gap: 22px; } .wall3-stats div + div { border-left: 0; border-top: 1px solid #D9D0BF; padding-top: 22px; } }
+
+/* feature strip */
+.features { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; }
+.feature { display: grid; gap: 8px; align-content: start; }
+.feature .ico { width: 28px; height: 28px; color: var(--ink); }
+.feature b { font-family: var(--font-display); font-weight: 500; font-size: 18px; line-height: 24px; }
+.feature span { font-size: 14px; line-height: 22px; color: var(--ink-muted); }
+@media (max-width: 960px) { .features { grid-template-columns: repeat(2, 1fr); gap: 32px 24px; } }
+@media (max-width: 420px) { .features { grid-template-columns: 1fr; } }
+.ico { display: inline-block; flex: none; }
+.ico svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* chapters */
+.chapter { position: relative; background: var(--chapter); color: var(--chapter-ink); overflow: hidden; }
+.chapter-media { position: relative; }
+.chapter-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 64px; align-items: center; padding-block: 120px; }
+.chapter-grid.flip { grid-template-columns: 7fr 5fr; }
+.chapter-grid.flip .chapter-text { order: 2; }
+.chapter .eyebrow { color: var(--amber-400); }
+.chapter .lead { color: var(--chapter-muted); margin-top: 20px; }
+.frame { position: relative; border-radius: var(--radius-lg); overflow: hidden; background: var(--forest-800); }
+.frame img, .frame video { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16 / 9; }
+.frame .vis-tag { right: 14px; bottom: 14px; }
+.frame.tall img, .frame.tall video { aspect-ratio: 4 / 5; }
+.chapter-facts { display: grid; grid-template-columns: repeat(3, auto); gap: 24px 40px; margin-top: 40px; justify-content: start; }
+.chapter-facts div { display: grid; gap: 2px; }
+.chapter-facts b { font-family: var(--font-display); font-weight: 300; font-size: 34px; line-height: 40px; color: var(--linen-25); }
+.chapter-facts span { font-size: 13px; color: var(--chapter-muted); }
+@media (max-width: 900px) { .chapter-grid, .chapter-grid.flip { grid-template-columns: 1fr; gap: 40px; padding-block: 72px; } .chapter-grid.flip .chapter-text { order: 0; } }
+@media (max-width: 480px) { .chapter-facts { grid-template-columns: 1fr 1fr; } }
+.chapter.full { min-height: 80vh; display: grid; align-items: end; }
+.chapter.full .chapter-bg { position: absolute; inset: 0; }
+.chapter.full .chapter-bg img, .chapter.full .chapter-bg video { width: 100%; height: 100%; object-fit: cover; }
+.chapter.full .chapter-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,17,14,0) 30%, rgba(15,17,14,.85) 100%); }
+.chapter.full .chapter-text { position: relative; padding-block: 160px 80px; max-width: 640px; }
+.contours { background-image: url("img/vrstevnice-svetle.svg"); background-size: cover; background-position: center; }
+
+/* reveal */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal { transition: transform var(--dur-reveal) var(--ease-out), opacity var(--dur-reveal) var(--ease-out); }
+  .reveal.pre { transform: translateY(24px); opacity: .001; }
+}
+
+/* model cards */
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.cards.four { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1100px) { .cards.four { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .cards.four { grid-template-columns: 1fr; } }
+.model-card { background: var(--surface-raised); border-radius: var(--radius-md); box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+.model-card .media { position: relative; overflow: hidden; aspect-ratio: 4 / 3; }
+.model-card .media img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-slow) var(--ease-out); }
+.model-card:hover .media img { transform: scale(1.03); }
+.model-card .media .vis-tag { right: 12px; bottom: 12px; }
+.tags { position: absolute; left: 12px; top: 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-size: 12px; line-height: 16px; font-weight: 600; padding: 5px 10px; border-radius: var(--radius-pill); background: var(--linen-50); color: var(--forest-900); }
+.tag.nature { background: #E4EADB; color: #3C4A32; }
+.tag.accent { background: var(--amber-400); color: var(--forest-900); }
+.model-card .body { padding: 24px; display: grid; gap: 6px; flex: 1; }
+.model-card .meta { font-size: 14px; color: var(--ink-muted); }
+.model-card .bottom { display: flex; justify-content: space-between; align-items: end; gap: 12px; margin-top: 14px; padding-top: 16px; border-top: 1px solid var(--line); }
+.model-card .monthly { font-size: 13px; color: var(--ink-muted); }
+.arrow-dot { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px var(--line-strong); flex: none; transition: background var(--dur-fast); }
+.model-card:hover .arrow-dot { background: var(--accent); box-shadow: none; color: var(--on-accent); }
+.arrow-dot svg { width: 18px; height: 18px; }
+
+/* split blocks */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.split.wide-media { grid-template-columns: 7fr 5fr; }
+@media (max-width: 900px) { .split, .split.wide-media { grid-template-columns: 1fr; gap: 40px; } }
+.media-r { position: relative; border-radius: var(--radius-lg); overflow: hidden; }
+.media-r img { width: 100%; height: 100%; object-fit: cover; }
+.media-r .vis-tag { right: 14px; bottom: 14px; }
+
+/* stay teaser */
+.stay { background: var(--forest-900); color: var(--linen-25); border-radius: var(--radius-lg); overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; }
+.stay .media-r { border-radius: 0; min-height: 420px; }
+.stay-body { padding: 56px; display: grid; gap: 20px; align-content: center; }
+.stay-body .eyebrow { color: var(--amber-400); margin: 0; }
+.stay-body .lead { color: var(--stone-300); }
+.stay-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.stay-price .price { white-space: nowrap; }
+.stay-price .price { color: var(--linen-25); }
+@media (max-width: 900px) { .stay { grid-template-columns: 1fr; } .stay .media-r { min-height: 260px; } .stay-body { padding: 32px 24px 36px; } }
+
+/* wall section */
+.wall { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.wall-visual { display: flex; height: 360px; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-card); }
+.wall-visual div { transition: flex-grow var(--dur-slow) var(--ease-out), margin var(--dur-slow) var(--ease-out); }
+.wall-visual:hover div { margin-right: 6px; }
+.layers { list-style: none; padding: 0; margin: 0; display: grid; }
+.layers li { display: grid; grid-template-columns: 28px 1fr auto; gap: 14px; padding-block: 14px; border-bottom: 1px solid var(--line); align-items: baseline; }
+.layers li span:first-child { font-family: var(--font-display); color: var(--wood-ink); font-variant-numeric: tabular-nums; }
+.layers li em { font-style: normal; color: var(--ink-muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+@media (max-width: 900px) { .wall { grid-template-columns: 1fr; gap: 32px; } .wall-visual { height: 220px; } }
+
+/* seasons */
+.seasons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.season { position: relative; border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 3 / 4; color: var(--linen-25); }
+.season img { width: 100%; height: 100%; object-fit: cover; }
+.season::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(21,24,20,0) 50%, rgba(21,24,20,.75)); }
+.season figcaption { position: absolute; left: 18px; right: 18px; bottom: 16px; z-index: 1; display: grid; gap: 2px; }
+.season figcaption b { font-family: var(--font-display); font-weight: 400; font-size: 22px; }
+.season figcaption span { font-size: 13px; color: rgba(242,236,225,.8); }
+figure { margin: 0; }
+@media (max-width: 900px) { .seasons { grid-template-columns: repeat(2, 1fr); } }
+
+/* process */
+.steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; counter-reset: s; }
+.steps li { position: relative; padding: 28px 24px 0 0; border-top: 1.5px solid var(--line-strong); display: grid; gap: 8px; align-content: start; }
+.steps li::before { counter-increment: s; content: counter(s); position: absolute; top: -15px; left: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--line-strong); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.section.sunken .steps li::before { background: var(--surface-sunken); }
+.steps .when { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--wood-ink); }
+.steps b { font-family: var(--font-display); font-weight: 500; font-size: 19px; line-height: 25px; }
+.steps p { font-size: 14px; line-height: 22px; color: var(--ink-muted); }
+@media (max-width: 960px) { .steps { grid-template-columns: 1fr; gap: 0; } .steps li { border-top: 0; border-left: 1.5px solid var(--line-strong); padding: 0 0 32px 32px; } .steps li::before { left: -15px; top: 0; } }
+.facts-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 56px; }
+.fact-box { background: var(--surface-raised); border-radius: var(--radius-md); padding: 24px; display: grid; gap: 8px; grid-template-columns: 28px 1fr; column-gap: 14px; align-items: start; }
+.panel > .ico { width: 28px; height: 28px; color: var(--wood-ink); }
+.fact-box .ico { width: 28px; height: 28px; grid-row: span 2; color: var(--wood-ink); }
+.fact-box b { font-weight: 600; }
+.fact-box p { font-size: 14px; line-height: 22px; color: var(--ink-muted); }
+@media (max-width: 900px) { .facts-row { grid-template-columns: 1fr; } }
+
+/* calculator */
+.calc { display: grid; grid-template-columns: 1.2fr 1fr; gap: 0; background: var(--surface-raised); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+.calc-in { padding: 40px; display: grid; gap: 28px; }
+.calc-out { padding: 40px; background: var(--forest-900); color: var(--linen-25); display: grid; gap: 12px; align-content: center; }
+.calc-out .big { font-family: var(--font-display); font-weight: 300; font-size: 56px; line-height: 60px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.calc-out .muted { color: var(--stone-300); }
+@media (max-width: 900px) { .calc { grid-template-columns: 1fr; } .calc-in, .calc-out { padding: 28px 22px; } .calc-out .big { font-size: 44px; line-height: 48px; } }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 6px; background: var(--surface-sunken); padding: 5px; border-radius: var(--radius-pill); }
+.seg button { border: 0; background: transparent; padding: 9px 18px; border-radius: var(--radius-pill); cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink-muted); }
+.seg button[aria-pressed="true"] { background: var(--forest-900); color: var(--linen-25); }
+.field { display: grid; gap: 8px; }
+.field label, .field .label { font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; gap: 12px; }
+.field output, .field .val { font-variant-numeric: tabular-nums; color: var(--ink-muted); font-weight: 500; }
+input[type="range"] { width: 100%; accent-color: var(--forest-900); }
+:root[data-theme="dark"] input[type="range"] { accent-color: var(--amber-400); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) input[type="range"] { accent-color: var(--amber-400); } }
+
+/* faq */
+.faq { display: grid; grid-template-columns: 4fr 8fr; gap: 64px; }
+.faq-list { border-top: 1px solid var(--line); }
+.faq-list details { border-bottom: 1px solid var(--line); }
+.faq-list summary { list-style: none; cursor: pointer; padding: 22px 40px 22px 0; position: relative; font-family: var(--font-display); font-size: 20px; line-height: 28px; font-weight: 400; }
+.faq-list summary::-webkit-details-marker { display: none; }
+.faq-list summary::after { content: ""; position: absolute; right: 6px; top: 30px; width: 12px; height: 12px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); transition: transform var(--dur-base) var(--ease-out); }
+.faq-list details[open] summary::after { transform: rotate(-135deg); top: 34px; }
+.faq-list .ans { padding: 0 40px 24px 0; color: var(--ink-muted); max-width: var(--text-max); }
+@media (max-width: 900px) { .faq { grid-template-columns: 1fr; gap: 24px; } }
+
+/* forms */
+.lead-box { display: grid; grid-template-columns: 5fr 7fr; gap: 0; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-raised); box-shadow: var(--shadow-card); }
+.lead-side { position: relative; background: var(--forest-900); color: var(--linen-25); padding: 48px; display: grid; gap: 20px; align-content: start; overflow: hidden; }
+.lead-side > * { position: relative; }
+.lead-side .lead { color: var(--stone-300); }
+.lead-side .eyebrow { color: var(--amber-400); margin: 0; }
+.contact-lines { display: grid; gap: 14px; margin-top: 12px; }
+.contact-lines div { display: flex; gap: 12px; align-items: center; }
+.contact-lines .ico { width: 22px; height: 22px; color: var(--amber-400); }
+.contact-lines span { user-select: all; }
+.lead-form { padding: 48px; display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+.lead-form .full { grid-column: 1 / -1; }
+@media (max-width: 900px) { .lead-box { grid-template-columns: 1fr; } .lead-side, .lead-form { padding: 32px 22px; } .lead-form { grid-template-columns: 1fr; } }
+.input { width: 100%; border: 1.5px solid var(--line); background: var(--surface); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 15px; line-height: 22px; transition: border-color var(--dur-fast); }
+.input:focus { outline: none; border-color: var(--ink); }
+textarea.input { min-height: 96px; resize: vertical; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+.check input { margin-top: 3px; accent-color: var(--forest-900); }
+.form-ok { grid-column: 1 / -1; display: grid; gap: 10px; padding: 24px; border-radius: var(--radius-md); background: var(--surface-sunken); }
+.form-ok b { display: flex; gap: 10px; align-items: center; color: var(--success); }
+.form-ok b .ico { width: 22px; height: 22px; }
+.note { font-size: 12px; line-height: 18px; color: var(--ink-muted); }
+
+/* table */
+.table-wrap { overflow-x: auto; border-radius: var(--radius-md); background: var(--surface-raised); box-shadow: var(--shadow-card); }
+table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-variant-numeric: tabular-nums; }
+.cmp th, .cmp td { text-align: left; padding: 16px 20px; border-bottom: 1px solid var(--line); font-size: 15px; }
+.cmp thead th { font-family: var(--font-display); font-weight: 500; font-size: 19px; }
+.cmp tbody th { font-weight: 500; color: var(--ink-muted); width: 26%; }
+.cmp tr:last-child td, .cmp tr:last-child th { border-bottom: 0; }
+.cmp .hl { background: color-mix(in srgb, var(--amber-400) 12%, transparent); }
+
+/* lists */
+.ticks { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.ticks li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; align-items: start; }
+.ticks li::before { content: ""; width: 14px; height: 8px; margin-top: 7px; border-left: 1.5px solid var(--nature-ink); border-bottom: 1.5px solid var(--nature-ink); transform: rotate(-45deg); }
+.ticks.no li::before { width: 14px; height: 1.5px; border: 0; background: var(--line-strong); transform: none; margin-top: 12px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+.panel { background: var(--surface-raised); border-radius: var(--radius-md); padding: 32px; box-shadow: var(--shadow-card); display: grid; gap: 18px; align-content: start; }
+.panel.flat { box-shadow: none; background: var(--surface-sunken); }
+
+/* tiles */
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 900px) { .tiles { grid-template-columns: 1fr; } }
+.tile { position: relative; border-radius: var(--radius-md); overflow: hidden; min-height: 360px; display: grid; align-items: end; color: var(--linen-25); text-decoration: none; }
+.tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-slow) var(--ease-out); }
+.tile:hover img { transform: scale(1.03); }
+.tile::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(21,24,20,0) 35%, rgba(21,24,20,.82)); }
+.tile .t-body { position: relative; z-index: 1; padding: 24px; display: grid; gap: 6px; }
+.tile .t-body p { color: rgba(242,236,225,.82); font-size: 15px; line-height: 23px; }
+
+/* gallery */
+.gallery { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-auto-rows: 240px; gap: 16px; }
+.gallery figure { position: relative; border-radius: var(--radius-md); overflow: hidden; }
+.gallery figure:first-child { grid-row: span 2; }
+.gallery img { width: 100%; height: 100%; object-fit: cover; }
+.gallery .vis-tag { right: 10px; bottom: 10px; }
+@media (max-width: 900px) { .gallery { grid-template-columns: 1fr 1fr; grid-auto-rows: 180px; } .gallery figure:first-child { grid-column: span 2; } }
+
+/* specs */
+.specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border-radius: var(--radius-md); overflow: hidden; }
+.spec { background: var(--surface-raised); padding: 22px; display: grid; gap: 4px; }
+.spec span { font-size: 13px; color: var(--ink-muted); }
+.spec b { font-family: var(--font-display); font-weight: 400; font-size: 24px; line-height: 30px; font-variant-numeric: tabular-nums; }
+@media (max-width: 720px) { .specs { grid-template-columns: 1fr 1fr; } }
+.detail-hero-price { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; margin-top: 24px; }
+.detail-hero-price .price { font-size: 40px; line-height: 44px; color: var(--linen-25); }
+.detail-hero-price span { color: var(--stone-300); font-size: 14px; }
+
+/* configurator */
+.cfg { display: grid; grid-template-columns: 1fr 400px; gap: 40px; align-items: start; }
+@media (max-width: 1040px) { .cfg { grid-template-columns: 1fr; } }
+.cfg-steps { display: grid; gap: 40px; }
+.cfg-step h3 { display: flex; gap: 12px; align-items: baseline; margin-bottom: 16px; }
+.cfg-step h3 small { font-family: var(--font-text); font-size: 12px; font-weight: 700; color: var(--wood-ink); letter-spacing: .1em; }
+.opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 640px) { .opts { grid-template-columns: 1fr; } }
+.opt { text-align: left; border: 1.5px solid var(--line); background: var(--surface-raised); border-radius: var(--radius-md); padding: 16px; cursor: pointer; display: grid; gap: 4px; transition: border-color var(--dur-fast), box-shadow var(--dur-fast); }
+.opt:hover { border-color: var(--line-strong); }
+.opt[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.opt b { font-weight: 600; }
+.opt span { font-size: 13px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.opt .sw { width: 100%; height: 44px; border-radius: 8px; margin-bottom: 8px; }
+.opt img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: 8px; margin-bottom: 8px; }
+.cfg-sum { position: sticky; top: calc(var(--header-h) + 24px + env(safe-area-inset-top, 0px)); background: var(--forest-900); color: var(--linen-25); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-float); }
+.cfg-sum .media-r { border-radius: 0; aspect-ratio: 16 / 10; }
+.cfg-sum .sum-body { padding: 28px; display: grid; gap: 14px; }
+.sum-lines { display: grid; gap: 8px; font-size: 14px; }
+.sum-lines div { display: flex; justify-content: space-between; gap: 16px; color: var(--stone-300); font-variant-numeric: tabular-nums; }
+.sum-lines div b { color: var(--linen-25); font-weight: 500; }
+.sum-total { border-top: 1px solid rgba(242,236,225,.18); padding-top: 14px; display: grid; gap: 2px; }
+.sum-total .price { font-size: 36px; line-height: 40px; }
+.sum-total span { font-size: 13px; color: var(--stone-300); }
+
+/* calendar */
+.booking { display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; align-items: start; }
+@media (max-width: 960px) { .booking { grid-template-columns: 1fr; } }
+.months { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+@media (max-width: 640px) { .months { grid-template-columns: 1fr; } }
+.month h4 { margin: 0 0 12px; font-family: var(--font-display); font-weight: 500; font-size: 18px; text-transform: capitalize; }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal .dow { font-size: 11px; font-weight: 700; color: var(--ink-muted); text-align: center; padding-bottom: 4px; letter-spacing: .06em; }
+.cal button { aspect-ratio: 1; border: 0; border-radius: 8px; background: var(--surface-raised); cursor: pointer; font-size: 14px; font-variant-numeric: tabular-nums; font-weight: 500; }
+.cal button:hover:not(:disabled) { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.cal button:disabled { background: transparent; color: var(--line-strong); text-decoration: line-through; cursor: not-allowed; }
+.cal button.in { background: color-mix(in srgb, var(--forest-700) 22%, var(--surface-raised)); }
+.cal button.sel { background: var(--forest-900); color: var(--linen-25); }
+:root[data-theme="dark"] .cal button.sel { background: var(--amber-400); color: var(--forest-900); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cal button.sel { background: var(--amber-400); color: var(--forest-900); } }
+.cal span.empty { aspect-ratio: 1; }
+.legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--ink-muted); margin-top: 16px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; background: var(--surface-raised); box-shadow: inset 0 0 0 1px var(--line); }
+.legend i.s { background: var(--forest-900); }
+.book-sum { position: sticky; top: calc(var(--header-h) + 24px + env(safe-area-inset-top, 0px)); }
+
+/* timeline stay */
+.day-flow { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.day-flow li { display: grid; gap: 8px; align-content: start; padding-top: 20px; border-top: 1.5px solid var(--line-strong); }
+.day-flow time { font-family: var(--font-display); font-size: 30px; font-weight: 300; font-variant-numeric: tabular-nums; }
+.day-flow p { color: var(--ink-muted); font-size: 15px; line-height: 23px; }
+@media (max-width: 900px) { .day-flow { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .day-flow { grid-template-columns: 1fr; } }
+
+/* footer */
+.site-footer { background: var(--forest-950); color: var(--linen-25); padding-block: 72px 40px; position: relative; overflow: hidden; }
+.site-footer .contours { position: absolute; inset: 0; opacity: .7; }
+.site-footer .wrap { position: relative; }
+.foot-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; }
+.foot-grid h4 { margin: 0 0 14px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--stone-300); }
+.foot-grid a { display: block; text-decoration: none; padding-block: 4px; color: var(--linen-25); opacity: .88; }
+.foot-grid a:hover { opacity: 1; text-decoration: underline; }
+.foot-grid .logo { --logo-nord: #AEB3A5; --logo-house: #F2ECE1; }
+.foot-bottom { margin-top: 56px; padding-top: 24px; border-top: 1px solid rgba(242,236,225,.14); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--stone-300); }
+@media (max-width: 900px) { .foot-grid { grid-template-columns: 1fr 1fr; } }
+
+/* invest */
+.inv-out { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(242,236,225,.16); border-radius: var(--radius-md); overflow: hidden; }
+.inv-out div { background: var(--forest-900); padding: 20px; display: grid; gap: 4px; }
+.inv-out span { font-size: 13px; color: var(--stone-300); }
+.inv-out b { font-family: var(--font-display); font-weight: 300; font-size: 30px; line-height: 36px; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .inv-out { grid-template-columns: 1fr; } }
+
+.proto-bar { background: var(--amber-200); color: var(--forest-900); font-size: 13px; line-height: 18px; text-align: center; padding: 8px 16px; }
+.stub { display: grid; gap: 20px; max-width: 760px; }
+.pill-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill-list span { background: var(--surface-sunken); padding: 8px 14px; border-radius: var(--radius-pill); font-size: 14px; }
+.sticky-cta { display: none; }
+@media (max-width: 720px) {
+  .sticky-cta { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; gap: 10px; padding: 12px var(--gutter-r) calc(12px + env(safe-area-inset-bottom, 0px)) var(--gutter-l); background: var(--surface); box-shadow: 0 -1px 0 var(--line), var(--shadow-float); }
+  .sticky-cta .btn { flex: 1; justify-content: center; padding: 13px 12px; }
+  body { padding-bottom: 76px; }
+}
+
+/* wizard konfigurátoru */
+.wiz { gap: 22px; padding: 32px; }
+.progress { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--amber-400); transition: width var(--dur-base) var(--ease-out); }
+.wiz-top .eyebrow { margin: 0; }
+.wiz-foot { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 20px; }
+.opt { position: relative; }
+.opt .tick { position: absolute; right: 12px; top: 12px; width: 26px; height: 26px; border-radius: 50%; background: var(--forest-900); color: var(--linen-25); display: none; place-items: center; }
+.opt .tick .ico { width: 16px; height: 16px; }
+.opt[aria-pressed="true"] .tick { display: grid; }
+.opt img { aspect-ratio: 4 / 3; }
+.opt.row { grid-template-columns: 28px 1fr auto 26px; align-items: center; gap: 14px; padding: 16px 18px; }
+.opt.row > .ico { width: 26px; height: 26px; color: var(--wood-ink); }
+.opt.row .tick { position: static; }
+.opt.row:not([aria-pressed="true"]) .tick { display: grid; visibility: hidden; }
+.cfg-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cfg-form .full { grid-column: 1 / -1; }
+@media (max-width: 560px) { .cfg-form { grid-template-columns: 1fr; } .wiz { padding: 22px; } }
+.model-card .meta { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.model-card .meta span { display: inline-flex; gap: 6px; align-items: center; }
+.model-card .meta .ico { width: 18px; height: 18px; color: var(--ink); }
+.spec { grid-template-columns: 26px 1fr; column-gap: 14px; align-items: center; }
+.spec .ico { grid-row: span 2; width: 26px; height: 26px; color: var(--wood-ink); }
+.wall-img { border-radius: var(--radius-md); overflow: hidden; background: var(--linen-25); box-shadow: var(--shadow-card); }
+.wall-img img { width: 100%; display: block; }
+/* O nás */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.stats div { display: grid; gap: 4px; border-top: 1.5px solid var(--line-strong); padding-top: 18px; }
+.stats b { font-family: var(--font-display); font-weight: 300; font-size: 44px; line-height: 50px; }
+.stats span { color: var(--ink-muted); font-size: 14px; }
+@media (max-width: 820px) { .stats { grid-template-columns: 1fr 1fr; } }
+.team { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.member { display: grid; gap: 8px; }
+.member .ph { aspect-ratio: 4 / 5; border-radius: var(--radius-md); background: var(--surface-raised); display: grid; place-items: center; color: var(--line-strong); border: 1.5px dashed var(--line-strong); }
+.member .ph .ico { width: 44px; height: 44px; }
+.member b { font-family: var(--font-display); font-weight: 500; font-size: 18px; }
+.member span { font-size: 14px; color: var(--ink-muted); }
+@media (max-width: 900px) { .team { grid-template-columns: 1fr 1fr; } }
+.logos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.logos span { height: 72px; border-radius: var(--radius-sm); border: 1.5px dashed var(--line-strong); display: grid; place-items: center; font-size: 13px; color: var(--ink-muted); }
+@media (max-width: 720px) { .logos { grid-template-columns: 1fr 1fr; } }
+.quote { font-family: var(--font-display); font-weight: 300; font-size: 24px; line-height: 32px; border-left: 2px solid var(--amber-400); padding-left: 18px; }
+.ph-note { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; background: var(--amber-200); color: var(--forest-900); padding: 7px 14px; border-radius: var(--radius-pill); }
+.ph-note .ico { width: 16px; height: 16px; }
+.seasons.three { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 900px) { .seasons.three { grid-template-columns: 1fr; } .seasons.three .season { aspect-ratio: 4 / 3; } }
+.cards.sady { align-items: stretch; }
+@media (max-width: 1000px) { .cards.sady { grid-template-columns: 1fr; } }
+.sada { display: grid; gap: 18px; align-content: start; grid-template-rows: auto auto 1fr auto auto; }
+.sada.hl { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.sum-lines.light div { color: var(--ink-muted); border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.sum-lines.light div b { color: var(--ink); }
+.sum-lines.light .disc b { color: var(--nature-ink); }
+.sada-total { display: grid; gap: 2px; }
+.sada .btn { justify-self: start; }
+.scfg-in .stack > .opt { width: 100%; }
+.hero-sauny .hero-title { max-width: 10em; }
+.scfg-in .opt.row > span:nth-last-child(2) { white-space: nowrap; }
+@media (max-width: 560px) { .scfg-in { padding: 20px; } .scfg-in .opt.row { grid-template-columns: 22px 1fr auto; gap: 12px; padding: 14px; } .scfg-in .opt.row .tick { display: none !important; } }
+.sum-lines.light { align-content: start; }
+.cards.four .model-card .price { white-space: nowrap; font-size: 24px; }
+.cards.four .model-card .monthly { white-space: normal; }
+a.link-panel { color: inherit; text-decoration: none; display: grid; gap: 8px; transition: box-shadow var(--dur-fast); }
+a.link-panel:hover { box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+@media (max-width: 1100px) { .features[style*="repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; } }
+@media (max-width: 560px) { .features[style*="repeat(4"] { grid-template-columns: 1fr !important; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+</style>
+
+<div class="proto-bar">Prototyp webu Nordhouse · všechny obrázky jsou vizualizace · formuláře se v prototypu nikam neodesílají</div>
+<header class="site-header" id="hdr">
+  <div class="wrap">
+    <a class="logo" href="#uvod" aria-label="Nordhouse – úvod"><svg viewBox="0 0 194 38" role="img" aria-label="Nordhouse"><g transform="translate(4 4)" fill="none" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path class="nord" d="M0.0 10V30M0.0 18A8 8 0 0 1 16.0 18V30 M40.5 20A10 10 0 1 1 20.5 20A10 10 0 1 1 40.5 20Z M44.5 10V30M44.5 18A8 8 0 0 1 52.5 10 M77.0 20A10 10 0 1 1 57.0 20A10 10 0 1 1 77.0 20ZM77.0 0V30"/><path class="house" d="M82.5 0V30M82.5 18A8 8 0 0 1 98.5 18V30 M123.0 20A10 10 0 1 1 103.0 20A10 10 0 1 1 123.0 20Z M127.0 10V22A8 8 0 0 0 143.0 22M143.0 10V30 M158.6 12.1A5 5 0 1 0 154.5 20A5 5 0 1 1 150.4 27.9 M166.0 20H186.0A10 10 0 1 0 183.07 27.07"/></g></svg></a>
+    <nav class="nav" aria-label="Hlavní menu">
+      <a href="#domy" data-nav="domy">Domy</a>
+      <a href="#sauny" data-nav="sauny">Sauny</a>
+      <a href="#zkusebni-noc" data-nav="zkusebni-noc">Vyzkoušejte si to</a>
+      <a href="#jak-to-probiha" data-nav="jak-to-probiha">Jak to probíhá</a>
+      <a href="#drevo" data-nav="drevo">Dřevo a výroba</a>
+      <a href="#o-nas" data-nav="o-nas">O nás</a>
+      <a href="#kontakt" data-nav="kontakt">Kontakt</a>
+    </nav>
+    <a class="btn btn-primary header-cta" href="#konfigurator">Spočítat cenu</a>
+    <button class="menu-btn" id="menuBtn" aria-label="Otevřít menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+</header>
+<div class="drawer" id="drawer" hidden>
+  <div class="drawer-top"><a class="logo" href="#uvod"><svg viewBox="0 0 194 38" role="img" aria-label="Nordhouse"><g transform="translate(4 4)" fill="none" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path class="nord" d="M0.0 10V30M0.0 18A8 8 0 0 1 16.0 18V30 M40.5 20A10 10 0 1 1 20.5 20A10 10 0 1 1 40.5 20Z M44.5 10V30M44.5 18A8 8 0 0 1 52.5 10 M77.0 20A10 10 0 1 1 57.0 20A10 10 0 1 1 77.0 20ZM77.0 0V30"/><path class="house" d="M82.5 0V30M82.5 18A8 8 0 0 1 98.5 18V30 M123.0 20A10 10 0 1 1 103.0 20A10 10 0 1 1 123.0 20Z M127.0 10V22A8 8 0 0 0 143.0 22M143.0 10V30 M158.6 12.1A5 5 0 1 0 154.5 20A5 5 0 1 1 150.4 27.9 M166.0 20H186.0A10 10 0 1 0 183.07 27.07"/></g></svg></a><button class="menu-btn" style="display:inline-flex;margin:0" id="menuClose" aria-label="Zavřít menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <a class="d-link" href="#domy">Domy</a>
+  <a class="d-link" href="#sauny">Sauny</a>
+  <a class="d-link" href="#sada-dum-sauna">Sada dům + sauna</a>
+  <a class="d-link" href="#zkusebni-noc">Vyzkoušejte si to na jednu noc</a>
+  <a class="d-link" href="#jak-to-probiha">Jak to probíhá</a>
+  <a class="d-link" href="#drevo">Dřevo a výroba</a>
+  <a class="d-link" href="#invest">Verze Invest</a>
+  <a class="d-link" href="#o-nas">O nás</a>
+  <a class="d-link" href="#kontakt">Kontakt</a>
+  <a class="btn btn-primary" href="#konfigurator">Navrhnout svůj dům</a>
+</div>
+<main id="app"></main>
+<footer class="site-footer">
+  <div class="contours" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="stack">
+        <a class="logo" href="#uvod"><svg viewBox="0 0 194 38" role="img" aria-label="Nordhouse"><g transform="translate(4 4)" fill="none" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path class="nord" d="M0.0 10V30M0.0 18A8 8 0 0 1 16.0 18V30 M40.5 20A10 10 0 1 1 20.5 20A10 10 0 1 1 40.5 20Z M44.5 10V30M44.5 18A8 8 0 0 1 52.5 10 M77.0 20A10 10 0 1 1 57.0 20A10 10 0 1 1 77.0 20ZM77.0 0V30"/><path class="house" d="M82.5 0V30M82.5 18A8 8 0 0 1 98.5 18V30 M123.0 20A10 10 0 1 1 103.0 20A10 10 0 1 1 123.0 20Z M127.0 10V22A8 8 0 0 0 143.0 22M143.0 10V30 M158.6 12.1A5 5 0 1 0 154.5 20A5 5 0 1 1 150.4 27.9 M166.0 20H186.0A10 10 0 1 0 183.07 27.07"/></g></svg></a>
+        <p class="small" style="color:var(--stone-300);max-width:300px">Celoroční domy na kolech z českého dřeva. Vyrábíme v Chabeřicích u Zruče nad Sázavou.</p>
+      </div>
+      <div><h4>Domy</h4><a href="#dum-s">Dům S</a><a href="#dum-m">Dům M</a><a href="#dum-l">Dům L</a><a href="#invest">Verze Invest</a><a href="#konfigurator">Konfigurátor</a><a href="#sauny">Sauny a kádě</a><a href="#sada-dum-sauna">Sada dům + sauna</a></div>
+      <div><h4>Jak to funguje</h4><a href="#zkusebni-noc">Vyzkoušejte si to na jednu noc</a><a href="#jak-to-probiha">Jak to probíhá</a><a href="#jak-to-probiha-pozemek">Pozemek a povolení</a><a href="#drevo">Dřevo a výroba</a><a href="#faq">Časté otázky</a></div>
+      <div><h4>Nordhouse</h4><a href="#reference">Reference</a><a href="#o-nas">O nás</a><a href="#pruvodce">Průvodce</a><a href="#kontakt">Kontakt</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Nordhouse · Chabeřice u Zruče nad Sázavou</span><span>Obchodní podmínky · Podmínky pobytu · Ochrana osobních údajů</span></div>
+  </div>
+</footer>
+<div class="sticky-cta" id="stickyCta"><a class="btn btn-secondary" href="#zkusebni-noc">Přespat na zkoušku</a><a class="btn btn-primary" href="#konfigurator">Navrhnout dům</a></div>
+
+<script>
+const ICONS = {"celorocne": "<path d=\"M12 3V21\"/><path d=\"M4.2 7.5L19.8 16.5\"/><path d=\"M19.8 7.5L4.2 16.5\"/><path d=\"M9.5 4.5L12 6.5L14.5 4.5\"/><path d=\"M9.5 19.5L12 17.5L14.5 19.5\"/>", "doprava": "<rect x=\"2.5\" y=\"6.5\" width=\"14\" height=\"9\" rx=\"1.5\"/><circle cx=\"7.5\" cy=\"18\" r=\"2\"/><path d=\"M16.5 13H21.5\"/><path d=\"M5.5 6.5L9.5 3.5L13.5 6.5\"/>", "drevo": "<circle cx=\"12\" cy=\"12\" r=\"8.5\"/><circle cx=\"12\" cy=\"12\" r=\"5.2\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M12 3.5V6.8\"/>", "dum": "<path d=\"M3.5 11L12 4.5L20.5 11\"/><path d=\"M6 9.2V20H18V9.2\"/><rect x=\"13.5\" y=\"12\" width=\"2.5\" height=\"2.5\" rx=\".5\"/>", "elektrina": "<path d=\"M13 3L5.5 13.5H11L10 21L18.5 10.5H13L13 3Z\"/>", "kalendar": "<rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15.5\" rx=\"2\"/><path d=\"M3.5 10H20.5\"/><path d=\"M8 3V7\"/><path d=\"M16 3V7\"/><path d=\"M7.5 14H9\"/><path d=\"M11.25 14H12.75\"/><path d=\"M15 14H16.5\"/>", "list": "<path d=\"M5 19C5 10.5 10.5 5 19 5c0 8.5-5.5 14-14 14Z\"/><path d=\"M5 19L13 11\"/>", "rychlost": "<circle cx=\"12\" cy=\"13.5\" r=\"7.5\"/><path d=\"M12 13.5V9.5\"/><path d=\"M9.5 3H14.5\"/><path d=\"M12 3V6\"/>", "sauna": "<path d=\"M8 3.5c-1.4 1.4 1.4 2.8 0 4.2\"/><path d=\"M12 3.5c-1.4 1.4 1.4 2.8 0 4.2\"/><path d=\"M16 3.5c-1.4 1.4 1.4 2.8 0 4.2\"/><path d=\"M4 12H20\"/><path d=\"M4 16.5H20\"/><path d=\"M6 12V21\"/><path d=\"M18 12V21\"/>", "sipka": "<path d=\"M4.5 12H19.5\"/><path d=\"M13.5 6L19.5 12L13.5 18\"/>", "solar": "<path d=\"M5.5 4.5H18.5L20.5 13.5H3.5L5.5 4.5Z\"/><path d=\"M4.5 9H19.5\"/><path d=\"M12 4.5V13.5\"/><path d=\"M12 13.5V20\"/><path d=\"M8.5 20H15.5\"/>", "topeni": "<path d=\"M10 14.2V5.5a2 2 0 0 1 4 0v8.7a4 4 0 1 1-4 0Z\"/><path d=\"M12 10V17\"/>", "umisteni": "<path d=\"M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10Z\"/><circle cx=\"12\" cy=\"11\" r=\"2.2\"/>", "voda": "<path d=\"M12 3.5C9 7.5 6.5 10.6 6.5 14a5.5 5.5 0 0 0 11 0c0-3.4-2.5-6.5-5.5-10.5Z\"/><path d=\"M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5\"/>", "zaruka": "<path d=\"M12 3L19 6v5.2c0 4.4-3 7.9-7 9.8-4-1.9-7-5.4-7-9.8V6l7-3Z\"/><path d=\"M9 12l2.2 2.2L15.2 10\"/>", "zprava": "<path d=\"M4 12a8 8 0 1 1 3.6 6.7L4 20l1.3-3.5A8 8 0 0 1 4 12Z\"/><path d=\"M8.5 11.5H15.5\"/><path d=\"M8.5 14.5H13\"/>", "plocha": "<path d=\"M4 9V4h5\"/><path d=\"M15 4h5v5\"/><path d=\"M20 15v5h-5\"/><path d=\"M9 20H4v-5\"/>", "delka": "<path d=\"M3 12h18\"/><path d=\"M6.5 8.5L3 12l3.5 3.5\"/><path d=\"M17.5 8.5L21 12l-3.5 3.5\"/>", "loft": "<path d=\"M3.5 20.5H8v-4h4.5v-4H17v-4h3.5\"/>", "sprcha": "<path d=\"M6 21V7a3 3 0 0 1 3-3h1a3 3 0 0 1 3 3\"/><path d=\"M10 9h6\"/><path d=\"M11 12v1\"/><path d=\"M13 12.5v1\"/><path d=\"M15 12v1\"/><path d=\"M12 15.5v1\"/><path d=\"M14 16v1\"/>", "telefon": "<path d=\"M5.5 4H8.5L10 8L8 9.5A11 11 0 0 0 14.5 16L16 14L20 15.5V18.5A2 2 0 0 1 18 20.5A15.5 15.5 0 0 1 3.5 6A2 2 0 0 1 5.5 4Z\"/>", "whatsapp": "<path d=\"M4 20.5L5.3 16.6A8.5 8.5 0 1 1 8.4 19.4L4 20.5Z\"/><path d=\"M9.2 8.8C9.4 11.3 12.2 14.3 15.2 14.8L16.3 13.6L14.6 12.6L13.8 13.2C12.8 12.7 11.8 11.7 11.3 10.7L11.9 9.9L10.9 8.2L9.2 8.8Z\"/>", "plus": "<path d=\"M12 5v14\"/><path d=\"M5 12h14\"/>", "hvezda": "<path d=\"M12 4L14.4 8.9L19.8 9.7L15.9 13.5L16.8 18.9L12 16.4L7.2 18.9L8.1 13.5L4.2 9.7L9.6 8.9Z\"/>", "mince": "<ellipse cx=\"12\" cy=\"6.5\" rx=\"6.5\" ry=\"2.5\"/><path d=\"M5.5 6.5v5c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5v-5\"/><path d=\"M5.5 11.5v5c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5v-5\"/>", "check": "<path d=\"M5 12.5L9.5 17L19 7.5\"/>", "uzivatel": "<circle cx=\"12\" cy=\"8\" r=\"3.5\"/><path d=\"M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5\"/>", "strom": "<path d=\"M12 21.5V13\"/><path d=\"M12 15.5L9.5 13\"/><path d=\"M12 17L14.5 14.5\"/><path d=\"M9 18.5H8A4.2 4.2 0 0 1 6.6 10.4A5.4 5.4 0 0 1 17.1 9.3A4.4 4.4 0 0 1 16 18.5H15\"/>", "co2": "<path d=\"M7.5 18.5H6.8A4.3 4.3 0 0 1 6 10A6 6 0 0 1 17.5 8.6A5 5 0 0 1 17.2 18.5H7.5Z\"/><path d=\"M10.6 12.6a1.6 1.6 0 1 0 0 2.6\"/><circle cx=\"13.6\" cy=\"13.9\" r=\"1.4\"/>"};
+const ic = (n, cls = '') => `<span class="ico ${cls}" aria-hidden="true"><svg viewBox="0 0 24 24">${ICONS[n] || ''}</svg></span>`;
+const arrow = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12H19.5"/><path d="M13.5 6L19.5 12L13.5 18"/></svg>`;
+const kc = n => Math.round(n).toLocaleString('cs-CZ').replace(/ /g, ' ') + ' Kč';
+const IMG = p => `img/${p}.webp`;
+const vis = '<span class="vis-tag">Vizualizace</span>';
+
+/* splátka: anuita, orientační úrok */
+const RATE = 0.069;
+function monthly(price, down = 0.2, years = 12) { const P = price * (1 - down), r = RATE / 12, n = years * 12; return P * r / (1 - Math.pow(1 + r, -n)); }
+
+const MODELS = {
+  'dum-s': { key: 'dum-s', name: 'Dům S', area: 15, len: 6, people: '2 osoby', loft: 'bez loftu', price: 790000, card: 'md-s', wide: 'md-s16', inside: 'md-s02', tags: [['Celoroční', 'nature']],
+    line: 'Studio pro dva na víkendy i práci v klidu.', desc: 'Nejmenší dům s plnohodnotnou koupelnou a kuchyní. Rozkládací postel, pracovní místo u okna a kamna. Vejde se na menší zahradu a jde snadno převézt.',
+    rooms: [['Obytná část', 'Rozkládací postel 160 × 200 cm, pracovní deska u okna, úložný prostor pod lavicí'], ['Kuchyňská linka', 'Dubová dvířka, dvouplotýnková indukce, lednice 90 l, dřez'], ['Koupelna', 'Sprchový kout 80 × 80 cm, WC, umyvadlo, větrání s rekuperací'], ['Technika', 'Elektrické topení nebo kamna, ohřívač vody 50 l, LED osvětlení']],
+    gallery: ['md-s16', 'md-s02', 'int-02', 'int-03', 'int-06'] },
+  'dum-m': { key: 'dum-m', name: 'Dům M', area: 22, len: 8, people: '2–4 osoby', loft: 'spací loft', price: 1190000, card: 'md-m', wide: 'md-m16', inside: 'md-m02', tags: [['Celoroční', 'nature'], ['Nejoblíbenější', 'accent']],
+    line: 'Dům pro páry i malé rodiny, se spacím loftem pod střechou.', desc: 'Obývák s kamny a velkým oknem ve štítu, plná kuchyň, koupelna a spací loft s oknem do nebe. Nejčastější volba pro chatu i celoroční bydlení.',
+    rooms: [['Obytná část', 'Pohovka, kamna, velké okno ve štítu, jídelní pult pro 2–4 osoby'], ['Kuchyně', 'Dubová linka 240 cm, indukce, trouba, lednice 180 l, myčka 45 cm'], ['Koupelna', 'Sprchový kout 90 × 90 cm, WC, umyvadlo z kamene, žebřík na ručníky'], ['Loft', 'Postel 160 × 200 cm, střešní okno, schody s úložným prostorem'], ['Technika', 'Kamna nebo tepelné čerpadlo, ohřívač 80 l, rekuperace']],
+    gallery: ['md-m16', 'md-m02', 'int-01', 'int-02', 'int-04'] },
+  'dum-l': { key: 'dum-l', name: 'Dům L', area: 30, len: 10, people: '4 osoby', loft: 'ložnice + loft', price: 1590000, card: 'md-l', wide: 'md-l16', inside: 'md-l02', tags: [['Celoroční', 'nature'], ['Ukázkový dům', 'accent']],
+    line: 'Největší model pro celoroční bydlení nebo pronájem.', desc: 'Obytná kuchyň s jídelním stolem pro čtyři, samostatná ložnice, loft a velká terasa. Tento model si můžete vyzkoušet na jednu noc v Chabeřicích.',
+    rooms: [['Obytná kuchyň', 'Dubová linka 320 cm, trouba, myčka 60 cm, jídelní stůl pro 4'], ['Ložnice', 'Postel 180 × 200 cm, šatní skříň, okno do lesa'], ['Loft', 'Dvě lůžka nebo pracovna, střešní okno'], ['Koupelna', 'Sprcha 100 × 90 cm, WC, pračka, kamenné umyvadlo'], ['Technika', 'Tepelné čerpadlo, ohřívač 120 l, rekuperace, příprava na solár']],
+    gallery: ['md-l16', 'md-l02', 'int-01', 'int-03', 'int-05'] },
+};
+
+const FAQ_MAIN = [
+  ['Potřebuji stavební povolení?', 'Záleží na pozemku a na tom, jak budete dům používat. Dům na podvozku se posuzuje jinak než stavba se základy, ale pravidla obcí se liší. Proto váš pozemek zdarma zkontrolujeme ještě před podpisem smlouvy a řekneme vám, co bude potřeba.'],
+  ['Co je v ceně a co ne?', 'V ceně je hotový dům s kuchyní, koupelnou, elektroinstalací, vytápěním a podvozkem, doprava do 100 km a usazení na místě. V ceně není pozemek, přípojky na pozemku a případná povolení. Vše uvidíte rozepsané v nabídce.'],
+  ['Jak dlouho čekám na dům?', 'Od podpisu smlouvy po usazení u vás to trvá 10–14 týdnů. Přesný termín vám potvrdíme rezervací výrobního slotu.'],
+  ['Dá se v domě bydlet celý rok?', 'Ano. Stěny, podlaha i střecha jsou zateplené, okna mají izolační trojsklo a dům vytápí kamna nebo tepelné čerpadlo. V ukázkovém domě to můžete vyzkoušet i v zimě.'],
+  ['Můžu dům později přestěhovat?', 'Ano. Dům stojí na vlastním podvozku a patkách, takže ho přesuneme na jiný pozemek. Cenu převozu vám spočítáme podle vzdálenosti.'],
+  ['Jak funguje zkušební noc?', 'V Chabeřicích u Zruče nad Sázavou stojí náš Dům L. Přespat v něm může až 4 osoby za 2 900 Kč za noc. Když si pak dům objednáte, cenu pobytu vám odečteme z kupní ceny.'],
+];
+
+/* ---------- partials ---------- */
+const btnP = (t, h) => `<a class="btn btn-primary" href="${h}">${t}${arrow}</a>`;
+const btnS = (t, h) => `<a class="btn btn-secondary" href="${h}">${t}</a>`;
+const btnG = (t, h) => `<a class="btn btn-ghost-light" href="${h}">${t}</a>`;
+
+function modelCard(m) {
+  return `<a class="model-card reveal" href="#${m.key}">
+    <div class="media"><img src="${IMG(m.card)}" alt="${m.name} na louce u lesa" loading="lazy"><div class="tags">${m.tags.map(t => `<span class="tag ${t[1]}">${t[0]}</span>`).join('')}</div>${vis}</div>
+    <div class="body"><h3 class="h2">${m.name}</h3><p class="meta"><span>${ic('plocha')}${m.area} m²</span><span>${ic('delka')}${m.len} m</span><span>${ic('loft')}${m.loft}</span><span>${ic('uzivatel')}${m.people}</span></p><p class="small muted">${m.line}</p>
+      <div class="bottom"><div><div class="price">od ${kc(m.price)}</div><div class="monthly">s DPH · splátka od ${kc(monthly(m.price))}/měs.</div></div><span class="arrow-dot">${arrow}</span></div></div></a>`;
+}
+function investCard() {
+  return `<a class="model-card reveal" href="#invest">
+    <div class="media"><img src="${IMG('md-inv')}" alt="Tři domy jako malý glamping na louce" loading="lazy"><div class="tags"><span class="tag">Pro pronájem</span></div>${vis}</div>
+    <div class="body"><h3 class="h2">Verze Invest</h3><p class="meta">2–3 domy · volitelně sauna</p><p class="small muted">Malý glamping bez stavby, se sestavou a výpočtem návratnosti.</p>
+      <div class="bottom"><div><div class="price">od ${kc(2 * 1190000 - 40000)}</div><div class="monthly">sestava 2× Dům M s DPH</div></div><span class="arrow-dot">${arrow}</span></div></div></a>`;
+}
+function features() {
+  const f = [['zaruka', 'Cena předem', 'Pevná cena ve smlouvě, platby podle milníků.'], ['rychlost', '10–14 týdnů', 'Od podpisu smlouvy po usazení u vás.'], ['umisteni', 'Bez základů', 'Stojí na podvozku a patkách, usazení za den.'], ['dum', 'Záruka 5 let', 'Na konstrukci, střechu a okna.'], ['drevo', 'České dřevo', 'Smrk a modřín z českých lesů, výroba v Chabeřicích.']];
+  return `<section class="section tight" aria-label="Proč Nordhouse"><div class="wrap"><div class="features">${f.map(x => `<div class="feature reveal">${ic(x[0])}<b>${x[1]}</b><span>${x[2]}</span></div>`).join('')}</div></div></section>`;
+}
+function stayTeaser(img = 'ls-05') {
+  return `<section class="section"><div class="wrap"><div class="stay reveal">
+    <div class="media-r"><img src="${IMG(img)}" alt="Rozsvícený Dům L za soumraku" loading="lazy">${vis}</div>
+    <div class="stay-body"><p class="eyebrow">Vyzkoušejte si to na jednu noc</p><h2 class="h1">Přespěte si dřív, než koupíte.</h2>
+      <p class="lead">Ukázkový Dům L stojí v Chabeřicích u Zruče nad Sázavou, zhruba hodinu jízdy z Prahy. Vyzkoušejte si, jak se v něm spí, topí a vaří.</p>
+      <div class="stay-price"><span class="price">2 900 Kč</span><span class="small" style="color:var(--stone-300)">za noc · až 4 osoby · při koupi domu vám ji odečteme</span></div>
+      <div class="btn-row">${btnP('Vybrat termín', '#zkusebni-noc')}</div></div></div></div></section>`;
+}
+function steps() {
+  const s = [['Týden 0', 'Konzultace a kontrola pozemku', 'Probereme, jak chcete dům používat, a zdarma prověříme váš pozemek.'], ['Týden 1–2', 'Návrh a smlouva', 'Doladíme dispozici a výbavu. Podpisem smlouvy a zálohou rezervujete výrobní slot.'], ['Týden 3–11', 'Výroba v Chabeřicích', 'Stavíme v kryté dílně. Průběžně posíláme fotky a můžete se přijet podívat.'], ['Týden 12', 'Převzetí', 'Dům spolu projdeme v dílně a zkontrolujeme každý detail.'], ['Týden 12–14', 'Doprava a usazení', 'Dovezeme ho, usadíme na patky a připojíme. Do 100 km doprava zdarma.']];
+  return `<ol class="steps">${s.map(x => `<li class="reveal"><span class="when">${x[0]}</span><b>${x[1]}</b><p>${x[2]}</p></li>`).join('')}</ol>`;
+}
+function processSection(sunken = true) {
+  return `<section class="section ${sunken ? 'sunken' : ''}"><div class="wrap">
+    <div class="head split"><div class="stack"><p class="eyebrow">Jak to probíhá</p><h2 class="h1">Od prvního hovoru k vlastnímu domu za 10–14 týdnů.</h2></div>${btnS('Celý postup', '#jak-to-probiha')}</div>
+    ${steps()}
+    <div class="facts-row">
+      <div class="fact-box">${ic('zaruka')}<b>Platby podle milníků</b><p>30 % při podpisu, 40 % v polovině výroby, 30 % při převzetí. Nic neplatíte dopředu celé.</p></div>
+      <div class="fact-box">${ic('kalendar')}<b>Rezervace výrobního slotu</b><p>Termín výroby držíme pro vás od podpisu smlouvy. Nejbližší volný slot je v únoru 2027.</p></div>
+      <div class="fact-box">${ic('dum')}<b>Záruka 5 let</b><p>Na nosnou konstrukci, střechu a okna. Servis zajistíme i po záruce.</p></div>
+    </div></div></section>`;
+}
+function wallSection() {
+  const L = [['Modřín', '22 mm', '#B5743F', 'Modřínové<br>obklady', [26, 33], [0, 19], [17, 21]], ['Provětrávaná mezera s latěmi', '40 mm', '#55595A', 'Provětrávaná<br>mezera s latěmi', [35, 47], [0, 35], [19, 37]], ['Dřevovláknitá deska', '60 mm', '#A88762', 'Dřevovláknitá deska', [43, 24], [37, 2], [42, 6]],
+    ['KVH konstrukce + izolace', '160 mm', '#D9BF97', 'KVH konstrukce<br>+ izolace', [55, 40], [82, 12], [81, 14]], ['Parozábrana a instalační předstěna', '40 mm', '#D8D6D0', 'Parozábrana', [64, 52], [82, 44], [81, 46]], ['Interiér smrk', '15 mm', '#EAD7B8', 'Interiérové smrkové<br>palubky', [76, 62], [82, 70], [81, 72]]];
+  const lines = L.map(l => { const [px, py] = l[4], [ex, ey] = l[6], mid = ex < px ? Math.min(ex + 6, px) : Math.max(ex - 5, px); return `<polyline points="${ex},${ey} ${mid},${ey} ${px},${py}" />`; }).join('');
+  return `<section class="wall3" id="prurez"><div class="wrap wall3-grid">
+    <figure class="wall3-fig reveal"><img src="${IMG('dr-02')}" alt="Rozložený průřez stěnou Nordhouse se šesti vrstvami" loading="lazy">
+      <svg class="wall3-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>
+      ${L.map((l, i) => `<span class="wall3-dot" style="left:${l[4][0]}%;top:${l[4][1]}%">${i + 1}</span><span class="wall3-label ${l[5][0] > 50 ? 'r' : ''}" style="left:${l[5][0]}%;top:${l[5][1]}%">${l[3]}</span>`).join('')}
+      <span class="wall3-vis">Vizualizace</span></figure>
+    <div class="wall3-text"><p class="eyebrow wall3-eyebrow">Dřevo</p><h2 class="wall3-title">Dům, který dýchá</h2><p class="wall3-lead">Stavíme z českého dřeva. Je obnovitelné, ukládá uhlík a přirozeně reguluje vlhkost.</p>
+      <ol class="wall3-list">${L.map((l, i) => `<li><span class="sw" style="background:${l[2]}"><b>${i + 1}</b></span><span>${l[0]}</span><em>${l[1]}</em></li>`).join('')}</ol>
+      <p class="wall3-note">Tloušťky jsou ilustrační, doplníme z technických listů výroby.</p>
+      <div class="wall3-stats"><div>${ic('strom')}<b>100%</b><span>přírodní materiál</span></div><div>${ic('co2')}<b>Ukládá uhlík</b><span>po celý životní cyklus</span></div><div>${ic('voda')}<b>Reguluje vlhkost</b><span>pro zdravé vnitřní prostředí</span></div></div>
+    </div></div></section>`;
+}
+function seasons() {
+  const s = [['sz-01', 'Zima', 'Kamna, trojskla a sníh za oknem'], ['sz-04', 'Jaro', 'Déšť na terase, čaj uvnitř'], ['sz-03', 'Léto', 'Otevřené dveře do louky'], ['sz-02', 'Podzim', 'Mlha nad lesem a teplo uvnitř']];
+  return `<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Celoročně</p><h2 class="h1">Dům pro všechna čtyři roční období.</h2></div>
+    <div class="seasons">${s.map(x => `<figure class="season reveal"><img src="${IMG(x[0])}" alt="${x[1]} u domu Nordhouse" loading="lazy"><figcaption><b>${x[1]}</b><span>${x[2]}</span></figcaption></figure>`).join('')}</div>
+    <p class="note" style="margin-top:12px">Vizualizace</p></div></section>`;
+}
+function faqSection(list = FAQ_MAIN, title = 'Na co se ptáte nejčastěji', more = true) {
+  return `<section class="section"><div class="wrap"><div class="faq"><div class="stack"><p class="eyebrow">Časté otázky</p><h2 class="h1">${title}</h2>${more ? `<a class="link" href="#faq">Všechny otázky ${arrow}</a>` : ''}</div>
+    <div class="faq-list">${list.map((q, i) => `<details ${i === 0 ? 'open' : ''}><summary>${q[0]}</summary><div class="ans">${q[1]}</div></details>`).join('')}</div></div></div></section>`;
+}
+let formSeq = 0;
+function leadSection(opts = {}) {
+  const id = 'lf' + (++formSeq);
+  const model = opts.model || '';
+  return `<section class="section ${opts.sunken === false ? '' : 'sunken'}" id="poptavka"><div class="wrap"><div class="lead-box reveal">
+    <div class="lead-side"><div class="contours" style="position:absolute;inset:0;opacity:.6" aria-hidden="true"></div><p class="eyebrow">${opts.eyebrow || 'Kontrola pozemku zdarma'}</p><h2 class="h1">${opts.title || 'Řekněte nám, kde má dům stát.'}</h2>
+      <p class="lead">${opts.text || 'Zkontrolujeme pozemek, přístup pro převoz i přípojky a do 24 hodin se vám ozveme s orientační nabídkou.'}</p>
+      <div class="contact-lines"><div>${ic('zprava')}<span>info@nordhouse.cz</span></div><div>${ic('telefon')}<span>+420 XXX XXX XXX</span></div><div>${ic('whatsapp')}<span>WhatsApp na stejném čísle</span></div><div>${ic('umisteni')}<span>Chabeřice u Zruče nad Sázavou</span></div></div></div>
+    <form class="lead-form" data-form>
+      <div class="field"><label for="${id}-n">Jméno</label><input class="input" id="${id}-n" name="jmeno" autocomplete="name" required></div>
+      <div class="field"><label for="${id}-t">Telefon</label><input class="input" id="${id}-t" name="telefon" type="tel" autocomplete="tel" required></div>
+      <div class="field"><label for="${id}-e">E-mail</label><input class="input" id="${id}-e" name="email" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="${id}-m">${model && (SAUNY[model] || model === 'sauny' || model === 'sada') ? 'Produkt' : 'Model'}</label><select class="input" id="${id}-m" name="model"><option value="">Ještě nevím</option>${Object.values(MODELS).map(m => `<option ${m.key === model ? 'selected' : ''}>${m.name}</option>`).join('')}<option ${model === 'invest' ? 'selected' : ''}>Verze Invest</option><optgroup label="Sauny">${Object.values(SAUNY).map(p => `<option ${p.key === model ? 'selected' : ''}>${p.name}</option>`).join('')}<option ${model === 'sada' ? 'selected' : ''}>Sada dům + sauna</option><option ${model === 'sauny' ? 'selected' : ''}>Sauna, ještě nevím jaká</option></optgroup></select></div>
+      <div class="field full"><label for="${id}-p">Obec nebo číslo parcely</label><input class="input" id="${id}-p" name="pozemek" placeholder="Např. Kutná Hora, parcela 1234/5"></div>
+      <div class="field full"><label for="${id}-z">Zpráva <span class="val">nepovinné</span></label><textarea class="input" id="${id}-z" name="zprava" placeholder="${model && (SAUNY[model] || model === 'sauny') ? 'Kam saunu postavíme a kdy ji potřebujete' : 'Jak chcete dům používat a kdy ho potřebujete'}"></textarea></div>
+      <label class="check full"><input type="checkbox" id="${id}-c" required> Souhlasím se zpracováním údajů pro přípravu nabídky.</label>
+      <div class="full"><button class="btn btn-primary" type="submit">Odeslat poptávku${arrow}</button></div>
+    </form></div></div></section>`;
+}
+/* hero se statickým obrázkem ve stylu hlavní stránky */
+const B3 = (icon, label, text) => [icon, label, text];
+const BAR_DUM = [B3('elektrina', 'Elektřina', 'Přípojka 230/400 V jako u chaty, nebo off-grid se solárem a baterií.'), B3('voda', 'Voda a odpad', 'Napojíme na vodovod a kanalizaci, nebo dodáme nádrž a domovní čistírnu.'), B3('topeni', 'Topení', 'Kamna na dřevo nebo tepelné čerpadlo. Teplo i v lednu.')];
+const BAR_SAUNA = [B3('topeni', 'Kamna', 'Na dřevo v ceně. Nebo elektrická 9 kW, pokud máte na pozemku přípojku.'), B3('voda', 'Bez přípojek', 'Sauna na dřevo nepotřebuje elektřinu ani vodu. Vodu na kameny přinesete v kbelíku.'), B3('doprava', 'Usazení', 'Na podvozku nebo na patkách, za pár hodin. Do 100 km doprava zdarma.')];
+function heroImg({ img, alt, pos = '50% 50%', posM, eyebrow = '', top = '', title, sub = '', after = '', btns = [], bar = [], cta = null, label = 'Rychlé informace' }) {
+  return `<section class="hero hero-v3 hero-img" style="--pos:${pos};--pos-m:${posM || pos}">
+  <div class="hero-media"><img src="${IMG(img)}" alt="${alt}"></div>
+  <div class="wrap hero-content"><div class="hero-copy">${top}${eyebrow ? `<p class="eyebrow hero-eyebrow">${eyebrow}</p>` : ''}<h1 class="hero-title">${title}</h1>
+    ${sub ? `<p class="hero-sub">${sub}</p>` : ''}${after}
+    ${btns.length ? `<div class="btn-row">${btns.map((b, i) => `<a class="btn btn-xl ${i ? 'btn-outline-cream' : 'btn-cream'}" href="${b[1]}">${b[0]}${i ? '' : arrow}</a>`).join('')}</div>` : ''}</div></div>
+  ${bar.length ? `<div class="hero-bar" role="group" aria-label="${label}">${bar.map(x => `<button type="button" aria-expanded="false">${ic(x[0])}${x[1]}<span class="bar-pop" role="tooltip"><b>${x[1]}</b>${x[2]}</span></button>`).join('')}${cta ? `<a class="bar-cta" href="${cta[1]}">${cta[0]}</a>` : ''}</div>` : ''}
+  ${vis}
+</section>`;
+}
+function chapter({ eyebrow, title, text, media, poster, flip = false, facts = '', alt = '' }) {
+  const m = media ? `<video src="vid/${media}.mp4" poster="${IMG(poster)}" autoplay muted loop playsinline preload="metadata" aria-label="${alt}"></video>` : `<img src="${IMG(poster)}" alt="${alt}" loading="lazy">`;
+  return `<section class="chapter"><div class="wrap"><div class="chapter-grid ${flip ? 'flip' : ''}">
+    <div class="chapter-text reveal"><p class="eyebrow">${eyebrow}</p><h2 class="display-l">${title}</h2><p class="lead">${text}</p>${facts}</div>
+    <div class="frame reveal">${m}${vis}</div></div></div></section>`;
+}
+
+/* ---------- pages ---------- */
+const PAGES = {};
+PAGES['uvod'] = () => `
+<section class="hero hero-v3">
+  <div class="hero-media"><video class="hero-video-desktop" src="vid/hs-03.mp4" poster="${IMG('hs-03')}" autoplay muted loop playsinline aria-label="Průlet k domu Nordhouse za modré hodinky"></video><video class="hero-video-mobile" src="vid/hs-03v.mp4" poster="${IMG('hs-03v')}" autoplay muted loop playsinline aria-hidden="true"></video></div>
+  <div class="wrap hero-content"><div class="hero-copy"><p class="eyebrow hero-eyebrow">Tiny house na podvozku</p><h1 class="hero-title">Místo, kde se zastavíte.</h1>
+    <p class="hero-sub">Moderní chata, která přijede hotová. Bez základů, za 10–14 týdnů.</p>
+    <div class="btn-row"><a class="btn btn-xl btn-cream" href="#konfigurator">Navrhnout svůj dům${arrow}</a><a class="btn btn-xl btn-outline-cream" href="#domy">Modely od 790 000 Kč</a></div></div></div>
+  <div class="hero-bar" role="group" aria-label="Co dům potřebuje">
+    <button type="button" aria-expanded="false">${ic('elektrina')}Elektřina<span class="bar-pop" role="tooltip"><b>Elektřina</b>Přípojka 230/400 V jako u chaty, nebo off-grid se solárem a baterií.</span></button>
+    <button type="button" aria-expanded="false">${ic('voda')}Voda a odpad<span class="bar-pop" role="tooltip"><b>Voda a odpad</b>Napojíme na vodovod a kanalizaci, nebo dodáme nádrž a domovní čistírnu.</span></button>
+    <button type="button" aria-expanded="false">${ic('topeni')}Topení<span class="bar-pop" role="tooltip"><b>Topení</b>Kamna na dřevo nebo tepelné čerpadlo. Teplo i v lednu.</span></button>
+    <a class="bar-cta" href="#konfigurator">Navrhnout dům</a>
+  </div>
+  ${vis}
+</section>
+${features()}
+${chapter({ eyebrow: 'Příjezd', title: 'Přivezeme ho celý. Usadíme za jeden den.', text: 'Dům vyjede z dílny v Chabeřicích hotový. Na místě ho vyrovnáme na patky, připojíme elektřinu a vodu a večer už svítí okna. Do 100 km dopravu neplatíte.', media: 'hs-01', poster: 'hs-01', alt: 'Auto veze dům Nordhouse po polní cestě k lesu', facts: `<div class="chapter-facts"><div><b>1 den</b><span>usazení na místě</span></div><div><b>0 Kč</b><span>doprava do 100 km</span></div><div><b>0 m³</b><span>betonu na základy</span></div></div>` })}
+${chapter({ eyebrow: 'Uvnitř', title: 'Teplo i v lednu, světlo i v listopadu.', text: 'Zateplené stěny, podlaha i střecha, okna s izolačním trojsklem a kamna nebo tepelné čerpadlo. Velké okno ve štítu pustí dovnitř les a louku.', media: 'hs-04', poster: 'int-01', flip: true, alt: 'Interiér domu večer, kamna a velké okno do lesa' })}
+<section class="section"><div class="wrap">
+  <div class="head split"><div class="stack"><p class="eyebrow">Modely</p><h2 class="h1">Tři velikosti, stejná kvalita.</h2><p class="lead">Všechny domy jsou celoroční, se stejnými materiály a zárukou. Liší se velikostí a dispozicí.</p></div>${btnS('Srovnat modely', '#domy')}</div>
+  <div class="cards">${Object.values(MODELS).map(modelCard).join('')}</div>
+  <p class="small muted" style="margin-top:20px">Chcete domy pronajímat? <a class="link" href="#invest">Verze Invest pro glamping ${arrow}</a></p>
+</div></section>
+${stayTeaser()}
+${wallSection()}
+<section class="chapter full"><div class="chapter-bg"><video src="vid/hs-05.mp4" poster="${IMG('hs-05w')}" autoplay muted loop playsinline aria-label="Ranní mlha nad loukou, pár s kávou na terase"></video></div>
+  <div class="wrap"><div class="chapter-text reveal"><p class="eyebrow">Ráno</p><h2 class="display-l">Ráno vás vzbudí světlo, ne provoz.</h2><p class="lead">Káva na terase, mlha nad loukou a nikam se nespěchá. Přesně kvůli tomu domy stavíme.</p></div></div>${vis}</section>
+${seasons()}
+${chapter({ eyebrow: 'Sauny', title: 'Sauna, která ladí s vaším domem.', text: 'Ze stejného modřínu jako dům, s kamny na dřevo. Sauna na podvozku od 349 000 Kč, zahradní sauna od 249 000 Kč a kádě od 39 000 Kč. Při objednávce s domem sleva 40 000 Kč.', media: 'hs-06', poster: 'hs-06', alt: 'Sauna vedle domu, z komína stoupá pára', facts: `<div class="btn-row" style="margin-top:32px">${btnP('Prohlédnout sauny', '#sauny')}${btnG('Sada dům + sauna', '#sada-dum-sauna')}</div>` })}
+${processSection()}
+<section class="section"><div class="wrap">
+  <div class="head"><p class="eyebrow">Splátky</p><h2 class="h1">Kolik by vás dům stál měsíčně.</h2><p class="lead">Orientační výpočet s partnerskou bankou. Přesnou nabídku úvěru připravíme spolu s nabídkou domu.</p></div>
+  ${calcBlock('home')}
+</div></section>
+<section class="section sunken"><div class="wrap"><div class="split">
+  <div class="stack-lg"><p class="eyebrow">Reference</p><h2 class="h1">První domy předáváme v roce 2027.</h2><p class="lead">Sem přidáme skutečné fotky a příběhy prvních majitelů. Do té doby se přijeďte podívat do dílny nebo přespat v ukázkovém domě.</p><div class="btn-row">${btnS('Domluvit prohlídku výroby', '#kontakt')}</div></div>
+  <div class="media-r reveal"><img src="${IMG('pr-02')}" alt="Převoz domu po silnici za autem" loading="lazy">${vis}</div></div></div></section>
+${faqSection()}
+${leadSection({ sunken: false })}`;
+
+function calcBlock(id, preset = 'dum-m') {
+  return `<div class="calc reveal" data-calc="${id}"><div class="calc-in">
+    <div class="field"><span class="label">Model</span><div class="seg" role="group" aria-label="Model">${Object.values(MODELS).map(m => `<button type="button" data-m="${m.key}" aria-pressed="${m.key === preset}">${m.name}</button>`).join('')}</div></div>
+    <div class="field"><label for="${id}-down">Akontace <output id="${id}-down-o">20 %</output></label><input type="range" id="${id}-down" min="10" max="50" step="5" value="20"></div>
+    <div class="field"><label for="${id}-yrs">Doba splácení <output id="${id}-yrs-o">12 let</output></label><input type="range" id="${id}-yrs" min="5" max="20" step="1" value="12"></div>
+  </div><div class="calc-out"><span class="small muted">Měsíční splátka</span><div class="big" id="${id}-out">–</div><span class="small muted" id="${id}-sub"></span><p class="note" style="color:var(--stone-300);margin-top:12px">Orientační výpočet s úrokem ${String(RATE * 100).replace('.', ',')} % p. a. Nejde o nabídku úvěru.</p>${btnP('Spočítat přesně', '#konfigurator')}</div></div>`;
+}
+function initCalc(root) {
+  root.querySelectorAll('[data-calc]').forEach(c => {
+    const id = c.dataset.calc; let m = c.querySelector('[aria-pressed="true"]').dataset.m;
+    const d = c.querySelector(`#${id}-down`), y = c.querySelector(`#${id}-yrs`);
+    const upd = () => { const price = MODELS[m].price, dv = d.value / 100, yv = +y.value;
+      c.querySelector(`#${id}-down-o`).textContent = d.value + ' %'; c.querySelector(`#${id}-yrs-o`).textContent = yv + (yv < 5 ? ' roky' : ' let');
+      c.querySelector(`#${id}-out`).textContent = kc(monthly(price, dv, yv));
+      c.querySelector(`#${id}-sub`).textContent = `${MODELS[m].name} od ${kc(price)} · akontace ${kc(price * dv)}`; };
+    c.querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', () => { m = b.dataset.m; c.querySelectorAll('[data-m]').forEach(x => x.setAttribute('aria-pressed', x === b)); upd(); }));
+    d.addEventListener('input', upd); y.addEventListener('input', upd); upd();
+  });
+}
+
+PAGES['domy'] = () => `
+${heroImg({ img: 'sz-03', alt: 'Dům Nordhouse na rozkvetlé louce', pos: '50% 50%', posM: '68% 50%', eyebrow: 'Domy Nordhouse', title: 'Vyberte si velikost. Zbytek máme vymyšlený.', sub: 'Tři celoroční modely od 15 do 30 m². Stejné materiály, stejná záruka 5 let, hotovo za 10–14 týdnů.', btns: [['Navrhnout svůj dům', '#konfigurator'], ['Srovnat modely', '#srovnani']], label: 'Co mají všechny domy', bar: [B3('plocha', '15–30 m²', 'Dům S pro dva, Dům M se spacím loftem, Dům L s ložnicí a loftem.'), B3('celorocne', 'Celoroční', 'Zateplené stěny, podlaha i střecha, izolační trojskla. Bydlet se v nich dá i v zimě.'), B3('kalendar', '10–14 týdnů', 'Od podpisu smlouvy po usazení u vás. Termín držíme rezervací výrobního slotu.')], cta: ['Navrhnout dům', '#konfigurator'] })}
+<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Pro koho</p><h2 class="h1">Na co dům budete používat?</h2></div>
+  <div class="tiles">
+    <a class="tile" href="#dum-l"><img src="${IMG('ls-01')}" alt="Pár na terase při západu slunce" loading="lazy"><div class="t-body"><h3 class="h2">Bydlení</h3><p>Celoroční domov pro dva až čtyři. Nejčastěji Dům M nebo L.</p></div></a>
+    <a class="tile" href="#dum-m"><img src="${IMG('ls-02')}" alt="Rodina u ohně vedle domu" loading="lazy"><div class="t-body"><h3 class="h2">Chata na víkendy</h3><p>Místo, kam se jezdí odpočívat. Bez stavby a bez údržby chaty.</p></div></a>
+    <a class="tile" href="#invest"><img src="${IMG('ls-06')}" alt="Hosté glampingu přijíždějí s kufrem" loading="lazy"><div class="t-body"><h3 class="h2">Pronájem a glamping</h3><p>Sestava 2–3 domů, která na sebe vydělá. Verze Invest.</p></div></a>
+  </div><p class="note" style="margin-top:12px">Vizualizace</p></div></section>
+<section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Modely</p><h2 class="h1">Tři domy a sestava pro pronájem</h2></div>
+  <div class="cards four">${Object.values(MODELS).map(modelCard).join('')}${investCard()}</div></div></section>
+<section class="section" id="srovnani"><div class="wrap"><div class="head split"><div class="stack"><p class="eyebrow">Srovnání</p><h2 class="h1">Modely vedle sebe</h2></div>${btnS('Konfigurovat', '#konfigurator')}</div>
+  <div class="table-wrap"><table class="cmp"><thead><tr><th scope="col"></th>${Object.values(MODELS).map(m => `<th scope="col" class="${m.key === 'dum-m' ? 'hl' : ''}">${m.name}</th>`).join('')}</tr></thead><tbody>
+    <tr><th scope="row">Plocha</th>${Object.values(MODELS).map(m => `<td class="${m.key === 'dum-m' ? 'hl' : ''}">${m.area} m²</td>`).join('')}</tr>
+    <tr><th scope="row">Délka × šířka</th>${Object.values(MODELS).map(m => `<td class="${m.key === 'dum-m' ? 'hl' : ''}">${m.len} × 2,55 m</td>`).join('')}</tr>
+    <tr><th scope="row">Osoby</th>${Object.values(MODELS).map(m => `<td class="${m.key === 'dum-m' ? 'hl' : ''}">${m.people}</td>`).join('')}</tr>
+    <tr><th scope="row">Spaní</th>${Object.values(MODELS).map(m => `<td class="${m.key === 'dum-m' ? 'hl' : ''}">${m.loft}</td>`).join('')}</tr>
+    <tr><th scope="row">Cena s DPH</th>${Object.values(MODELS).map(m => `<td class="${m.key === 'dum-m' ? 'hl' : ''}">od ${kc(m.price)}</td>`).join('')}</tr>
+    <tr><th scope="row">Splátka</th>${Object.values(MODELS).map(m => `<td class="${m.key === 'dum-m' ? 'hl' : ''}">od ${kc(monthly(m.price))}/měs.</td>`).join('')}</tr>
+    <tr><th scope="row"></th>${Object.values(MODELS).map(m => `<td class="${m.key === 'dum-m' ? 'hl' : ''}"><a class="link" href="#${m.key}">Detail ${arrow}</a></td>`).join('')}</tr>
+  </tbody></table></div></div></section>
+<section class="section sunken"><div class="wrap"><div class="split">
+  <div class="stack-lg"><p class="eyebrow">V ceně každého domu</p><h2 class="h1">Kupujete hotový dům, ne stavebnici.</h2>
+    <ul class="ticks"><li>Zateplená konstrukce, izolační trojskla, modřínová fasáda</li><li>Kuchyň s dubovou linkou a spotřebiči</li><li>Koupelna se sprchou, WC a ohřevem vody</li><li>Elektroinstalace, osvětlení a vytápění</li><li>Podvozek, patky a usazení na místě</li><li>Doprava zdarma do 100 km od Chabeřic</li></ul></div>
+  <div class="media-r reveal"><img src="${IMG('int-02')}" alt="Dubová kuchyňská linka u okna" loading="lazy">${vis}</div></div></div></section>
+${stayTeaser('ls-05')}
+${faqSection(FAQ_MAIN.slice(0, 5), 'Než si vyberete')}
+${leadSection({ sunken: true })}`;
+
+function detailPage(m) {
+  const others = Object.values(MODELS).filter(x => x.key !== m.key);
+  const extra = m.key === 'dum-l' ? 'Tento dům si můžete vyzkoušet na jednu noc přímo v Chabeřicích.' : 'Vyzkoušejte si náš největší model, Dům L, na jednu noc v Chabeřicích.';
+  return `
+${heroImg({ img: m.wide, alt: `${m.name} na louce`, posM: '62% 50%', top: `<div class="tags hero-tags">${m.tags.map(t => `<span class="tag ${t[1]}">${t[0]}</span>`).join('')}</div>`, title: m.name, sub: m.desc, after: `<div class="detail-hero-price"><span class="price">od ${kc(m.price)}</span><span>s DPH · splátka od ${kc(monthly(m.price))}/měs.</span></div>`, btns: [['Konfigurovat', '#konfigurator-' + m.key], ['Poslat nabídku do e-mailu', '#poptavka']], label: 'Co dům potřebuje', bar: BAR_DUM, cta: ['Konfigurovat', '#konfigurator-' + m.key] })}
+<section class="section tight"><div class="wrap"><div class="specs">
+  <div class="spec">${ic('plocha')}<span>Plocha</span><b>${m.area} m²</b></div><div class="spec">${ic('delka')}<span>Rozměry</span><b>${m.len} × 2,55 m</b></div><div class="spec">${ic('uzivatel')}<span>Osoby</span><b>${m.people}</b></div><div class="spec">${ic('loft')}<span>Spaní</span><b>${m.loft}</b></div>
+  <div class="spec">${ic('celorocne')}<span>Provoz</span><b>Celoroční</b></div><div class="spec">${ic('topeni')}<span>Vytápění</span><b>Kamna / TČ</b></div><div class="spec">${ic('sprcha')}<span>Koupelna</span><b>Sprcha + WC</b></div><div class="spec">${ic('kalendar')}<span>Hotovo za</span><b>10–14 týdnů</b></div>
+</div></div></section>
+<section class="section tight"><div class="wrap"><div class="gallery">${m.gallery.map((g, i) => `<figure><img src="${IMG(g)}" alt="${m.name}, ukázka ${i + 1}" loading="lazy">${vis}</figure>`).join('')}</div></div></section>
+<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Výbava</p><h2 class="h1">Co najdete uvnitř</h2></div>
+  <div class="two-col">${m.rooms.map(r => `<div class="panel flat"><h3 class="h3">${r[0]}</h3><p class="muted">${r[1]}</p></div>`).join('')}<div class="panel flat"><h3 class="h3">Půdorys</h3><p class="muted">Výkres s rozměry doplníme z výroby. Dispozici můžete upravit v konfigurátoru.</p></div></div></div></section>
+<section class="section sunken"><div class="wrap"><div class="two-col">
+  <div class="panel"><h3 class="h2">V ceně</h3><ul class="ticks"><li>Hotový dům s kuchyní, koupelnou a technikou</li><li>Modřínová fasáda a terasa se schody</li><li>Podvozek, patky a usazení</li><li>Doprava do 100 km od Chabeřic</li><li>Záruka 5 let</li></ul></div>
+  <div class="panel"><h3 class="h2">Není v ceně</h3><ul class="ticks no"><li>Pozemek</li><li>Přípojky vody, elektřiny a odpadu na pozemku</li><li>Případná povolení podle obce</li><li>Doprava nad 100 km (cena v nabídce)</li></ul></div>
+</div>
+<div class="head" style="margin:64px 0 24px"><h2 class="h2">Balíčky navíc</h2></div>
+<div class="cards">
+  <div class="panel">${ic('solar', 'ico-l')}<h3 class="h3">Off-grid</h3><p class="muted small">Solární panely, baterie, nádrž na vodu a čistírna. Dům funguje i bez přípojek.</p><div class="price">+ 190 000 Kč</div></div>
+  <div class="panel">${ic('list')}<h3 class="h3">Terasa XL</h3><p class="muted small">Prodloužená terasa podél celé dlouhé strany domu.</p><div class="price">+ 45 000 Kč</div></div>
+  <a class="panel link-panel" href="#sada-dum-sauna">${ic('sauna')}<h3 class="h3">Sauna na podvozku</h3><p class="muted small">Ze stejného dřeva, propojená chodníkem. Při objednávce s domem sleva 40 000 Kč.</p><div class="price">+ 349 000 Kč</div><span class="link">Sada dům + sauna ${arrow}</span></a>
+</div><p class="note" style="margin-top:16px">Ceny balíčků jsou orientační, upřesníme je v nabídce.</p></div></section>
+${stayTeaser(m.key === 'dum-l' ? 'ls-06' : 'ls-05').replace('Ukázkový Dům L stojí v Chabeřicích u Zruče nad Sázavou, zhruba hodinu jízdy z Prahy. Vyzkoušejte si, jak se v něm spí, topí a vaří.', extra)}
+<section class="section sunken"><div class="wrap"><div class="head split"><div class="stack"><p class="eyebrow">Termín</p><h2 class="h1">Váš ${m.name} může stát u vás v květnu 2027.</h2><p class="lead">Nejbližší volný výrobní slot začíná v únoru. Rezervujete ho podpisem smlouvy.</p></div>${btnP('Rezervovat slot', '#poptavka')}</div>${steps()}</div></section>
+<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Další modely</p><h2 class="h1">Hledáte jinou velikost?</h2></div><div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">${others.map(modelCard).join('')}</div></div></section>
+${faqSection(FAQ_MAIN.slice(0, 4), `Otázky k modelu ${m.name}`)}
+${leadSection({ model: m.key, eyebrow: m.name, title: `Pošleme vám nabídku na ${m.name}.`, text: 'Napište nám, kde má dům stát. Do 24 hodin se ozveme s nabídkou, termínem a kontrolou pozemku.' })}`;
+}
+PAGES['dum-s'] = () => detailPage(MODELS['dum-s']);
+PAGES['dum-m'] = () => detailPage(MODELS['dum-m']);
+PAGES['dum-l'] = () => detailPage(MODELS['dum-l']);
+
+PAGES['invest'] = () => `
+${heroImg({ img: 'md-inv', alt: 'Tři domy Nordhouse jako glamping na louce', posM: '60% 50%', eyebrow: 'Verze Invest', title: 'Malý glamping bez stavby.', sub: 'Sestava dvou nebo tří domů, kterou usadíme na vašem pozemku za pár dní. Bez základů, s možností domy později přesunout nebo prodat.', btns: [['Spočítat návratnost', '#vypocet'], ['Domluvit konzultaci', '#poptavka']], label: 'Proč Verze Invest', bar: [B3('mince', 'Návratnost', 'Modelově 5,5 roku při obsazenosti 35 % a ceně 2 900 Kč za noc. Spočítejte si vlastní čísla.'), B3('umisteni', 'Bez základů', 'Domy stojí na patkách, pozemek zůstane, jak je.'), B3('doprava', 'Dají se přesunout', 'Když se lokalita neosvědčí, domy převezeme jinam nebo prodáte.')], cta: ['Spočítat návratnost', '#vypocet'] })}
+<section class="section"><div class="wrap"><div class="features" style="grid-template-columns:repeat(3,1fr)">
+  <div class="feature">${ic('rychlost')}<b>Rychlý start</b><span>Od podpisu po první hosty za 3–4 měsíce.</span></div>
+  <div class="feature">${ic('umisteni')}<b>Bez základů</b><span>Pozemek zůstane, jak je. Domy stojí na patkách.</span></div>
+  <div class="feature">${ic('doprava')}<b>Dají se přesunout</b><span>Když se lokalita neosvědčí, domy převezeme jinam.</span></div>
+</div></div></section>
+<section class="section sunken" id="vypocet"><div class="wrap"><div class="head"><p class="eyebrow">Modelový výpočet</p><h2 class="h1">Kolik může sestava vydělat</h2><p class="lead">Průměrná cena tiny house pobytu v Česku je kolem 2 900 Kč za noc. Obsazenost na venkově se liší podle lokality, proto si ji nastavte sami.</p></div>
+  <div class="calc"><div class="calc-in">
+    <div class="field"><span class="label">Sestava</span><div class="seg" role="group" aria-label="Počet domů" id="inv-n"><button type="button" data-n="2" aria-pressed="false">2× Dům M</button><button type="button" data-n="3" aria-pressed="true">3× Dům M</button></div></div>
+    <div class="field"><label for="inv-p">Cena za noc <output id="inv-p-o"></output></label><input type="range" id="inv-p" min="1900" max="4900" step="100" value="2900"></div>
+    <div class="field"><label for="inv-o">Obsazenost <output id="inv-o-o"></output></label><input type="range" id="inv-o" min="20" max="80" step="5" value="35"></div>
+  </div><div class="calc-out">
+    <span class="small muted">Čistý výnos za rok před zdaněním</span><div class="big" id="inv-net">–</div><span class="small muted" id="inv-pay"></span>
+    <div class="inv-out" style="margin-top:16px"><div><span>Tržby</span><b id="inv-rev">–</b></div><div><span>Náklady</span><b id="inv-cost">–</b></div><div><span>Cena domů</span><b id="inv-price">–</b></div></div>
+    <p class="note" style="color:var(--stone-300);margin-top:12px">Orientační výpočet bez pozemku, daní a financování. Náklady: 15 % provize rezervačních portálů, úklid 600 Kč za pobyt (2 noci), energie 300 Kč za noc, pojištění a údržba 2 % z ceny domů ročně.</p></div></div>
+</div></section>
+<section class="section"><div class="wrap"><div class="split wide-media"><div class="media-r reveal"><img src="${IMG('sa-05')}" alt="Dům a sauna propojené chodníkem" loading="lazy">${vis}</div>
+  <div class="stack-lg"><p class="eyebrow">Sestavy</p><h2 class="h1">Začněte dvěma domy, přidejte saunu.</h2>
+  <ul class="ticks"><li>2× Dům M · od ${kc(2 * 1190000 - 40000)}</li><li>3× Dům M · od ${kc(3 * 1190000 - 80000)}</li><li>3× Dům M + sauna · od ${kc(3 * 1190000 + 349000 - 120000)}</li></ul>
+  <p class="note">Sleva za sadu 40 000 Kč za každý další kus. Ceny s DPH, orientační.</p></div></div></div></section>
+<section class="section sunken"><div class="wrap"><div class="split"><div class="stack-lg"><p class="eyebrow">Provoz</p><h2 class="h1">Pomůžeme vám s rozjezdem.</h2>
+  <ul class="ticks"><li>Doporučíme rezervační systém a nastavení cen</li><li>Připravíme fotky domů pro Airbnb a Booking</li><li>Poradíme s ohlášením ubytování a místními poplatky</li></ul></div>
+  <div class="media-r reveal"><img src="${IMG('ls-06')}" alt="Hosté přijíždějí k domu" loading="lazy">${vis}</div></div></div></section>
+${leadSection({ model: 'invest', eyebrow: 'Konzultace investice', title: 'Probereme váš pozemek a čísla.', text: 'Pošlete nám lokalitu a představu o počtu domů. Připravíme výpočet pro váš konkrétní pozemek.' })}`;
+
+PAGES['zkusebni-noc'] = () => `
+${heroImg({ img: 'ls-05', alt: 'Příjezd k rozsvícenému domu za soumraku', posM: '60% 50%', eyebrow: 'Vyzkoušejte si to na jednu noc', title: 'Přespěte si dřív, než koupíte.', sub: 'Ukázkový Dům L v Chabeřicích u Zruče nad Sázavou. Až 4 osoby, 2 900 Kč za noc. Když si dům objednáte, cenu pobytu vám odečteme z kupní ceny.', btns: [['Vybrat termín', '#rezervace'], ['Prohlédnout Dům L', '#dum-l']], label: 'Podmínky pobytu', bar: [B3('kalendar', 'Příjezd a odjezd', 'Check-in od 15:00, check-out do 10:00.'), B3('uzivatel', 'Až 4 osoby', 'Mazlíčci jsou vítáni. Ložnice, loft, kuchyň i koupelna jsou vaše.'), B3('zaruka', 'Storno 78 h', 'Pobyt zrušíte zdarma nejpozději 78 hodin před příjezdem.')], cta: ['Vybrat termín', '#rezervace'] })}
+<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Proč to zkusit</p><h2 class="h1">Malý dům se nejlépe pozná zevnitř.</h2></div>
+  <div class="cards">
+    <figure class="panel"><div class="media-r" style="aspect-ratio:4/3"><img src="${IMG('int-01')}" alt="Obývací část s kamny" loading="lazy">${vis}</div><h3 class="h3">Prostor pro čtyři</h3><p class="muted small">Uvidíte, jak se v 30 m² vaří, spí a pracuje. A jestli vám stačí.</p></figure>
+    <figure class="panel"><div class="media-r" style="aspect-ratio:4/3"><img src="${IMG('sz-01')}" alt="Dům v zimě se svítícími okny" loading="lazy">${vis}</div><h3 class="h3">Teplo i v zimě</h3><p class="muted small">Přijeďte v lednu a vyzkoušejte si topení, okna i ticho venku.</p></figure>
+    <figure class="panel"><div class="media-r" style="aspect-ratio:4/3"><img src="${IMG('dr-01')}" alt="Detail modřínového obkladu" loading="lazy">${vis}</div><h3 class="h3">Skutečné materiály</h3><p class="muted small">Sáhnete si na dřevo, spoje i povrchy, ze kterých bude váš dům.</p></figure>
+  </div></div></section>
+<section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Jak pobyt probíhá</p><h2 class="h1">Jeden večer a jedno ráno u lesa</h2></div>
+  <ol class="day-flow"><li><time>15:00</time><b>Příjezd</b><p>Přivítáme vás a za 30 minut vám dům ukážeme.</p></li><li><time>Večer</time><b>Jste sami</b><p>Uvaříte si, zatopíte v kamnech a nikdo vás neruší.</p></li><li><time>Ráno</time><b>Prohlídka výroby</b><p>Kdo chce, může se podívat do dílny ve stejné obci.</p></li><li><time>10:00</time><b>Odjezd</b><p>Klíče necháte v domě. Další den vám pošleme nabídku.</p></li></ol></div></section>
+<section class="section"><div class="wrap"><div class="split wide-media"><div class="gallery" style="grid-template-columns:1fr 1fr;grid-auto-rows:200px"><figure><img src="${IMG('md-l16')}" alt="Dům L s terasou" loading="lazy">${vis}</figure><figure><img src="${IMG('md-l02')}" alt="Obytná kuchyň Domu L" loading="lazy">${vis}</figure><figure><img src="${IMG('int-04')}" alt="Ložnice v loftu" loading="lazy">${vis}</figure></div>
+  <div class="stack-lg"><p class="eyebrow">Ukázkový dům</p><h2 class="h1">Dům L, náš největší model</h2><p class="lead">30 m², ložnice, loft a obytná kuchyň s jídelním stolem pro čtyři. Plně vybavený, s ložním prádlem a ručníky.</p><a class="link" href="#dum-l">Detail Domu L ${arrow}</a></div></div></div></section>
+<section class="section sunken" id="rezervace"><div class="wrap"><div class="head"><p class="eyebrow">Rezervace</p><h2 class="h1">Vyberte termín</h2><p class="lead">Klikněte na den příjezdu a pak na den odjezdu. Přeškrtnuté dny jsou obsazené.</p></div>
+  <div class="booking"><div><div class="months" id="months"></div><div class="legend"><span><i></i>Volno</span><span><i class="s"></i>Váš pobyt</span><span style="text-decoration:line-through">Obsazeno</span></div></div>
+  <form class="panel book-sum" id="bookForm">
+    <h3 class="h2">Váš pobyt</h3>
+    <div class="sum-lines" style="color:var(--ink-muted)"><div><span>Příjezd</span><b id="b-in" style="color:var(--ink)">vyberte den</b></div><div><span>Odjezd</span><b id="b-out" style="color:var(--ink)">–</b></div><div><span>Počet nocí</span><b id="b-n" style="color:var(--ink)">0</b></div></div>
+    <div class="field"><label for="b-g">Počet osob</label><select class="input" id="b-g"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+    <label class="check"><input type="checkbox" id="b-pet"> Pojedu s domácím mazlíčkem</label>
+    <div class="field"><label for="b-name">Jméno</label><input class="input" id="b-name" autocomplete="name" required></div>
+    <div class="field"><label for="b-mail">E-mail</label><input class="input" id="b-mail" type="email" autocomplete="email" required></div>
+    <div class="sum-total" style="border-color:var(--line)"><span>Celkem</span><div class="price" id="b-total">0 Kč</div><span>2 900 Kč za noc · odečteme z ceny domu při objednávce</span></div>
+    <button class="btn btn-primary" type="submit" style="justify-content:center">Rezervovat pobyt${arrow}</button>
+    <div id="b-ok" hidden class="form-ok"><b>${ic('kalendar')}Rezervace připravena</b><p class="small">V ostré verzi tu proběhne platba a přijde potvrzení e-mailem s instrukcemi k příjezdu.</p></div>
+    <p class="note">Příjezd od 15:00, odjezd do 10:00. Storno zdarma do 78 hodin před příjezdem.</p>
+  </form></div></div></section>
+<section class="section"><div class="wrap"><div class="split"><div class="stack-lg"><p class="eyebrow">Kde to je</p><h2 class="h1">Chabeřice u Zruče nad Sázavou</h2><p class="lead">Zhruba hodina jízdy z Prahy po D1, exit Hvězdonice nebo Šternov. Dům stojí na kraji obce u lesa, parkujete přímo u něj.</p>
+  <div class="btn-row"><a class="btn btn-secondary" href="https://mapy.cz/zakladni?q=Chabe%C5%99ice" target="_blank" rel="noopener">Otevřít v Mapy.cz</a></div></div>
+  <div class="panel flat stack"><h3 class="h3">Co s sebou a pravidla</h3><ul class="ticks"><li>Ložní prádlo a ručníky jsou v ceně</li><li>Domácí mazlíčci jsou vítáni</li><li>Maximálně 4 osoby, uvnitř se nekouří</li><li>Příjezd od 15:00, odjezd do 10:00</li><li>Storno zdarma do 78 hodin před příjezdem</li></ul></div></div></div></section>
+${faqSection([['Co když pak dům nekoupím?', 'Nic se neděje. Pobyt zaplatíte jako běžné ubytování a nic dalšího po vás nechceme.'], ['Jak se odečte cena pobytu?', 'Když do 6 měsíců od pobytu podepíšete smlouvu na dům, odečteme celou cenu pobytu z kupní ceny.'], ['Můžu přijet v zimě?', 'Ano, dům je celoroční. Zimní pobyt je nejlepší test izolace a topení.'], ['Můžu vzít psa?', 'Ano, domácí mazlíčci jsou vítáni. Dejte nám vědět v rezervaci.'], ['Dá se pobyt darovat?', 'Ano, připravíme dárkový poukaz na jednu noc. Napište nám.']], 'Než přijedete', false)}`;
+function initBooking() {
+  const host = document.getElementById('months'); if (!host) return;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const busy = d => ((d.getDate() * 7 + d.getMonth() * 3) % 11) < 3;
+  let a = null, b = null;
+  const fmt = d => d.toLocaleDateString('cs-CZ', { weekday: 'short', day: 'numeric', month: 'numeric' });
+  function draw() {
+    host.innerHTML = '';
+    for (let k = 0; k < 2; k++) {
+      const first = new Date(today.getFullYear(), today.getMonth() + k, 1), days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+      const off = (first.getDay() + 6) % 7;
+      let h = `<div class="month"><h4>${first.toLocaleDateString('cs-CZ', { month: 'long', year: 'numeric' })}</h4><div class="cal">${['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(x => `<span class="dow">${x}</span>`).join('')}${'<span class="empty"></span>'.repeat(off)}`;
+      for (let i = 1; i <= days; i++) {
+        const d = new Date(first.getFullYear(), first.getMonth(), i), t = d.getTime();
+        const dis = d < today || busy(d), cls = (a && t === a.getTime()) || (b && t === b.getTime()) ? 'sel' : (a && b && t > a && t < b ? 'in' : '');
+        h += `<button type="button" data-t="${t}" class="${cls}" ${dis ? 'disabled' : ''} aria-label="${d.toLocaleDateString('cs-CZ')}${dis ? ', obsazeno' : ''}">${i}</button>`;
+      }
+      host.insertAdjacentHTML('beforeend', h + '</div></div>');
+    }
+    const n = a && b ? Math.round((b - a) / 864e5) : 0;
+    document.getElementById('b-in').textContent = a ? fmt(a) : 'vyberte den';
+    document.getElementById('b-out').textContent = b ? fmt(b) : '–';
+    document.getElementById('b-n').textContent = n;
+    document.getElementById('b-total').textContent = kc(n * 2900);
+  }
+  host.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-t]'); if (!btn) return; const d = new Date(+btn.dataset.t);
+    if (!a || b || d <= a) { a = d; b = null; } else {
+      let ok = true; for (let t = a.getTime() + 864e5; t < d.getTime(); t += 864e5) if (busy(new Date(t))) ok = false;
+      if (ok) b = d; else { a = d; b = null; }
+    }
+    draw();
+  });
+  document.getElementById('bookForm').addEventListener('submit', e => { e.preventDefault(); if (!(a && b)) { document.getElementById('b-in').textContent = 'vyberte příjezd a odjezd'; return; } document.getElementById('b-ok').hidden = false; });
+  draw();
+}
+
+const CFG = { step: 0, model: 'dum-m', fasada: 'prirodni', interier: 'smrk', topeni: 'kamna', extras: new Set(), km: 60 };
+const OPT = {
+  fasada: [['prirodni', 'Modřín přírodní', 0, 'sw-modrin'], ['seda', 'Modřín šedá lazura', 38000, 'sw-sedy'], ['opalena', 'Opálené dřevo', 64000, 'sw-opaleny']],
+  interier: [['smrk', 'Světlý smrk', 0, 'sw-smrk'], ['dub', 'Dub a smrk', 52000, 'sw-dub'], ['bila', 'Bělený smrk', 18000, 'sw-beleny']],
+  topeni: [['kamna', 'Kamna na dřevo', 0, 'topeni'], ['tc', 'Tepelné čerpadlo', 95000, 'celorocne'], ['oboji', 'Kamna + tepelné čerpadlo', 135000, 'topeni']],
+  extras: [['offgrid', 'Off-grid balíček', 190000, 'Solár, baterie, nádrž a čistírna', 'solar'], ['terasa', 'Terasa XL', 45000, 'Terasa podél celé dlouhé strany', 'list'], ['sauna', 'Sauna na podvozku', 309000, '349 000 Kč − sleva 40 000 Kč za sadu', 'sauna']],
+};
+const STEPS = ['Model', 'Fasáda', 'Interiér', 'Vytápění', 'Balíčky', 'Doprava', 'Nabídka'];
+PAGES['konfigurator'] = () => `
+<section class="section tight" style="padding-bottom:24px"><div class="wrap"><div class="head" style="margin-bottom:0"><p class="eyebrow">Konfigurátor</p><h1 class="display-l">Navrhněte svůj dům</h1><p class="lead">Sedm krátkých kroků, cena se přepočítá hned. Na konci vám pošleme nabídku v PDF.</p></div></div></section>
+<section class="section" style="padding-top:24px"><div class="wrap"><div class="cfg">
+  <div class="wiz panel">
+    <div class="progress"><i id="cfg-prog"></i></div>
+    <div class="wiz-top"><span class="eyebrow wood" id="cfg-stepline"></span></div>
+    <div id="cfg-step"></div>
+    <div class="wiz-foot"><button class="btn btn-secondary" type="button" id="cfg-back">Zpět</button><button class="btn btn-primary" type="button" id="cfg-next">Pokračovat${arrow}</button></div>
+  </div>
+  <aside class="cfg-sum" aria-label="Souhrn konfigurace"><div class="media-r"><img id="cfg-img" src="${IMG('md-m16')}" alt="Vybraný model">${vis}</div>
+    <div class="sum-body"><h3 class="h2" id="cfg-name">Dům M</h3><div class="sum-lines" id="cfg-lines"></div>
+    <div class="sum-total"><span>Cena s DPH</span><div class="price" id="cfg-total"></div><span id="cfg-month"></span></div>
+    <p class="note" style="color:var(--stone-300)">Ceny volitelných položek jsou orientační. Přesnou cenu potvrdíme v nabídce.</p></div></aside>
+</div></div></section>`;
+function cfgLines() {
+  const m = MODELS[CFG.model], f = OPT.fasada.find(o => o[0] === CFG.fasada), i = OPT.interier.find(o => o[0] === CFG.interier), t = OPT.topeni.find(o => o[0] === CFG.topeni);
+  return [[m.name, m.price], ['Fasáda: ' + f[1], f[2]], ['Interiér: ' + i[1], i[2]], [t[1], t[2]], ...OPT.extras.filter(o => CFG.extras.has(o[0])).map(o => [o[1], o[2]]), ['Doprava ' + CFG.km + ' km', CFG.km <= 100 ? 0 : null]];
+}
+function cfgStepHtml() {
+  const s = CFG.step, tick = `<span class="tick">${ic('check')}</span>`, price = v => v ? '+ ' + kc(v) : 'v ceně';
+  const title = t => `<h3 class="h2" style="margin-bottom:18px">${t}</h3>`;
+  if (s === 0) return title('Vyberte model') + `<div class="opts">${Object.values(MODELS).map(m => `<button type="button" class="opt" data-g="model" data-v="${m.key}" aria-pressed="${CFG.model === m.key}"><img src="${IMG(m.card)}" alt="">${tick}<b>${m.name}</b><span>${m.area} m² · od ${kc(m.price)}</span></button>`).join('')}</div>`;
+  if (s === 1) return title('Materiál fasády') + `<div class="opts">${OPT.fasada.map(o => `<button type="button" class="opt" data-g="fasada" data-v="${o[0]}" aria-pressed="${CFG.fasada === o[0]}"><img src="${IMG(o[3])}" alt="">${tick}<b>${o[1]}</b><span>${price(o[2])}</span></button>`).join('')}</div>`;
+  if (s === 2) return title('Interiér') + `<div class="opts">${OPT.interier.map(o => `<button type="button" class="opt" data-g="interier" data-v="${o[0]}" aria-pressed="${CFG.interier === o[0]}"><img src="${IMG(o[3])}" alt="">${tick}<b>${o[1]}</b><span>${price(o[2])}</span></button>`).join('')}</div>`;
+  if (s === 3) return title('Vytápění') + `<div class="stack" style="gap:10px">${OPT.topeni.map(o => `<button type="button" class="opt row" data-g="topeni" data-v="${o[0]}" aria-pressed="${CFG.topeni === o[0]}">${ic(o[3])}<b>${o[1]}</b><span>${price(o[2])}</span>${tick}</button>`).join('')}</div>`;
+  if (s === 4) return title('Balíčky navíc') + `<p class="small muted" style="margin:-8px 0 14px">Můžete zvolit více položek, nebo žádnou.</p><div class="stack" style="gap:10px">${OPT.extras.map(o => `<button type="button" class="opt row" data-g="extras" data-v="${o[0]}" aria-pressed="${CFG.extras.has(o[0])}">${ic(o[4])}<span><b>${o[1]}</b><br>${o[3]}</span><span>${price(o[2])}</span>${tick}</button>`).join('')}</div>`;
+  if (s === 5) return title('Kam dům povezeme?') + `<div class="field"><label for="cfg-km">Vzdálenost od Chabeřic <output id="cfg-km-o">${CFG.km} km</output></label><input type="range" id="cfg-km" min="5" max="400" step="5" value="${CFG.km}"></div><p class="small muted" id="cfg-km-t" style="margin-top:12px"></p>`;
+  return title('Kam poslat nabídku') + `<form class="cfg-form" data-form><div class="field"><label for="cfg-n">Jméno</label><input class="input" id="cfg-n" autocomplete="name" required></div><div class="field"><label for="cfg-e">E-mail</label><input class="input" id="cfg-e" type="email" autocomplete="email" required></div>
+    <div class="field full"><label for="cfg-p">Obec nebo parcela</label><input class="input" id="cfg-p" placeholder="Pro kontrolu pozemku zdarma"></div><div class="full"><button class="btn btn-primary" type="submit">Poslat nabídku do e-mailu${arrow}</button></div></form>`;
+}
+function initCfg(param) {
+  const host = document.getElementById('cfg-step'); if (!host) return;
+  if (param && MODELS[param]) { CFG.model = param; CFG.step = 1; }
+  function summary() {
+    const lines = cfgLines(), total = lines.reduce((s, l) => s + (l[1] || 0), 0), m = MODELS[CFG.model];
+    document.getElementById('cfg-lines').innerHTML = lines.map(l => `<div><span>${l[0]}</span><b>${l[1] === null ? 'v nabídce' : l[1] ? kc(l[1]) : 'v ceně'}</b></div>`).join('');
+    document.getElementById('cfg-total').textContent = kc(total) + (CFG.km > 100 ? ' + doprava' : '');
+    document.getElementById('cfg-month').textContent = 'splátka od ' + kc(monthly(total)) + '/měs. při 20% akontaci na 12 let';
+    document.getElementById('cfg-name').textContent = m.name; const img = document.getElementById('cfg-img'), src = IMG(m.wide); if (!img.src.endsWith(src)) img.src = src;
+  }
+  function upd() {
+    host.innerHTML = cfgStepHtml();
+    document.getElementById('cfg-prog').style.width = ((CFG.step + 1) / STEPS.length * 100) + '%';
+    document.getElementById('cfg-stepline').textContent = `Krok ${CFG.step + 1} ze ${STEPS.length} · ${STEPS[CFG.step]}`;
+    document.getElementById('cfg-back').style.visibility = CFG.step ? 'visible' : 'hidden';
+    document.getElementById('cfg-next').hidden = CFG.step === STEPS.length - 1;
+    const km = document.getElementById('cfg-km');
+    if (km) { const t = () => { CFG.km = +km.value; document.getElementById('cfg-km-o').textContent = CFG.km + ' km'; document.getElementById('cfg-km-t').textContent = CFG.km <= 100 ? 'Doprava a usazení zdarma.' : 'Nad 100 km vám cenu dopravy upřesníme v nabídce.'; summary(); }; km.addEventListener('input', t); t(); }
+    host.querySelectorAll('form[data-form]').forEach(f => f.addEventListener('submit', e => { e.preventDefault(); f.innerHTML = `<div class="form-ok full"><b>${ic('zprava')}Nabídka připravena k odeslání</b><p class="small">V ostré verzi přijde PDF nabídka e-mailem. V prototypu se nic neodesílá.</p></div>`; }));
+    summary();
+  }
+  host.addEventListener('click', e => { const b = e.target.closest('.opt'); if (!b) return; const g = b.dataset.g;
+    if (g === 'extras') { CFG.extras.has(b.dataset.v) ? CFG.extras.delete(b.dataset.v) : CFG.extras.add(b.dataset.v); } else CFG[g] = b.dataset.v; upd(); });
+  document.getElementById('cfg-next').addEventListener('click', () => { if (CFG.step < STEPS.length - 1) { CFG.step++; upd(); document.querySelector('.cfg').scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
+  document.getElementById('cfg-back').addEventListener('click', () => { if (CFG.step > 0) { CFG.step--; upd(); } });
+  upd();
+}
+
+PAGES['jak-to-probiha'] = () => `
+${heroImg({ img: 'pr-02', alt: 'Převoz domu po okresní silnici', posM: '55% 50%', eyebrow: 'Jak to probíhá', title: 'Pět kroků, pevná cena, žádná stavba.', sub: 'Od prvního hovoru po usazení u vás uplyne 10–14 týdnů. Celou dobu víte, co se děje a kolik zaplatíte.', btns: [['Zkontrolovat pozemek', '#poptavka'], ['Pozemek a povolení', '#jak-to-probiha-pozemek']], label: 'Jistoty', bar: [B3('mince', 'Platby po částech', '30 % při podpisu, 40 % v polovině výroby, 30 % při převzetí.'), B3('doprava', 'Doprava zdarma', 'Do 100 km od Chabeřic. Dál cenu uvedeme v nabídce.'), B3('zaruka', 'Záruka 5 let', 'Na nosnou konstrukci, střechu a okna.')], cta: ['Zkontrolovat pozemek', '#poptavka'] })}
+<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Postup</p><h2 class="h1">Co se stane po vaší poptávce</h2></div>${steps()}</div></section>
+<section class="section sunken"><div class="wrap"><div class="split"><div class="media-r reveal"><img src="${IMG('pr-03')}" alt="Usazení domu na stavitelné patky" loading="lazy">${vis}</div>
+  <div class="stack-lg"><p class="eyebrow">Doprava a usazení</p><h2 class="h1">Za jeden den z dílny na vaši louku.</h2><p class="lead">Dům převezeme na vlastním podvozku. Na místě ho postavíme na stavitelné patky a kamenné podložky, vyrovnáme a připojíme.</p>
+  <ul class="ticks"><li>Doprava zdarma do 100 km od Chabeřic, dál cenu uvedeme v nabídce</li><li>Předem zkontrolujeme přístupovou cestu pro převoz</li><li>Žádné základy, beton ani těžká technika</li></ul></div></div></div></section>
+<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Platby</p><h2 class="h1">Platíte podle toho, jak dům roste.</h2></div>
+  <div class="cards"><div class="panel"><div class="price">30 %</div><h3 class="h3">Při podpisu smlouvy</h3><p class="muted small">Rezervuje výrobní slot a materiál.</p></div><div class="panel"><div class="price">40 %</div><h3 class="h3">V polovině výroby</h3><p class="muted small">Pošleme fotky hrubé stavby, můžete se přijet podívat.</p></div><div class="panel"><div class="price">30 %</div><h3 class="h3">Při převzetí v dílně</h3><p class="muted small">Až když dům projdete a budete spokojení.</p></div></div></div></section>
+<section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Splátky</p><h2 class="h1">Dům můžete splácet.</h2><p class="lead">Spolupracujeme s partnerskou bankou. Úvěr vyřídíme spolu s nabídkou domu.</p></div>${calcBlock('jtp')}</div></section>
+<section class="section" id="jak-to-probiha-pozemek"><div class="wrap"><div class="split"><div class="stack-lg"><p class="eyebrow">Pozemek a povolení</p><h2 class="h1">Potřebuji stavební povolení?</h2>
+  <p class="lead">Záleží na pozemku a na tom, jak dům budete používat. Dům na podvozku se posuzuje jinak než stavba se základy, ale pravidla obcí se liší. Proto každý pozemek zkontrolujeme zdarma ještě před podpisem smlouvy.</p>
+  <ul class="ticks"><li>Územní plán a využití pozemku</li><li>Přístup pro převoz a místo pro dům</li><li>Možnosti připojení vody, elektřiny a odpadu, nebo off-grid</li></ul>${btnP('Zkontrolovat pozemek', '#poptavka')}</div>
+  <div class="tiles" style="grid-template-columns:1fr"><div class="panel flat"><h3 class="h3">Zahrada u domu</h3><p class="muted small">Nejčastější situace. Obvykle stačí ohlášení obci, záleží na velikosti a použití.</p></div><div class="panel flat"><h3 class="h3">Rekreační pozemek</h3><p class="muted small">Ověříme územní plán a možnost připojení. Často volba pro off-grid.</p></div><div class="panel flat"><h3 class="h3">Pronájem pozemku</h3><p class="muted small">Dům můžete mít i na cizím pozemku. Poradíme, co ohlídat ve smlouvě.</p></div></div></div>
+  <p class="note" style="margin-top:16px">Texty k povolení před spuštěním zkontroluje právník.</p></div></section>
+<section class="section sunken"><div class="wrap"><div class="facts-row" style="margin-top:0"><div class="fact-box">${ic('zaruka')}<b>Záruka 5 let</b><p>Na nosnou konstrukci, střechu a okna. Na spotřebiče platí záruka výrobce.</p></div><div class="fact-box">${ic('kalendar')}<b>Servis</b><p>Jednou ročně vám nabídneme kontrolu domu a ošetření fasády.</p></div><div class="fact-box">${ic('zprava')}<b>Podpora</b><p>Na jednom telefonu, se stejnými lidmi, kteří váš dům stavěli.</p></div></div></div></section>
+${faqSection()}
+${leadSection({ sunken: false })}`;
+
+PAGES['drevo'] = () => `
+${heroImg({ img: 'dr-06', alt: 'Smrkový a modřínový les v ranní mlze', eyebrow: 'Dřevo a výroba', title: 'Dům začíná v lese.', sub: 'Stavíme ze smrku a modřínu z českých lesů. Dřevo je obnovitelné, dobře izoluje a v interiéru drží zdravou vlhkost.', btns: [['Domluvit prohlídku dílny', '#kontakt'], ['Průřez stěnou', '#prurez']], label: 'Materiály', bar: [B3('drevo', 'Modřín', 'Fasáda bez nátěru. Postupně zestříbrá a chrání se sám.'), B3('strom', 'Smrk', 'Nosná konstrukce a interiérové palubky z českého smrku.'), B3('umisteni', 'Chabeřice', 'Vlastní krytá dílna u Zruče nad Sázavou, kousek od ukázkového domu.')], cta: ['Domluvit prohlídku', '#kontakt'] })}
+<section class="section"><div class="wrap"><div class="features" style="grid-template-columns:repeat(3,1fr)">
+  <div class="feature">${ic('list')}<b>Obnovitelný zdroj</b><span>Dřevo za dobu života stromu ukládá uhlík. Dům ho drží dál.</span></div>
+  <div class="feature">${ic('voda')}<b>Zdravé klima</b><span>Dřevěné povrchy přirozeně vyrovnávají vlhkost uvnitř.</span></div>
+  <div class="feature">${ic('drevo')}<b>České dřevo</b><span>Krátká cesta z pily do dílny v Chabeřicích.</span></div></div></div></section>
+${wallSection()}
+<section class="section sunken"><div class="wrap"><div class="split wide-media"><div class="media-r reveal"><img src="${IMG('dr-05')}" alt="Nový modřín vedle modřínu se stříbrnou patinou" loading="lazy">${vis}</div>
+  <div class="stack-lg"><p class="eyebrow wood">Modřín stárne krásně</p><h2 class="h1">Za pět let zestříbrá. Bez nátěru.</h2><p class="lead">Modřín obsahuje pryskyřice, které ho chrání. Na slunci a dešti postupně získá stříbrnou patinu. Kdo chce barvu zachovat, zvolí šedou lazuru.</p></div></div></div></section>
+<section class="section"><div class="wrap"><div class="gallery" style="grid-template-columns:1fr 1fr 1fr;grid-auto-rows:280px"><figure><img src="${IMG('dr-04')}" alt="Detail spoje dřevěné konstrukce" loading="lazy">${vis}</figure><figure><img src="${IMG('dr-01')}" alt="Makro modřínového obkladu s rosou" loading="lazy">${vis}</figure><figure><img src="${IMG('int-03')}" alt="Koupelna s obkladem z termodřeva" loading="lazy">${vis}</figure></div></div></section>
+<section class="section sunken"><div class="wrap"><div class="split"><div class="stack-lg"><p class="eyebrow">Výroba</p><h2 class="h1">Přijeďte se podívat, jak stavíme.</h2><p class="lead">Dílna je v Chabeřicích u Zruče nad Sázavou, kousek od ukázkového domu. Prohlídku spojíte se zkušební nocí.</p><div class="btn-row">${btnP('Domluvit prohlídku', '#kontakt')}${btnS('Přespat v ukázkovém domě', '#zkusebni-noc')}</div><p class="note">Video z dílny doplníme ze skutečné výroby.</p></div>
+  <div class="media-r reveal"><img src="${IMG('pr-03')}" alt="Detail podvozku a patky" loading="lazy">${vis}</div></div></div></section>`;
+
+PAGES['kontakt'] = () => `
+<section class="section tight"><div class="wrap"><div class="head" style="margin-bottom:0"><p class="eyebrow">Kontakt</p><h1 class="display-l">Ozvěte se, odpovíme do 24 hodin.</h1><p class="lead">Napište nám, zavolejte, nebo se přijeďte podívat do dílny a ukázkového domu v Chabeřicích.</p></div></div></section>
+${leadSection({ sunken: false, eyebrow: 'Napište nám', title: 'Dílna a ukázkový dům', text: 'Chabeřice u Zruče nad Sázavou, zhruba hodinu jízdy z Prahy. Prohlídky po domluvě, ve všední dny i o víkendu.' })}
+<section class="section sunken"><div class="wrap"><div class="two-col"><div class="panel"><h3 class="h3">Fakturační údaje</h3><p class="muted">Nordhouse s.r.o. · IČO a sídlo doplníme</p></div><div class="panel"><h3 class="h3">Mapa</h3><p class="muted">Chabeřice u Zruče nad Sázavou</p><a class="link" href="https://mapy.cz/zakladni?q=Chabe%C5%99ice" target="_blank" rel="noopener">Otevřít v Mapy.cz ${arrow}</a></div></div></div></section>`;
+
+
+PAGES['o-nas'] = () => `
+${heroImg({ img: 'on-03', alt: 'Dílna Nordhouse na kraji obce Chabeřice', posM: '60% 50%', eyebrow: 'O nás', title: 'Stavíme domy, ve kterých bychom sami bydleli.', sub: 'Jsme truhlářská dílna v Chabeřicích u Zruče nad Sázavou. Každý dům stavíme sami, od podvozku po poslední lištu.', after: `<p style="margin-top:20px"><span class="ph-note">${ic('zprava')}Texty, čísla a jména doplníme podle podkladů klienta</span></p>`, btns: [['Domluvit návštěvu', '#poptavka'], ['Přespat v ukázkovém domě', '#zkusebni-noc']], label: 'Kdo jsme', bar: [B3('dum', 'Dílna', 'Krytá hala v Chabeřicích. Domy stavíme pod střechou, dřevo zůstává suché.'), B3('uzivatel', 'Tým', 'Návrh, výrobu i předání dělají stejní lidé. Máte jeden kontakt.'), B3('umisteni', 'Ukázkový dům', 'Dům L stojí ve stejné obci. Prohlídku dílny spojíte s přespáním.')], cta: ['Domluvit návštěvu', '#poptavka'] })}
+<section class="section"><div class="wrap"><div class="split">
+  <div class="media-r reveal" style="aspect-ratio:4/5"><img src="${IMG('on-02')}" alt="Truhlář měří modřínové prkno" loading="lazy">${vis}</div>
+  <div class="stack-lg"><p class="eyebrow">Proč to děláme</p><h2 class="h1">Z truhlárny k domům na kolech.</h2><p class="lead">[Příběh založení, 3–5 vět od majitele: odkud jsme, k čemu jsme se dostali a proč jsme začali stavět domy na kolech.]</p><p class="quote">„[Krátká citace zakladatele.]“</p></div></div></div></section>
+<section class="section tight"><div class="wrap"><div class="stats">${[['[X] let', 'v oboru'], ['[X] domů', 'postavených'], ['[X] lidí', 'v týmu'], ['[X] m²', 'krytá dílna']].map(x => `<div class="reveal"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div></div></section>
+${chapterImg('on-01', 'Tým', 'Jeden tým od návrhu po předání.', 'Návrh, výrobu, dopravu i předání dělají stejní lidé. Od první schůzky máte jeden kontakt.', 'Tým nad plánem domu v dílně')}
+<section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Kdo vám bude stavět</p><h2 class="h1">Lidé z dílny</h2></div>
+  <div class="team">${[['Jméno Příjmení', 'Zakladatel, návrh domů'], ['Jméno Příjmení', 'Vedoucí výroby'], ['Jméno Příjmení', 'Truhlář'], ['Jméno Příjmení', 'Obchod a zkušební noci']].map(t => `<div class="member reveal"><div class="ph">${ic('uzivatel')}</div><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
+  <p class="note" style="margin-top:16px">Portréty a jména doplníme ze skutečných fotek týmu.</p></div></section>
+<section class="section"><div class="wrap"><div class="split wide-media">
+  <div class="media-r reveal"><img src="${IMG('pr-01')}" alt="Rozestavěný dům v dílně" loading="lazy">${vis}</div>
+  <div class="stack-lg"><p class="eyebrow wood">Dílna v Chabeřicích</p><h2 class="h1">Krytá hala, suché dřevo, přesná práce.</h2><p class="lead">Domy stavíme pod střechou, takže na ně neprší a dřevo zůstává suché. Vlastní truhlárna nám dovoluje upravit dispozici i nábytek na míru.</p>
+  <div class="media-r reveal" style="aspect-ratio:16/10"><img src="${IMG('dr-03')}" alt="Ruce truhláře s hoblíkem" loading="lazy">${vis}</div></div></div></div></section>
+<section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Co je pro nás důležité</p><h2 class="h1">Tři věci, na kterých stavíme</h2></div>
+  <div class="features" style="grid-template-columns:repeat(3,1fr)">${[['mince', 'Poctivá cena předem', 'Cena ve smlouvě platí. Žádné vícepráce na konci.'], ['drevo', 'České dřevo', 'Smrk a modřín od českých pil, krátká cesta do dílny.'], ['uzivatel', 'Jeden člověk od A do Z', 'Od první schůzky po předání klíčů máte jeden kontakt.']].map(v => `<div class="feature reveal">${ic(v[0])}<b>${v[1]}</b><span>${v[2]}</span></div>`).join('')}</div></div></section>
+<section class="section"><div class="wrap"><div class="split">
+  <div class="stack-lg"><p class="eyebrow">Jak s vámi pracujeme</p><h2 class="h1">U stolu, nad plánem a vzorky.</h2>
+  <ul class="ticks"><li>Schůzka v dílně nebo online, vzorky dřeva a barev</li><li>Pevná cena a termín ve smlouvě</li><li>Fotky z každé fáze výroby</li><li>Předání domu a zaškolení na místě</li></ul></div>
+  <div class="media-r reveal"><img src="${IMG('on-04')}" alt="Schůzka s klienty nad vzorky dřeva" loading="lazy">${vis}</div></div></div></section>
+<section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Partneři</p><h2 class="h2">S kým spolupracujeme</h2></div><div class="logos">${['Pila', 'Okna', 'Izolace', 'Technologie', 'Banka'].map(x => `<span>Logo · ${x}</span>`).join('')}</div></div></section>
+${stayTeaser('ls-05').replace('<h2 class="h1">Přespěte si dřív, než koupíte.</h2>', '<h2 class="h1">Přijeďte se podívat. Dílna a ukázkový dům jsou ve stejné obci.</h2>')}
+${leadSection({ eyebrow: 'Prohlídka dílny', title: 'Domluvte si návštěvu.', text: 'Ukážeme vám rozestavěné domy, materiály a vzorky. Otevírací dobu dílny doplníme. Nordhouse s.r.o., IČO a sídlo doplníme.' })}`;
+function chapterImg(img, eyebrow, title, text, alt) {
+  return `<section class="chapter full"><div class="chapter-bg"><img src="${IMG(img)}" alt="${alt}" loading="lazy"></div><div class="wrap"><div class="chapter-text reveal"><p class="eyebrow">${eyebrow}</p><h2 class="display-l">${title}</h2><p class="lead">${text}</p></div></div>${vis}</section>`;
+}
+
+PAGES['faq'] = () => `<section class="section tight"><div class="wrap"><div class="head" style="margin-bottom:0"><p class="eyebrow">Časté otázky</p><h1 class="display-l">Na co se nás ptáte</h1></div></div></section>${faqSection(FAQ_MAIN, 'Cena, povolení, provoz', false)}${leadSection()}`;
+
+const STUBS = { reference: ['Reference', 'Mapa realizací, příběhy majitelů se skutečnými fotkami, recenze z Google a ze zkušebních nocí.', ['Mapa realizací', 'Příběhy zákazníků', 'Recenze Google', 'Recenze ze zkušebních nocí']], pruvodce: ['Průvodce', 'Články, které odpovídají na nejčastější otázky před koupí.', ['Stavební povolení a tiny house', 'Kolik stojí tiny house', 'Tiny house na pozemku', 'Glamping jako investice']] };
+for (const k in STUBS) PAGES[k] = () => `<section class="section"><div class="wrap"><div class="stub"><p class="eyebrow">Připravujeme</p><h1 class="display-l">${STUBS[k][0]}</h1><p class="lead">${STUBS[k][1]}</p><div class="pill-list">${STUBS[k][2].map(x => `<span>${x}</span>`).join('')}</div><div class="btn-row">${btnP('Zpět na úvod', '#uvod')}</div></div></div></section>`;
+
+/* ---------- sauny ---------- */
+const SAUNY = {
+  'sauna-podvozek': { key: 'sauna-podvozek', kind: 'sauna', name: 'Sauna na podvozku', short: 'Na podvozku', size: '2 × 3,2 m', people: '4 osoby', price: 349000, img: 'sn-01', tags: [['Modřín', 'nature'], ['Nejoblíbenější', 'accent']],
+    line: 'Sauna s předsíní, kterou převezete na chatu i k jezeru.', desc: 'Předsíň s lavicí a věšáky, saunovací místnost pro čtyři a kamna na dřevo. Stojí na vlastním podvozku, takže ji usadíme bez základů a později převezeme jinam.',
+    setup: 'Podvozek a patky', heatTxt: 'Kamna na dřevo',
+    rooms: [['Předsíň', 'Lavice, věšáky, police na ručníky, okno s izolačním dvojsklem'], ['Saunovací místnost', 'Dvě úrovně lavic z osiky, opěradla, okno do krajiny, LED pás pod lavicí'], ['Kamna', 'Saunová kamna na dřevo s prosklenými dvířky a kameny, komín s izolovaným prostupem'], ['Konstrukce', 'Zateplené stěny, modřínový obklad, smrkové palubky uvnitř, podvozek s brzdami']],
+    gallery: ['sn-01', 'sn-05', 'sn-07', 'sn-06', 'sn-04'] },
+  'sauna-zahradni': { key: 'sauna-zahradni', kind: 'sauna', name: 'Zahradní sauna', short: 'Zahradní', size: '2,2 × 2,4 m', people: '2–3 osoby', price: 249000, img: 'sn-02', tags: [['Modřín', 'nature']],
+    line: 'Kompaktní sauna na zahradu, usazená na patkách.', desc: 'Menší sauna pro dva až tři, bez předsíně. Usadíme ji na betonové patky přímo na zahradě. Ideální k domu, kde se převlékáte uvnitř.',
+    setup: 'Patky', heatTxt: 'Kamna na dřevo',
+    rooms: [['Saunovací místnost', 'Lavice z osiky ve dvou úrovních, okno do zahrady, LED osvětlení'], ['Kamna', 'Saunová kamna na dřevo s kameny, nebo elektrická kamna'], ['Konstrukce', 'Zateplené stěny, modřínový obklad, smrkové palubky uvnitř'], ['Usazení', 'Betonové patky, vyrovnání a připojení na místě za jeden den']],
+    gallery: ['sn-02', 'sn-05', 'sn-07', 'sn-06', 'sn-04'] },
+  'kad-koupaci': { key: 'kad-koupaci', kind: 'kad', name: 'Koupací káď', short: 'Koupací káď', size: 'průměr 2 m', people: '6 osob', price: 119000, img: 'sn-03', tags: [['Celoroční', 'nature']],
+    line: 'Horká káď s kamny na dřevo, i v lednu pod hvězdami.', desc: 'Modřínová káď pro šest lidí s vnějšími kamny na dřevo. Voda se ohřeje za dvě až tři hodiny. Skvělá k sauně i jako samostatný kousek wellness na zahradě.',
+    setup: 'Rovná plocha', heatTxt: 'Vnější kamna',
+    rooms: [['Káď', 'Modřínové dužiny, dvě nerezové obruče, lavice dokola, výpustný ventil'], ['Kamna', 'Vnější kamna na dřevo z oceli, komín s ochranou proti dotyku'], ['Příslušenství', 'Schůdky z modřínu, kryt proti listí'], ['Provoz', 'Napouštění hadicí, vypouštění ventilem, zimní provoz s kamny']],
+    gallery: ['sn-03', 'sn-06', 'sn-04', 'sn-01', 'sn-02'] },
+  'kad-ochlazovaci': { key: 'kad-ochlazovaci', kind: 'kad', name: 'Ochlazovací káď', short: 'Ochlazovací káď', size: 'průměr 1,1 m', people: '1–2 osoby', price: 39000, img: 'sn-04', tags: [['K sauně', 'nature']],
+    line: 'Studená voda hned vedle sauny, na pár kroků.', desc: 'Malá modřínová káď se studenou vodou pro ochlazení mezi saunováním. Postavíme ji vedle sauny na terasu nebo na zahradu.',
+    setup: 'Rovná plocha', heatTxt: 'Bez ohřevu',
+    rooms: [['Káď', 'Modřínové dužiny, nerezové obruče, výpustný ventil'], ['Příslušenství', 'Schůdky z modřínu, kryt'], ['Umístění', 'Vedle sauny na terase nebo na zpevněné ploše'], ['Provoz', 'Napouštění hadicí, v zimě vypustit, nebo nechat zamrznout povrch']],
+    gallery: ['sn-04', 'sn-03', 'sn-06', 'sn-01', 'sn-05'] },
+};
+const SOPT = {
+  sauna: { heat: [['drevo', 'Kamna na dřevo', 0, 'topeni'], ['elektro', 'Elektrická kamna 9 kW', 18000, 'elektrina'], ['vnejsi', 'Kamna s vnějším přikládáním', 24000, 'drevo']],
+    extras: [['sprcha', 'Venkovní sprcha', 'Na stěně sauny, teplá i studená voda', 14000, 'sprcha'], ['led', 'Osvětlení LED', 'Pás pod lavicí a světlo nad vstupem', 9000, 'elektrina'], ['terasa', 'Terasa s lavicí', 'Modřínová terasa 2 × 3 m u vstupu', 32000, 'list'], ['kad', 'Ochlazovací káď', 'Postavíme ji hned vedle sauny', 39000, 'voda']] },
+  kad: { heat: null,
+    extras: [['vika', 'Izolované víko', 'Drží teplotu vody přes noc', 6000, 'zaruka'], ['led', 'Podvodní LED světlo', 'Teplé světlo pro večerní koupání', 5000, 'elektrina'], ['terasa', 'Modřínová podesta', 'Rovná plocha pod káď 2,5 × 2,5 m', 28000, 'list']] },
+};
+const SCFG = { heat: 'drevo', extras: new Set() };
+const FAQ_SAUNY = [
+  ['Potřebuji na saunu povolení?', 'Zahradní sauna do 25 m² obvykle povolení nepotřebuje, ale pravidla obcí se liší. Sauna na podvozku se posuzuje jako mobilní věc. Pozemek vám zkontrolujeme zdarma.'],
+  ['Jak dlouho trvá výroba?', 'Saunu vyrobíme za 6–8 týdnů od podpisu smlouvy. Když ji objednáte s domem, přivezeme obojí najednou.'],
+  ['Jak rychle se sauna nahřeje?', 'S kamny na dřevo je sauna připravená zhruba za 45 minut, s elektrickými kamny za 30–40 minut. Koupací káď ohřejete za 2–3 hodiny.'],
+  ['Potřebuje sauna přípojku vody?', 'Ne. Sauna s kamny na dřevo nepotřebuje elektřinu ani vodu. Vodu na polévání kamenů přinesete v kbelíku. Elektřinu potřebují jen elektrická kamna a LED osvětlení.'],
+  ['Jak se o saunu starat?', 'Po saunování ji vyvětrejte. Lavice jednou za rok přebrousíte a ošetříte olejem. Modřínový obklad venku nepotřebuje nátěr.'],
+];
+const saunaCard = p => `<a class="model-card reveal" href="#${p.key}">
+    <div class="media"><img src="${IMG(p.img)}" alt="${p.name}" loading="lazy"><div class="tags">${p.tags.map(t => `<span class="tag ${t[1]}">${t[0]}</span>`).join('')}</div>${vis}</div>
+    <div class="body"><h3 class="h2">${p.name}</h3><p class="meta"><span>${ic('delka')}${p.size}</span><span>${ic('uzivatel')}${p.people}</span></p><p class="small muted">${p.line}</p>
+      <div class="bottom"><div><div class="price">od ${kc(p.price)}</div><div class="monthly">s DPH${p.price > 100000 ? ` · splátka od ${kc(monthly(p.price))}/měs.` : ''}</div></div><span class="arrow-dot">${arrow}</span></div></div></a>`;
+const SADY = [
+  { name: 'Víkendová', title: 'Dům S + zahradní sauna', house: 'dum-s', items: ['sauna-zahradni'], disc: 40000 },
+  { name: 'Nejčastější', title: 'Dům M + sauna na podvozku', house: 'dum-m', items: ['sauna-podvozek'], disc: 40000, hl: true },
+  { name: 'Wellness', title: 'Dům L + sauna + dvě kádě', house: 'dum-l', items: ['sauna-podvozek', 'kad-koupaci', 'kad-ochlazovaci'], disc: 80000 },
+];
+const sadaTotal = s => MODELS[s.house].price + s.items.reduce((a, k) => a + SAUNY[k].price, 0) - s.disc;
+function sadaCard(s) {
+  return `<div class="panel sada reveal ${s.hl ? 'hl' : ''}"><div class="sada-top"><span class="tag ${s.hl ? 'accent' : 'nature'}">${s.name}</span></div>
+    <h3 class="h2">${s.title}</h3>
+    <div class="sum-lines light"><div><span>${MODELS[s.house].name}</span><b>${kc(MODELS[s.house].price)}</b></div>${s.items.map(k => `<div><span>${SAUNY[k].name}</span><b>${kc(SAUNY[k].price)}</b></div>`).join('')}<div><span>Spojovací chodník</span><b>v ceně</b></div><div class="disc"><span>Sleva za sadu</span><b>− ${kc(s.disc)}</b></div></div>
+    <div class="sada-total"><span class="small muted">Sada s DPH</span><div class="price">od ${kc(sadaTotal(s))}</div><span class="small muted">splátka od ${kc(monthly(sadaTotal(s)))}/měs.</span></div>
+    ${btnP('Chci nabídku na sadu', '#poptavka')}</div>`;
+}
+function saunaSteps() {
+  const s = [['Týden 0', 'Konzultace', 'Vyberete saunu a kamna. Zkontrolujeme místo a přístup pro převoz.'], ['Týden 1', 'Smlouva', 'Pevná cena a termín. Záloha rezervuje výrobu.'], ['Týden 2–7', 'Výroba v Chabeřicích', 'Saunu postavíme celou v dílně, včetně kamen a lavic.'], ['Týden 6–8', 'Doprava a usazení', 'Přivezeme ji hotovou a usadíme za pár hodin. Do 100 km zdarma.'], ['První večer', 'První zátop', 'Ukážeme vám, jak topit, polévat a saunu po použití vyvětrat.']];
+  return `<ol class="steps">${s.map(x => `<li class="reveal"><span class="when">${x[0]}</span><b>${x[1]}</b><p>${x[2]}</p></li>`).join('')}</ol>`;
+}
+function ritual() {
+  const r = [['sn-05', '1 · Prohřátí', '10–15 minut v teple, polévání kamenů'], ['sn-04', '2 · Ochlazení', 'Studená káď nebo sprcha hned za dveřmi'], ['sn-06', '3 · Odpočinek', 'Deka, čaj a výhled. Pak znovu.']];
+  return `<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Saunová chvíle</p><h2 class="h1">Teplo, chlad a klid. Třikrát za večer.</h2><p class="lead">Sauna, káď a terasa navazují na sebe, takže mezi nimi uděláte pár kroků.</p></div>
+    <div class="seasons three">${r.map(x => `<figure class="season reveal"><img src="${IMG(x[0])}" alt="${x[1].slice(4)} u sauny Nordhouse" loading="lazy"><figcaption><b>${x[1]}</b><span>${x[2]}</span></figcaption></figure>`).join('')}</div>
+    <p class="note" style="margin-top:12px">Vizualizace</p></div></section>`;
+}
+function saunaTeaser() {
+  return `<section class="section"><div class="wrap"><div class="stay reveal">
+    <div class="media-r"><img src="${IMG('sa-05')}" alt="Dům Nordhouse a sauna propojené dřevěným chodníkem za soumraku" loading="lazy">${vis}</div>
+    <div class="stay-body"><p class="eyebrow">Sada dům + sauna</p><h2 class="h1">Vaše vlastní wellness na pozemku.</h2>
+      <p class="lead">Objednejte dům i saunu najednou. Vyrobíme je ze stejného dřeva, přivezeme v jednom termínu a propojíme chodníkem.</p>
+      <div class="stay-price"><span class="price">od ${kc(sadaTotal(SADY[1]))}</span><span class="small" style="color:var(--stone-300)">Dům M + sauna na podvozku · sleva 40 000 Kč</span></div>
+      <div class="btn-row">${btnP('Prohlédnout sady', '#sada-dum-sauna')}</div></div></div></div></section>`;
+}
+const saunaLead = (p) => leadSection({ model: p ? p.key : 'sauny', eyebrow: p ? p.name : 'Sauny', title: p ? 'Pošleme vám nabídku a termín výroby.' : 'Napište nám, kam saunu postavíme.', text: 'Do 24 hodin se ozveme s nabídkou, termínem výroby a kontrolou místa. Saunu si můžete prohlédnout v Chabeřicích.' });
+
+PAGES['sauny'] = () => `
+<section class="hero hero-v3 hero-sauny">
+  <div class="hero-media"><video class="hero-video-desktop" src="vid/hs-sn.mp4" poster="${IMG('sn-01')}" autoplay muted loop playsinline aria-label="Sauna Nordhouse na podvozku u jezera za modré hodinky, z komína stoupá pára"></video><video class="hero-video-mobile" src="vid/hs-snv.mp4" poster="${IMG('sn-01v')}" autoplay muted loop playsinline aria-hidden="true"></video></div>
+  <div class="wrap hero-content"><div class="hero-copy"><p class="eyebrow hero-eyebrow">Sauny z českého dřeva</p><h1 class="hero-title">Teplo, ke kterému se vracíte.</h1>
+    <p class="hero-sub">Sauny a kádě ze stejného modřínu jako naše domy. Přijedou hotové, večer můžete zatopit.</p>
+    <div class="btn-row"><a class="btn btn-xl btn-cream" href="#sauny-modely">Vybrat saunu${arrow}</a><a class="btn btn-xl btn-outline-cream" href="#sada-dum-sauna">Sada dům + sauna</a></div></div></div>
+  <div class="hero-bar" role="group" aria-label="Co sauna potřebuje">
+    <button type="button" aria-expanded="false">${ic('topeni')}Kamna<span class="bar-pop" role="tooltip"><b>Kamna</b>Na dřevo v ceně. Nebo elektrická 9 kW, pokud máte na pozemku přípojku.</span></button>
+    <button type="button" aria-expanded="false">${ic('voda')}Bez přípojek<span class="bar-pop" role="tooltip"><b>Bez přípojek</b>Sauna na dřevo nepotřebuje elektřinu ani vodu. Vodu na kameny přinesete v kbelíku.</span></button>
+    <button type="button" aria-expanded="false">${ic('doprava')}Usazení<span class="bar-pop" role="tooltip"><b>Usazení</b>Na podvozku nebo na patkách, za pár hodin. Do 100 km doprava zdarma.</span></button>
+    <a class="bar-cta" href="#sauny-modely">Vybrat saunu</a>
+  </div>
+  ${vis}
+</section>
+<section class="section tight" aria-label="Proč sauna Nordhouse"><div class="wrap"><div class="features" style="grid-template-columns:repeat(4,1fr)">
+  <div class="feature reveal">${ic('drevo')}<b>Modřín a osika</b><span>Venku modřín bez nátěru, uvnitř lavice z osiky, která nepálí.</span></div>
+  <div class="feature reveal">${ic('topeni')}<b>Kamna na dřevo v ceně</b><span>Nebo elektrická kamna, podle toho, co máte na pozemku.</span></div>
+  <div class="feature reveal">${ic('umisteni')}<b>Bez stavby</b><span>Na podvozku nebo na patkách. Usazení za pár hodin.</span></div>
+  <div class="feature reveal">${ic('doprava')}<b>Doprava zdarma</b><span>Do 100 km od Chabeřic, dál cena v nabídce.</span></div></div></div></section>
+<section class="section sunken" id="sauny-modely"><div class="wrap"><div class="head"><p class="eyebrow">Modely</p><h2 class="h1">Vyberte si svou saunu</h2><p class="lead">Dvě sauny a dvě kádě. Dají se kombinovat mezi sebou i s domem.</p></div>
+  <div class="cards four">${Object.values(SAUNY).map(saunaCard).join('')}</div></div></section>
+${ritual()}
+<section class="section sunken"><div class="wrap"><div class="split">
+  <div class="media-r reveal"><img src="${IMG('sn-07')}" alt="Polévání kamenů v saunových kamnech" loading="lazy">${vis}</div>
+  <div class="stack-lg"><p class="eyebrow">V ceně každé sauny</p><h2 class="h1">Přivezeme ji hotovou. Večer můžete zatopit.</h2>
+    <ul class="ticks"><li>Zateplená konstrukce, modřínový obklad, smrkové palubky uvnitř</li><li>Lavice z osiky ve dvou úrovních</li><li>Saunová kamna na dřevo s kameny a komínem</li><li>Okno do krajiny a dveře z kaleného skla</li><li>Kbelík, naběračka a teploměr</li><li>Doprava do 100 km a usazení na místě</li></ul></div></div></div></section>
+<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Srovnání</p><h2 class="h1">Sauny a kádě vedle sebe</h2></div>
+  <div class="table-wrap"><table class="cmp"><thead><tr><th scope="col"></th>${Object.values(SAUNY).map(p => `<th scope="col" class="${p.key === 'sauna-podvozek' ? 'hl' : ''}">${p.name}</th>`).join('')}</tr></thead><tbody>
+    ${[['Rozměry', p => p.size], ['Osoby', p => p.people], ['Ohřev', p => p.heatTxt], ['Usazení', p => p.setup], ['Cena s DPH', p => 'od ' + kc(p.price)], ['', p => `<a class="link" href="#${p.key}">Detail ${arrow}</a>`]].map(r => `<tr><th scope="row">${r[0]}</th>${Object.values(SAUNY).map(p => `<td class="${p.key === 'sauna-podvozek' ? 'hl' : ''}">${r[1](p)}</td>`).join('')}</tr>`).join('')}
+  </tbody></table></div><p class="note" style="margin-top:16px">Rozměry a ceny jsou orientační, upřesníme je podle výroby.</p></div></section>
+${saunaTeaser()}
+<section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Jak to probíhá</p><h2 class="h1">Od objednávky k prvnímu zátopu za 6–8 týdnů.</h2></div>${saunaSteps()}</div></section>
+${faqSection(FAQ_SAUNY, 'Než si saunu vyberete', false)}
+${saunaLead()}`;
+
+function saunaDetail(p) {
+  const o = SOPT[p.kind], others = Object.values(SAUNY).filter(x => x.key !== p.key);
+  return `
+${heroImg({ img: p.img, alt: p.name, posM: '68% 50%', top: `<div class="tags hero-tags">${p.tags.map(t => `<span class="tag ${t[1]}">${t[0]}</span>`).join('')}</div>`, title: p.name, sub: p.desc, after: `<div class="detail-hero-price"><span class="price">od ${kc(p.price)}</span><span>s DPH${p.price > 100000 ? ` · splátka od ${kc(monthly(p.price))}/měs.` : ''}</span></div>`, btns: [[p.kind === 'sauna' ? 'Sestavit saunu' : 'Sestavit káď', '#sestava'], ['Poslat nabídku do e-mailu', '#poptavka']], label: 'Co sauna potřebuje', bar: p.kind === 'sauna' ? BAR_SAUNA : [B3('topeni', 'Ohřev', p.key === 'kad-koupaci' ? 'Vnější kamna na dřevo. Voda se ohřeje za 2–3 hodiny.' : 'Bez ohřevu. Studená voda na ochlazení po sauně.'), B3('voda', 'Voda', 'Napouštění hadicí, vypouštění ventilem. Přípojka není potřeba.'), B3('doprava', 'Usazení', 'Na rovnou plochu nebo podestu. Do 100 km doprava zdarma.')], cta: [p.kind === 'sauna' ? 'Sestavit saunu' : 'Sestavit káď', '#sestava'] })}
+<section class="section tight"><div class="wrap"><div class="specs">
+  <div class="spec">${ic('delka')}<span>Rozměry</span><b>${p.size}</b></div><div class="spec">${ic('uzivatel')}<span>Osoby</span><b>${p.people}</b></div><div class="spec">${ic('topeni')}<span>Ohřev</span><b>${p.heatTxt}</b></div><div class="spec">${ic('umisteni')}<span>Usazení</span><b>${p.setup}</b></div>
+  <div class="spec">${ic('drevo')}<span>Materiál</span><b>Modřín</b></div><div class="spec">${ic('celorocne')}<span>Provoz</span><b>Celoroční</b></div><div class="spec">${ic('doprava')}<span>Doprava</span><b>Do 100 km zdarma</b></div><div class="spec">${ic('kalendar')}<span>Hotovo za</span><b>6–8 týdnů</b></div>
+</div></div></section>
+<section class="section tight"><div class="wrap"><div class="gallery">${p.gallery.map((g, i) => `<figure><img src="${IMG(g)}" alt="${p.name}, ukázka ${i + 1}" loading="lazy">${vis}</figure>`).join('')}</div></div></section>
+<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Výbava</p><h2 class="h1">Co je v ceně</h2></div>
+  <div class="two-col">${p.rooms.map(r => `<div class="panel flat"><h3 class="h3">${r[0]}</h3><p class="muted">${r[1]}</p></div>`).join('')}</div></div></section>
+<section class="section sunken" id="sestava"><div class="wrap"><div class="head"><p class="eyebrow">Sestavení</p><h2 class="h1">${p.kind === 'sauna' ? 'Poskládejte si saunu.' : 'Doplňte káď podle sebe.'}</h2><p class="lead">Cena se přepočítá hned. Přesnou nabídku vám pošleme e-mailem.</p></div>
+  <div class="cfg" data-scfg="${p.key}"><div class="panel scfg-in">
+    ${o.heat ? `<h3 class="h3" style="margin-bottom:14px">Kamna</h3><div class="stack" style="gap:10px;margin-bottom:32px">${o.heat.map(h => `<button type="button" class="opt row" data-sg="heat" data-v="${h[0]}" aria-pressed="${SCFG.heat === h[0]}">${ic(h[3])}<b>${h[1]}</b><span>${h[2] ? '+ ' + kc(h[2]) : 'v ceně'}</span><span class="tick">${ic('check')}</span></button>`).join('')}</div>` : ''}
+    <h3 class="h3" style="margin-bottom:6px">Doplňky</h3><p class="small muted" style="margin-bottom:14px">Můžete zvolit více položek, nebo žádnou.</p>
+    <div class="stack" style="gap:10px">${o.extras.map(x => `<button type="button" class="opt row" data-sg="extras" data-v="${x[0]}" aria-pressed="${SCFG.extras.has(x[0])}">${ic(x[4])}<span><b>${x[1]}</b><br>${x[2]}</span><span>+ ${kc(x[3])}</span><span class="tick">${ic('check')}</span></button>`).join('')}</div></div>
+    <aside class="cfg-sum" aria-label="Souhrn"><div class="media-r"><img src="${IMG(p.img)}" alt="">${vis}</div><div class="sum-body"><h3 class="h2">${p.name}</h3><div class="sum-lines" id="scfg-lines"></div>
+      <div class="sum-total"><span>Cena s DPH</span><div class="price" id="scfg-total"></div><span id="scfg-month"></span></div>
+      ${btnP('Poslat nabídku do e-mailu', '#poptavka')}<p class="note" style="color:var(--stone-300)">Ceny doplňků jsou orientační, upřesníme je v nabídce.</p></div></aside></div></div></section>
+<section class="section"><div class="wrap"><div class="two-col">
+  <div class="panel"><h3 class="h2">V ceně</h3><ul class="ticks"><li>Hotový výrobek z dílny v Chabeřicích</li><li>${p.kind === 'sauna' ? 'Kamna na dřevo s kameny a komínem' : 'Schůdky a výpustný ventil'}</li><li>Doprava do 100 km a usazení</li><li>Zaškolení při předání</li><li>Záruka 2 roky</li></ul></div>
+  <div class="panel"><h3 class="h2">Není v ceně</h3><ul class="ticks no"><li>Zpevněná plocha nebo patky, pokud je nemáte</li><li>Přípojka elektřiny pro elektrická kamna</li><li>Doprava nad 100 km (cena v nabídce)</li></ul></div></div></div></section>
+${saunaTeaser()}
+<section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Další sauny a kádě</p><h2 class="h1">Co se k ${p.kind === 'sauna' ? 'sauně' : 'kádi'} hodí</h2></div><div class="cards">${others.map(saunaCard).join('')}</div></div></section>
+${faqSection(FAQ_SAUNY.slice(0, 4), `Otázky k modelu ${p.name}`, false)}
+${saunaLead(p)}`;
+}
+for (const k in SAUNY) PAGES[k] = () => saunaDetail(SAUNY[k]);
+function initScfg() {
+  const root = document.querySelector('[data-scfg]'); if (!root) return;
+  const p = SAUNY[root.dataset.scfg], o = SOPT[p.kind];
+  const upd = () => {
+    const h = o.heat ? o.heat.find(x => x[0] === SCFG.heat) : null;
+    const lines = [[p.name, p.price], ...(h ? [[h[1], h[2]]] : []), ...o.extras.filter(x => SCFG.extras.has(x[0])).map(x => [x[1], x[3]]), ['Doprava do 100 km', 0]];
+    const total = lines.reduce((a, l) => a + l[1], 0);
+    root.querySelector('#scfg-lines').innerHTML = lines.map(l => `<div><span>${l[0]}</span><b>${l[1] ? kc(l[1]) : 'v ceně'}</b></div>`).join('');
+    root.querySelector('#scfg-total').textContent = kc(total);
+    root.querySelector('#scfg-month').textContent = total > 100000 ? 'splátka od ' + kc(monthly(total)) + '/měs. při 20% akontaci na 12 let' : 'jednorázově, bez splátek';
+    root.querySelectorAll('[data-sg]').forEach(b => b.setAttribute('aria-pressed', b.dataset.sg === 'heat' ? SCFG.heat === b.dataset.v : SCFG.extras.has(b.dataset.v)));
+  };
+  root.addEventListener('click', e => { const b = e.target.closest('[data-sg]'); if (!b) return;
+    if (b.dataset.sg === 'heat') SCFG.heat = b.dataset.v; else SCFG.extras.has(b.dataset.v) ? SCFG.extras.delete(b.dataset.v) : SCFG.extras.add(b.dataset.v); upd(); });
+  upd();
+}
+
+PAGES['sada-dum-sauna'] = () => `
+${heroImg({ img: 'sa-05', alt: 'Dům Nordhouse a sauna propojené dřevěným chodníkem', pos: '50% 50%', posM: '45% 50%', eyebrow: 'Sada dům + sauna', title: 'Vaše vlastní wellness na pozemku.', sub: 'Dům i saunu vyrobíme ze stejného dřeva, přivezeme v jednom termínu a propojíme chodníkem. Za sadu vám dáme slevu.', btns: [['Vybrat sadu', '#sady'], ['Prohlédnout sauny', '#sauny']], label: 'Výhody sady', bar: [B3('mince', 'Sleva za sadu', '40 000 Kč na saunu, 80 000 Kč na sadu se dvěma káděmi.'), B3('doprava', 'Jedna doprava', 'Dům i saunu přivezeme a usadíme ve stejný den.'), B3('drevo', 'Stejné dřevo', 'Fasáda domu i sauny ze stejné várky modřínu, aby stárly spolu.')], cta: ['Vybrat sadu', '#sady'] })}
+<section class="section"><div class="wrap"><div class="features" style="grid-template-columns:repeat(3,1fr)">
+  <div class="feature reveal">${ic('mince')}<b>Sleva za sadu</b><span>40 000 Kč na saunu, 80 000 Kč na sadu se dvěma káděmi.</span></div>
+  <div class="feature reveal">${ic('doprava')}<b>Jedna doprava</b><span>Dům i saunu přivezeme a usadíme ve stejný den.</span></div>
+  <div class="feature reveal">${ic('drevo')}<b>Stejné dřevo</b><span>Fasáda domu i sauny ze stejné várky modřínu, aby stárly spolu.</span></div></div></div></section>
+<section class="section sunken" id="sady"><div class="wrap"><div class="head"><p class="eyebrow">Sady</p><h2 class="h1">Tři sestavy pro začátek</h2><p class="lead">Kombinaci můžete libovolně změnit. Sleva platí vždy, když objednáte dům a saunu najednou.</p></div>
+  <div class="cards sady">${SADY.map(sadaCard).join('')}</div><p class="note" style="margin-top:16px">Ceny jsou orientační, včetně DPH. Přesnou cenu potvrdíme v nabídce.</p></div></section>
+${ritual()}
+<section class="section sunken"><div class="wrap"><div class="split">
+  <div class="stack-lg"><p class="eyebrow">Pro glamping</p><h2 class="h1">Sauna zvedne cenu za noc.</h2><p class="lead">Ubytování se saunou nebo kádí si hosté vybírají častěji a zaplatí za ně víc. Sauna se hodí ke každé sestavě Verze Invest.</p><div class="btn-row">${btnS('Verze Invest', '#invest')}</div></div>
+  <div class="media-r reveal"><img src="${IMG('sn-03')}" alt="Koupací káď v zimě vedle sauny" loading="lazy">${vis}</div></div></div></section>
+${leadSection({ model: 'sada', eyebrow: 'Sada dům + sauna', title: 'Pošleme vám nabídku na sadu.', text: 'Napište nám, kde má dům se saunou stát. Do 24 hodin se ozveme s nabídkou, termínem a kontrolou pozemku.' })}`;
+
+/* ---------- router ---------- */
+const app = document.getElementById('app'), hdr = document.getElementById('hdr');
+function route() {
+  let h = (location.hash || '#uvod').slice(1); let param = '';
+  if (h.startsWith('konfigurator-')) { param = h.slice(13); h = 'konfigurator'; }
+  let anchor = null;
+  if (h === 'jak-to-probiha-pozemek') { anchor = h; h = 'jak-to-probiha'; }
+  if (h === 'poptavka' || h === 'rezervace' || h === 'vypocet') { const el = document.getElementById(h); if (el) { el.scrollIntoView({ behavior: 'smooth' }); return; } }
+  if (!PAGES[h]) { const el = document.getElementById(h); if (el) { el.scrollIntoView({ behavior: 'smooth' }); return; } h = 'uvod'; }
+  formSeq = 0; app.innerHTML = PAGES[h]();
+  const over = h === 'uvod' || !!app.querySelector(':scope > .page-hero, :scope > .hero');
+  document.body.className = 'page-' + (h === 'uvod' ? 'home' : h) + (over ? ' has-hero' : '');
+  hdr.classList.toggle('over', over);
+  document.querySelectorAll('[data-nav]').forEach(a => a.toggleAttribute('aria-current', false));
+  const nav = document.querySelector(`[data-nav="${h.startsWith('dum-') || h === 'invest' ? 'domy' : (SAUNY[h] || h === 'sada-dum-sauna') ? 'sauny' : h}"]`); if (nav) nav.setAttribute('aria-current', 'page');
+  document.title = 'Nordhouse';
+  const sn = h === 'sauny' || !!SAUNY[h] || h === 'sada-dum-sauna';
+  document.getElementById('stickyCta').innerHTML = sn ? `<a class="btn btn-secondary" href="#sada-dum-sauna">Sada s domem</a><a class="btn btn-primary" href="${h === 'sauny' ? '#sauny-modely' : '#sauny'}">Vybrat saunu</a>` : `<a class="btn btn-secondary" href="#zkusebni-noc">Přespat na zkoušku</a><a class="btn btn-primary" href="#konfigurator">Navrhnout dům</a>`;
+  initCalc(app); initBooking(); initCfg(param); initInvest(); initScfg(); initForms(); initReveal();
+  if (anchor) document.getElementById(anchor)?.scrollIntoView(); else window.scrollTo(0, 0);
+  onScroll();
+}
+function initInvest() {
+  const p = document.getElementById('inv-p'); if (!p) return; const o = document.getElementById('inv-o'); let n = 3;
+  const upd = () => { const price = n * 1190000 - (n - 1) * 40000, nights = Math.round(365 * o.value / 100) * n, rev = nights * p.value;
+    const cost = rev * 0.15 + nights / 2 * 600 + nights * 300 + price * 0.02, net = rev - cost;
+    document.getElementById('inv-p-o').textContent = kc(+p.value); document.getElementById('inv-o-o').textContent = o.value + ' %';
+    document.getElementById('inv-net').textContent = kc(net); document.getElementById('inv-rev').textContent = kc(rev); document.getElementById('inv-cost').textContent = kc(cost); document.getElementById('inv-price').textContent = kc(price);
+    document.getElementById('inv-pay').textContent = net > 0 ? `Návratnost domů zhruba ${(price / net).toFixed(1).replace('.', ',')} roku · ${nights} prodaných nocí ročně` : 'Při této obsazenosti se sestava nezaplatí.'; };
+  document.querySelectorAll('#inv-n [data-n]').forEach(b => b.addEventListener('click', () => { n = +b.dataset.n; document.querySelectorAll('#inv-n [data-n]').forEach(x => x.setAttribute('aria-pressed', x === b)); upd(); }));
+  p.addEventListener('input', upd); o.addEventListener('input', upd); upd();
+}
+function initForms() {
+  app.querySelectorAll('form[data-form]').forEach(f => f.addEventListener('submit', e => { e.preventDefault();
+    if (f.classList.contains('btn-row')) { f.innerHTML = `<p class="lead" style="color:var(--linen-25)">Díky, ozveme se, jakmile otevřeme objednávky saun.</p>`; return; }
+    f.innerHTML = `<div class="form-ok"><b>${ic('zprava')}Poptávka připravena k odeslání</b><p class="small">V ostré verzi se ozveme do 24 hodin. V prototypu se formulář nikam neodesílá.</p></div>`; }));
+}
+function initReveal() {
+  if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = [...app.querySelectorAll('.reveal')].filter(el => el.getBoundingClientRect().top > innerHeight);
+  const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.remove('pre'); io.unobserve(en.target); } }), { rootMargin: '0px 0px -10% 0px' });
+  els.forEach((el, i) => { el.classList.add('pre'); el.style.transitionDelay = (i % 4) * 80 + 'ms'; io.observe(el); });
+}
+document.addEventListener('click', e => { const b = e.target.closest('.hero-bar button'); document.querySelectorAll('.hero-bar button').forEach(x => x.setAttribute('aria-expanded', x === b && x.getAttribute('aria-expanded') !== 'true')); });
+function onScroll() { hdr.classList.toggle('scrolled', scrollY > 80); }
+addEventListener('scroll', onScroll, { passive: true });
+addEventListener('hashchange', route);
+const drawer = document.getElementById('drawer'), mb = document.getElementById('menuBtn');
+mb.addEventListener('click', () => { drawer.hidden = false; mb.setAttribute('aria-expanded', 'true'); });
+document.getElementById('menuClose').addEventListener('click', () => { drawer.hidden = true; mb.setAttribute('aria-expanded', 'false'); });
+drawer.addEventListener('click', e => { if (e.target.closest('a')) { drawer.hidden = true; mb.setAttribute('aria-expanded', 'false'); } });
+route();
+</script>
