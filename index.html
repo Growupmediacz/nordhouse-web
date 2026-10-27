@@ -648,15 +648,15 @@ const MODELS = {
   'dum-s': { key: 'dum-s', name: 'Dům S', area: 15, len: 6, people: '2 osoby', loft: 'bez loftu', price: 790000, card: 'md-s', wide: 'md-s16', inside: 'md-s02', tags: [['Celoroční', 'nature']],
     line: 'Studio pro dva na víkendy i práci v klidu.', desc: 'Nejmenší dům s plnohodnotnou koupelnou a kuchyní. Rozkládací postel, pracovní místo u okna a kamna. Vejde se na menší zahradu a jde snadno převézt.',
     rooms: [['Obytná část', 'Rozkládací postel 160 × 200 cm, pracovní deska u okna, úložný prostor pod lavicí'], ['Kuchyňská linka', 'Dubová dvířka, dvouplotýnková indukce, lednice 90 l, dřez'], ['Koupelna', 'Sprchový kout 80 × 80 cm, WC, umyvadlo, větrání s rekuperací'], ['Technika', 'Elektrické topení nebo kamna, ohřívač vody 50 l, LED osvětlení']],
-    gallery: ['md-s16', 'md-s02', 'int-02', 'int-03', 'int-06'] },
+    gallery: ['md-s16', 'md-s02', 'ds-kuch', 'ds-koup', 'ds-prac'] },
   'dum-m': { key: 'dum-m', name: 'Dům M', area: 22, len: 8, people: '2–4 osoby', loft: 'spací loft', price: 1190000, card: 'md-m', wide: 'md-m16', inside: 'md-m02', tags: [['Celoroční', 'nature'], ['Nejoblíbenější', 'accent']],
     line: 'Dům pro páry i malé rodiny, se spacím loftem pod střechou.', desc: 'Obývák s kamny a velkým oknem ve štítu, plná kuchyň, koupelna a spací loft s oknem do nebe. Nejčastější volba pro chatu i celoroční bydlení.',
     rooms: [['Obytná část', 'Pohovka, kamna, velké okno ve štítu, jídelní pult pro 2–4 osoby'], ['Kuchyně', 'Dubová linka 240 cm, indukce, trouba, lednice 180 l, myčka 45 cm'], ['Koupelna', 'Sprchový kout 90 × 90 cm, WC, umyvadlo z kamene, žebřík na ručníky'], ['Loft', 'Postel 160 × 200 cm, střešní okno, schody s úložným prostorem'], ['Technika', 'Kamna nebo tepelné čerpadlo, ohřívač 80 l, rekuperace']],
-    gallery: ['md-m16', 'md-m02', 'int-01', 'int-02', 'int-04'] },
+    gallery: ['md-m16', 'md-m02', 'dm-obyv', 'dm-kuch', 'dm-koup'] },
   'dum-l': { key: 'dum-l', name: 'Dům L', area: 30, len: 10, people: '4 osoby', loft: 'ložnice + loft', price: 1590000, card: 'md-l', wide: 'md-l16', inside: 'md-l02', tags: [['Celoroční', 'nature'], ['Ukázkový dům', 'accent']],
     line: 'Největší model pro celoroční bydlení nebo pronájem.', desc: 'Obytná kuchyň s jídelním stolem pro čtyři, samostatná ložnice, loft a velká terasa. Tento model si můžete vyzkoušet na jednu noc v Chabeřicích.',
     rooms: [['Obytná kuchyň', 'Dubová linka 320 cm, trouba, myčka 60 cm, jídelní stůl pro 4'], ['Ložnice', 'Postel 180 × 200 cm, šatní skříň, okno do lesa'], ['Loft', 'Dvě lůžka nebo pracovna, střešní okno'], ['Koupelna', 'Sprcha 100 × 90 cm, WC, pračka, kamenné umyvadlo'], ['Technika', 'Tepelné čerpadlo, ohřívač 120 l, rekuperace, příprava na solár']],
-    gallery: ['md-l16', 'md-l02', 'int-01', 'int-03', 'int-05'] },
+    gallery: ['md-l16', 'md-l02', 'dl-loz', 'dl-loft', 'dl-koup'] },
 };
 
 const FAQ_MAIN = [
@@ -689,7 +689,7 @@ function features() {
   const f = [['zaruka', 'Cena předem', 'Pevná cena ve smlouvě, platby podle milníků.'], ['rychlost', '10–14 týdnů', 'Od podpisu smlouvy po usazení u vás.'], ['umisteni', 'Bez základů', 'Stojí na podvozku a patkách, usazení za den.'], ['dum', 'Záruka 5 let', 'Na konstrukci, střechu a okna.'], ['drevo', 'České dřevo', 'Smrk a modřín z českých lesů, výroba v Chabeřicích.']];
   return `<section class="section tight" aria-label="Proč Nordhouse"><div class="wrap"><div class="features">${f.map(x => `<div class="feature reveal">${ic(x[0])}<b>${x[1]}</b><span>${x[2]}</span></div>`).join('')}</div></div></section>`;
 }
-function stayTeaser(img = 'ls-05') {
+function stayTeaser(img = 'hero-noc') {
   return `<section class="section"><div class="wrap"><div class="stay reveal">
     <div class="media-r"><img src="${IMG(img)}" alt="Rozsvícený Dům L za soumraku" loading="lazy">${vis}</div>
     <div class="stay-body"><p class="eyebrow">Vyzkoušejte si to na jednu noc</p><h2 class="h1">Přespěte si dřív, než koupíte.</h2>
@@ -838,7 +838,7 @@ function initCalc(root) {
 }
 
 PAGES['domy'] = () => `
-${heroImg({ img: 'sz-03', alt: 'Dům Nordhouse na rozkvetlé louce', pos: '50% 50%', posM: '68% 50%', eyebrow: 'Domy Nordhouse', title: 'Vyberte si velikost. Zbytek máme vymyšlený.', sub: 'Tři celoroční modely od 15 do 30 m². Stejné materiály, stejná záruka 5 let, hotovo za 10–14 týdnů.', btns: [['Navrhnout svůj dům', '#konfigurator'], ['Srovnat modely', '#srovnani']], label: 'Co mají všechny domy', bar: [B3('plocha', '15–30 m²', 'Dům S pro dva, Dům M se spacím loftem, Dům L s ložnicí a loftem.'), B3('celorocne', 'Celoroční', 'Zateplené stěny, podlaha i střecha, izolační trojskla. Bydlet se v nich dá i v zimě.'), B3('kalendar', '10–14 týdnů', 'Od podpisu smlouvy po usazení u vás. Termín držíme rezervací výrobního slotu.')], cta: ['Navrhnout dům', '#konfigurator'] })}
+${heroImg({ img: 'hero-domy', alt: 'Dům L na rozkvetlé louce', pos: '50% 50%', posM: '68% 50%', eyebrow: 'Domy Nordhouse', title: 'Vyberte si velikost. Zbytek máme vymyšlený.', sub: 'Tři celoroční modely od 15 do 30 m². Stejné materiály, stejná záruka 5 let, hotovo za 10–14 týdnů.', btns: [['Navrhnout svůj dům', '#konfigurator'], ['Srovnat modely', '#srovnani']], label: 'Co mají všechny domy', bar: [B3('plocha', '15–30 m²', 'Dům S pro dva, Dům M se spacím loftem, Dům L s ložnicí a loftem.'), B3('celorocne', 'Celoroční', 'Zateplené stěny, podlaha i střecha, izolační trojskla. Bydlet se v nich dá i v zimě.'), B3('kalendar', '10–14 týdnů', 'Od podpisu smlouvy po usazení u vás. Termín držíme rezervací výrobního slotu.')], cta: ['Navrhnout dům', '#konfigurator'] })}
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Pro koho</p><h2 class="h1">Na co dům budete používat?</h2></div>
   <div class="tiles">
     <a class="tile" href="#dum-l"><img src="${IMG('ls-01')}" alt="Pár na terase při západu slunce" loading="lazy"><div class="t-body"><h3 class="h2">Bydlení</h3><p>Celoroční domov pro dva až čtyři. Nejčastěji Dům M nebo L.</p></div></a>
@@ -861,7 +861,7 @@ ${heroImg({ img: 'sz-03', alt: 'Dům Nordhouse na rozkvetlé louce', pos: '50% 5
   <div class="stack-lg"><p class="eyebrow">V ceně každého domu</p><h2 class="h1">Kupujete hotový dům, ne stavebnici.</h2>
     <ul class="ticks"><li>Zateplená konstrukce, izolační trojskla, modřínová fasáda</li><li>Kuchyň s dubovou linkou a spotřebiči</li><li>Koupelna se sprchou, WC a ohřevem vody</li><li>Elektroinstalace, osvětlení a vytápění</li><li>Podvozek, patky a usazení na místě</li><li>Doprava zdarma do 100 km od Chabeřic</li></ul></div>
   <div class="media-r reveal"><img src="${IMG('int-02')}" alt="Dubová kuchyňská linka u okna" loading="lazy">${vis}</div></div></div></section>
-${stayTeaser('ls-05')}
+${stayTeaser('hero-noc')}
 ${faqSection(FAQ_MAIN.slice(0, 5), 'Než si vyberete')}
 ${leadSection({ sunken: true })}`;
 
@@ -887,7 +887,7 @@ ${heroImg({ img: m.wide, alt: `${m.name} na louce`, posM: '62% 50%', top: `<div 
   <div class="panel">${ic('list')}<h3 class="h3">Terasa XL</h3><p class="muted small">Prodloužená terasa podél celé dlouhé strany domu.</p><div class="price">+ 45 000 Kč</div></div>
   <a class="panel link-panel" href="#sada-dum-sauna">${ic('sauna')}<h3 class="h3">Sauna na podvozku</h3><p class="muted small">Ze stejného dřeva, propojená chodníkem. Při objednávce s domem sleva 40 000 Kč.</p><div class="price">+ 349 000 Kč</div><span class="link">Sada dům + sauna ${arrow}</span></a>
 </div><p class="note" style="margin-top:16px">Ceny balíčků jsou orientační, upřesníme je v nabídce.</p></div></section>
-${stayTeaser(m.key === 'dum-l' ? 'ls-06' : 'ls-05').replace('Ukázkový Dům L stojí v Chabeřicích u Zruče nad Sázavou, zhruba hodinu jízdy z Prahy. Vyzkoušejte si, jak se v něm spí, topí a vaří.', extra)}
+${stayTeaser(m.key === 'dum-l' ? 'noc-prijezd' : 'hero-noc').replace('Ukázkový Dům L stojí v Chabeřicích u Zruče nad Sázavou, zhruba hodinu jízdy z Prahy. Vyzkoušejte si, jak se v něm spí, topí a vaří.', extra)}
 <section class="section sunken"><div class="wrap"><div class="head split"><div class="stack"><p class="eyebrow">Termín</p><h2 class="h1">Váš ${m.name} může stát u vás v květnu 2027.</h2><p class="lead">Nejbližší volný výrobní slot začíná v únoru. Rezervujete ho podpisem smlouvy.</p></div>${btnP('Rezervovat slot', '#poptavka')}</div>${steps()}</div></section>
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Další modely</p><h2 class="h1">Hledáte jinou velikost?</h2></div><div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">${others.map(modelCard).join('')}</div></div></section>
 ${faqSection(FAQ_MAIN.slice(0, 4), `Otázky k modelu ${m.name}`)}
@@ -924,16 +924,16 @@ ${heroImg({ img: 'md-inv', alt: 'Tři domy Nordhouse jako glamping na louce', po
 ${leadSection({ model: 'invest', eyebrow: 'Konzultace investice', title: 'Probereme váš pozemek a čísla.', text: 'Pošlete nám lokalitu a představu o počtu domů. Připravíme výpočet pro váš konkrétní pozemek.' })}`;
 
 PAGES['zkusebni-noc'] = () => `
-${heroImg({ img: 'ls-05', alt: 'Příjezd k rozsvícenému domu za soumraku', posM: '60% 50%', eyebrow: 'Vyzkoušejte si to na jednu noc', title: 'Přespěte si dřív, než koupíte.', sub: 'Ukázkový Dům L v Chabeřicích u Zruče nad Sázavou. Až 4 osoby, 2 900 Kč za noc. Když si dům objednáte, cenu pobytu vám odečteme z kupní ceny.', btns: [['Vybrat termín', '#rezervace'], ['Prohlédnout Dům L', '#dum-l']], label: 'Podmínky pobytu', bar: [B3('kalendar', 'Příjezd a odjezd', 'Check-in od 15:00, check-out do 10:00.'), B3('uzivatel', 'Až 4 osoby', 'Mazlíčci jsou vítáni. Ložnice, loft, kuchyň i koupelna jsou vaše.'), B3('zaruka', 'Storno 78 h', 'Pobyt zrušíte zdarma nejpozději 78 hodin před příjezdem.')], cta: ['Vybrat termín', '#rezervace'] })}
+${heroImg({ img: 'hero-noc', alt: 'Příjezd k rozsvícenému Domu L za soumraku', posM: '60% 50%', eyebrow: 'Vyzkoušejte si to na jednu noc', title: 'Přespěte si dřív, než koupíte.', sub: 'Ukázkový Dům L v Chabeřicích u Zruče nad Sázavou. Až 4 osoby, 2 900 Kč za noc. Když si dům objednáte, cenu pobytu vám odečteme z kupní ceny.', btns: [['Vybrat termín', '#rezervace'], ['Prohlédnout Dům L', '#dum-l']], label: 'Podmínky pobytu', bar: [B3('kalendar', 'Příjezd a odjezd', 'Check-in od 15:00, check-out do 10:00.'), B3('uzivatel', 'Až 4 osoby', 'Mazlíčci jsou vítáni. Ložnice, loft, kuchyň i koupelna jsou vaše.'), B3('zaruka', 'Storno 78 h', 'Pobyt zrušíte zdarma nejpozději 78 hodin před příjezdem.')], cta: ['Vybrat termín', '#rezervace'] })}
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Proč to zkusit</p><h2 class="h1">Malý dům se nejlépe pozná zevnitř.</h2></div>
   <div class="cards">
-    <figure class="panel"><div class="media-r" style="aspect-ratio:4/3"><img src="${IMG('int-01')}" alt="Obývací část s kamny" loading="lazy">${vis}</div><h3 class="h3">Prostor pro čtyři</h3><p class="muted small">Uvidíte, jak se v 30 m² vaří, spí a pracuje. A jestli vám stačí.</p></figure>
+    <figure class="panel"><div class="media-r" style="aspect-ratio:4/3"><img src="${IMG('dl-loft')}" alt="Loft a obytná část Domu L" loading="lazy">${vis}</div><h3 class="h3">Prostor pro čtyři</h3><p class="muted small">Uvidíte, jak se v 30 m² vaří, spí a pracuje. A jestli vám stačí.</p></figure>
     <figure class="panel"><div class="media-r" style="aspect-ratio:4/3"><img src="${IMG('sz-01')}" alt="Dům v zimě se svítícími okny" loading="lazy">${vis}</div><h3 class="h3">Teplo i v zimě</h3><p class="muted small">Přijeďte v lednu a vyzkoušejte si topení, okna i ticho venku.</p></figure>
     <figure class="panel"><div class="media-r" style="aspect-ratio:4/3"><img src="${IMG('dr-01')}" alt="Detail modřínového obkladu" loading="lazy">${vis}</div><h3 class="h3">Skutečné materiály</h3><p class="muted small">Sáhnete si na dřevo, spoje i povrchy, ze kterých bude váš dům.</p></figure>
   </div></div></section>
 <section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Jak pobyt probíhá</p><h2 class="h1">Jeden večer a jedno ráno u lesa</h2></div>
   <ol class="day-flow"><li><time>15:00</time><b>Příjezd</b><p>Přivítáme vás a za 30 minut vám dům ukážeme.</p></li><li><time>Večer</time><b>Jste sami</b><p>Uvaříte si, zatopíte v kamnech a nikdo vás neruší.</p></li><li><time>Ráno</time><b>Prohlídka výroby</b><p>Kdo chce, může se podívat do dílny ve stejné obci.</p></li><li><time>10:00</time><b>Odjezd</b><p>Klíče necháte v domě. Další den vám pošleme nabídku.</p></li></ol></div></section>
-<section class="section"><div class="wrap"><div class="split wide-media"><div class="gallery" style="grid-template-columns:1fr 1fr;grid-auto-rows:200px"><figure><img src="${IMG('md-l16')}" alt="Dům L s terasou" loading="lazy">${vis}</figure><figure><img src="${IMG('md-l02')}" alt="Obytná kuchyň Domu L" loading="lazy">${vis}</figure><figure><img src="${IMG('int-04')}" alt="Ložnice v loftu" loading="lazy">${vis}</figure></div>
+<section class="section"><div class="wrap"><div class="split wide-media"><div class="gallery" style="grid-template-columns:1fr 1fr;grid-auto-rows:200px"><figure><img src="${IMG('md-l16')}" alt="Dům L s terasou" loading="lazy">${vis}</figure><figure><img src="${IMG('md-l02')}" alt="Obytná kuchyň Domu L" loading="lazy">${vis}</figure><figure><img src="${IMG('dl-loz')}" alt="Ložnice Domu L" loading="lazy">${vis}</figure></div>
   <div class="stack-lg"><p class="eyebrow">Ukázkový dům</p><h2 class="h1">Dům L, náš největší model</h2><p class="lead">30 m², ložnice, loft a obytná kuchyň s jídelním stolem pro čtyři. Plně vybavený, s ložním prádlem a ručníky.</p><a class="link" href="#dum-l">Detail Domu L ${arrow}</a></div></div></div></section>
 <section class="section sunken" id="rezervace"><div class="wrap"><div class="head"><p class="eyebrow">Rezervace</p><h2 class="h1">Vyberte termín</h2><p class="lead">Klikněte na den příjezdu a pak na den odjezdu. Přeškrtnuté dny jsou obsazené.</p></div>
   <div class="booking"><div><div class="months" id="months"></div><div class="legend"><span><i></i>Volno</span><span><i class="s"></i>Váš pobyt</span><span style="text-decoration:line-through">Obsazeno</span></div></div>
@@ -1114,7 +1114,7 @@ ${chapterImg('on-01', 'Tým', 'Jeden tým od návrhu po předání.', 'Návrh, v
   <ul class="ticks"><li>Schůzka v dílně nebo online, vzorky dřeva a barev</li><li>Pevná cena a termín ve smlouvě</li><li>Fotky z každé fáze výroby</li><li>Předání domu a zaškolení na místě</li></ul></div>
   <div class="media-r reveal"><img src="${IMG('on-04')}" alt="Schůzka s klienty nad vzorky dřeva" loading="lazy">${vis}</div></div></div></section>
 <section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Partneři</p><h2 class="h2">S kým spolupracujeme</h2></div><div class="logos">${['Pila', 'Okna', 'Izolace', 'Technologie', 'Banka'].map(x => `<span>Logo · ${x}</span>`).join('')}</div></div></section>
-${stayTeaser('ls-05').replace('<h2 class="h1">Přespěte si dřív, než koupíte.</h2>', '<h2 class="h1">Přijeďte se podívat. Dílna a ukázkový dům jsou ve stejné obci.</h2>')}
+${stayTeaser('hero-noc').replace('<h2 class="h1">Přespěte si dřív, než koupíte.</h2>', '<h2 class="h1">Přijeďte se podívat. Dílna a ukázkový dům jsou ve stejné obci.</h2>')}
 ${leadSection({ eyebrow: 'Prohlídka dílny', title: 'Domluvte si návštěvu.', text: 'Ukážeme vám rozestavěné domy, materiály a vzorky. Otevírací dobu dílny doplníme. Nordhouse s.r.o., IČO a sídlo doplníme.' })}`;
 function chapterImg(img, eyebrow, title, text, alt) {
   return `<section class="chapter full"><div class="chapter-bg"><img src="${IMG(img)}" alt="${alt}" loading="lazy"></div><div class="wrap"><div class="chapter-text reveal"><p class="eyebrow">${eyebrow}</p><h2 class="display-l">${title}</h2><p class="lead">${text}</p></div></div>${vis}</section>`;
