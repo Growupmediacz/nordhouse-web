@@ -711,10 +711,10 @@ const MODELS = {
     line: 'Dům pro páry i malé rodiny, se spacím loftem pod střechou.', desc: 'Obývák s kamny a velkým oknem ve štítu, plná kuchyň, koupelna a spací loft s oknem do nebe. Nejčastější volba pro chatu i celoroční bydlení.',
     rooms: [['Obytná část', 'Rozkládací pohovka u proskleného štítu, kamna na dřevo, lavice a sklopný stůl pro 2–4 osoby', 'dum-m/foto/obytna'], ['Kuchyně', 'Linka 240 cm: dřez, myčka 45 cm, indukce s troubou, lednice 180 l', 'dum-m/foto/kuchyn'], ['Koupelna', 'Sprchový kout 90 × 90 cm, závěsné WC, kamenné umyvadlo, žebřík na ručníky', 'dum-m/foto/koupelna'], ['Loft', 'Postel 160 × 200 cm pod střechou, střešní okno a okno ve štítu', 'dum-m/foto/loft'], ['Schody a technika', 'Schody s úložnými boxy, šatní skříň, ohřívač 80 l, rekuperace', 'dum-m/foto/technika']],
     gallery: ['dum-m/foto/prirodni-0001', 'dum-m/foto/int-smrk-1', 'dum-m/foto/zezadu', 'dum-m/foto/obytna', 'dum-m/foto/loft'] },
-  'dum-l': { key: 'dum-l', name: 'Dům L', area: 25, net: 20.6, len: 10, people: '4 osoby', loft: 'ložnice + loft', price: 1590000, card: 'md-l', wide: 'md-l16', inside: 'md-l02', tags: [['Celoroční', 'nature'], ['Ukázkový dům', 'accent']],
+  'dum-l': { key: 'dum-l', name: 'Dům L', area: 25, net: 20.6, len: 10, people: '4 osoby', loft: 'ložnice + loft', price: 1590000, card: 'dum-l/foto/prirodni-0000', wide: 'dum-l/foto/prirodni-0000', inside: 'dum-l/foto/int-smrk-0', heat: 'Tepelné čerpadlo', real: 'dum-l', tags: [['Celoroční', 'nature'], ['Ukázkový dům', 'accent']],
     line: 'Největší model pro celoroční bydlení nebo pronájem.', desc: 'Obytná kuchyň s jídelním stolem pro čtyři, samostatná ložnice, loft a velká terasa. Tento model si můžete vyzkoušet na jednu noc v Chabeřicích.',
-    rooms: [['Obytná kuchyň', 'Dubová linka 300 cm, trouba, myčka 60 cm, jídelní stůl pro 4', 'md-l02'], ['Ložnice', 'Postel 180 × 200 cm, šatní skříň, okno do lesa', 'dl-loz'], ['Loft', 'Dvě lůžka nebo pracovna, střešní okno', 'dl-loft'], ['Koupelna', 'Sprcha 100 × 90 cm, WC, pračka, kamenné umyvadlo', 'dl-koup'], ['Technika', 'Tepelné čerpadlo, ohřívač 120 l, rekuperace, příprava na solár', 'tech-l']],
-    gallery: ['md-l16', 'md-l02', 'dl-loz', 'dl-loft', 'dl-koup'] },
+    rooms: [['Obytná kuchyň', 'Jídelní stůl pro 4 u proskleného štítu, posuvné dveře na terasu', 'dum-l/foto/obytna'], ['Kuchyně', 'Linka 300 cm: dřez, myčka 60 cm, indukce s troubou, lednice', 'dum-l/foto/kuchyn'], ['Ložnice', 'Postel 180 × 200 cm, šatní skříň, okna do lesa na třech stranách', 'dum-l/foto/loznice'], ['Loft', 'Dvě lůžka 90 × 200 nebo pracovna, střešní okno', 'dum-l/foto/loft'], ['Koupelna', 'Sprcha 100 × 90 cm, WC, pračka, kamenné umyvadlo', 'dum-l/foto/koupelna'], ['Schody a technika', 'Schody s úložnými šuplíky, pod nimi tepelné čerpadlo, ohřívač 120 l a rekuperace', 'dum-l/foto/technika']],
+    gallery: ['dum-l/foto/prirodni-0000', 'dum-l/foto/int-smrk-0', 'dum-l/foto/zezadu', 'dum-l/foto/obytna', 'dum-l/foto/loznice'] },
 };
 
 const FAQ_MAIN = [
@@ -958,6 +958,16 @@ const REAL = {
     wnote: 'Rezerva počítá s převozem bez vody a osobních věcí.',
     cmp: [['prirodni-0001', 'Exteriér'], ['int-smrk-1', 'Interiér'], ['loft', 'Loft']],
   },
+  'dum-l': {
+    dims: [['Délka domu', '10,0 m'], ['Celkem s ojí', '11,95 m'], ['Šířka', '2,5 m'], ['Výška od terénu', '3,94 m'], ['Světlá výška', 'až 3,04 m'], ['Podlaha nad terénem', '0,60 m']],
+    dwg: [['pudorys', 'Půdorys', 'Obytná kuchyň 9,7 m², koupelna 2,8 m², chodba 1,8 m², ložnice 5,8 m². Vstup posuvnými dveřmi z terasy, loft nad koupelnou a chodbou.', 'wide'], ['bokorys', 'Boční pohled', 'Dům 10 000 mm, oj 1 800 mm. Snížený rám, kola v podbězích. Výška 3 937 mm.'], ['rez', 'Příčný řez loftem', 'Pod loftem 1 920 mm, nad podlahou loftu v hřebeni zhruba 1 m. Max. šířka 2 550 mm.']],
+    chassis: [['Kategorie', 'Přívěs O3 do 7 500 kg. Převáží ho nákladní tahač s řidičem C+E, dopravu zajistíme.'], ['Rám', 'Podélníky UPE 220, příčníky à 600 mm. Svařovaný a žárově zinkovaný.'], ['Výška rámu', 'Jen 420 mm nad terénem, podlaha domu 600 mm. Díky tomu se do domu vejde loft.'], ['Zavěšení kol', '4 nezávislé jednotky 1 900 kg na kolo. Osy 4 130 a 5 430 mm od štítu.'], ['Kola', '4× 215/75 R17,5, rozchod 2 205 mm. Uvnitř domu je kryjí podběhy.'], ['Brzdy', 'Vzduchové dvouokruhové s ABS a pružinovou parkovací brzdou.'], ['Oj', 'A-oj s tažným okem 40 mm a opěrným kolečkem.'], ['Stání', '4 kličkové opěrné nohy v rozích a 2 podpěry uprostřed dlouhých konců.']],
+    weight: { house: 5038, chassis: 1684, total: 6722, limit: 7500 },
+    lead: 'Dům L stojí na nízkém silničním podvozku dlouhém 10 m. Rám je jen 42 cm nad zemí, aby se pod střechu vešel loft. Je to přívěs do 7,5 t, převoz zajistíme tahačem.',
+    rendered: 'Dlouhý nízký rám s nezávislým zavěšením kol uprostřed.',
+    wnote: 'Rezerva počítá s převozem bez vody a osobních věcí.',
+    cmp: [['prirodni-0000', 'Exteriér'], ['int-smrk-0', 'Interiér'], ['loznice', 'Ložnice']],
+  },
 };
 function realSections(m) {
   const r = REAL[m.real], d = `img/${m.real}/vykresy/`, w = r.weight, tot = w.total, pc = v => (v / w.limit * 100).toFixed(1) + '%', kg = v => v.toLocaleString('cs-CZ').replace(/\s/g, ' ') + ' kg';
@@ -1003,9 +1013,9 @@ ${m.real ? realSections(m) : ''}
 </div>
 <div class="head" style="margin:64px 0 24px"><h2 class="h2">Balíčky navíc</h2></div>
 <div class="cards">
-  <div class="panel"><div class="pk-img"><img src="${IMG(m.real ? `${m.real}/foto/prirodni-100${m.key === 'dum-s' ? 0 : 1}` : 'pk-offgrid-' + m.key.slice(4))}" alt="${m.name} s off-grid balíčkem a solárními panely" loading="lazy">${vis}</div><h3 class="h3">Off-grid</h3><p class="muted small">Solární panely, baterie, nádrž na vodu a čistírna. Dům funguje i bez přípojek.</p><div class="price">+ 190 000 Kč</div></div>
-  <div class="panel"><div class="pk-img"><img src="${IMG(m.real ? `${m.real}/foto/prirodni-010${m.key === 'dum-s' ? 0 : 1}` : 'pk-terasa-' + m.key.slice(4))}" alt="${m.name} s terasou XL" loading="lazy">${vis}</div><h3 class="h3">Terasa XL</h3><p class="muted small">Prodloužená terasa podél celé dlouhé strany domu.</p><div class="price">+ 45 000 Kč</div></div>
-  <a class="panel link-panel" href="#sada-dum-sauna"><div class="pk-img"><img src="${IMG(m.real ? `${m.real}/foto/prirodni-001${m.key === 'dum-s' ? 0 : 1}` : 'pk-sauna-' + m.key.slice(4))}" alt="${m.name} a sauna na podvozku propojené chodníkem" loading="lazy">${vis}</div><h3 class="h3">Sauna na podvozku</h3><p class="muted small">Ze stejného dřeva, propojená chodníkem. Při objednávce s domem sleva 40 000 Kč.</p><div class="price">+ 349 000 Kč</div><span class="link">Sada dům + sauna ${arrow}</span></a>
+  <div class="panel"><div class="pk-img"><img src="${IMG(m.real ? `${m.real}/foto/prirodni-100${m.key === 'dum-m' ? 1 : 0}` : 'pk-offgrid-' + m.key.slice(4))}" alt="${m.name} s off-grid balíčkem a solárními panely" loading="lazy">${vis}</div><h3 class="h3">Off-grid</h3><p class="muted small">Solární panely, baterie, nádrž na vodu a čistírna. Dům funguje i bez přípojek.</p><div class="price">+ 190 000 Kč</div></div>
+  <div class="panel"><div class="pk-img"><img src="${IMG(m.real ? `${m.real}/foto/prirodni-010${m.key === 'dum-m' ? 1 : 0}` : 'pk-terasa-' + m.key.slice(4))}" alt="${m.name} s terasou XL" loading="lazy">${vis}</div><h3 class="h3">Terasa XL</h3><p class="muted small">Prodloužená terasa podél celé dlouhé strany domu.</p><div class="price">+ 45 000 Kč</div></div>
+  <a class="panel link-panel" href="#sada-dum-sauna"><div class="pk-img"><img src="${IMG(m.real ? `${m.real}/foto/prirodni-001${m.key === 'dum-m' ? 1 : 0}` : 'pk-sauna-' + m.key.slice(4))}" alt="${m.name} a sauna na podvozku propojené chodníkem" loading="lazy">${vis}</div><h3 class="h3">Sauna na podvozku</h3><p class="muted small">Ze stejného dřeva, propojená chodníkem. Při objednávce s domem sleva 40 000 Kč.</p><div class="price">+ 349 000 Kč</div><span class="link">Sada dům + sauna ${arrow}</span></a>
 </div><p class="note" style="margin-top:16px">Ceny balíčků jsou orientační, upřesníme je v nabídce.</p></div></section>
 ${stayTeaser(m.key === 'dum-l' ? 'noc-prijezd' : 'hero-noc').replace('Ukázkový Dům L stojí v Chabeřicích u Zruče nad Sázavou, zhruba hodinu jízdy z Prahy. Vyzkoušejte si, jak se v něm spí, topí a vaří.', extra)}
 <section class="section sunken"><div class="wrap"><div class="head split"><div class="stack"><p class="eyebrow">Termín</p><h2 class="h1">Váš ${m.name} může stát u vás v květnu 2027.</h2><p class="lead">Nejbližší volný výrobní slot začíná v únoru. Rezervujete ho podpisem smlouvy.</p></div>${btnP('Rezervovat slot', '#poptavka')}</div>${steps()}</div></section>
@@ -1116,13 +1126,15 @@ const OPT = {
   interier: [['smrk', 'Světlý smrk', 0, 'sw-smrk'], ['dub', 'Dub a smrk', 52000, 'sw-dub'], ['bila', 'Bělený smrk', 18000, 'sw-beleny']],
   topeni: [['kamna', 'Kamna na dřevo', 0, 'topeni'], ['tc', 'Tepelné čerpadlo', 95000, 'celorocne'], ['oboji', 'Kamna + tepelné čerpadlo', 135000, 'topeni']],
   topeniS: [['primotop', 'Elektrické přímotopy', 0, 'elektrina'], ['tc', 'Tepelné čerpadlo', 95000, 'celorocne']],
+  topeniL: [['tc', 'Tepelné čerpadlo', 0, 'celorocne']],
   extras: [['offgrid', 'Off-grid balíček', 190000, 'Solár, baterie, nádrž a čistírna', 'solar'], ['terasa', 'Terasa XL', 45000, 'Terasa podél celé dlouhé strany', 'list'], ['sauna', 'Sauna na podvozku', 309000, '349 000 Kč − sleva 40 000 Kč za sadu', 'sauna']],
 };
-const topOpts = () => CFG.model === 'dum-s' ? OPT.topeniS : OPT.topeni;
+const HEAT_NOTE = { 'dum-s': 'Dům S kvůli hmotnosti a odstupům od stěn kamna nemá.', 'dum-l': 'Dům L má tepelné čerpadlo v ceně. Venkovní jednotku postavíme vedle domu.' };
+const topOpts = () => ({ 'dum-s': OPT.topeniS, 'dum-l': OPT.topeniL })[CFG.model] || OPT.topeni;
 function cfgFix() { const o = topOpts(); if (!o.some(x => x[0] === CFG.topeni)) CFG.topeni = o[0][0]; }
 function cfgImg() {
   const m = MODELS[CFG.model]; if (!m.real) return [m.wide, m.name];
-  const stove = m.key === 'dum-s' ? 0 : 1;   // u Domu M exteriér vždy s komínem, interiér podle vytápění
+  const stove = m.key === 'dum-m' ? 1 : 0;   // kamna má jen Dům M: exteriér vždy s komínem, interiér podle vytápění
   if (CFG.step === 2 || CFG.step === 3) return [`${m.real}/foto/int-${CFG.interier}-${stove && CFG.topeni !== 'tc' ? 1 : 0}`, `${m.name}, interiér`];
   const e = ['offgrid', 'terasa', 'sauna'].map(k => CFG.extras.has(k) ? 1 : 0).join('');
   return [`${m.real}/foto/${CFG.fasada}-${e}${stove}`, `${m.name}, zvolená fasáda a balíčky`];
@@ -1152,7 +1164,7 @@ function cfgStepHtml() {
   if (s === 0) return title('Vyberte model') + `<div class="opts">${Object.values(MODELS).map(m => `<button type="button" class="opt" data-g="model" data-v="${m.key}" aria-pressed="${CFG.model === m.key}"><img src="${IMG(m.card)}" alt="">${tick}<b>${m.name}</b><span>${m2(m.net)} uvnitř · od ${kc(m.price)}</span></button>`).join('')}</div>`;
   if (s === 1) return title('Materiál fasády') + `<div class="opts">${OPT.fasada.map(o => `<button type="button" class="opt" data-g="fasada" data-v="${o[0]}" aria-pressed="${CFG.fasada === o[0]}"><img src="${IMG(o[3])}" alt="">${tick}<b>${o[1]}</b><span>${price(o[2])}</span></button>`).join('')}</div>`;
   if (s === 2) return title('Interiér') + `<div class="opts">${OPT.interier.map(o => `<button type="button" class="opt" data-g="interier" data-v="${o[0]}" aria-pressed="${CFG.interier === o[0]}"><img src="${IMG(o[3])}" alt="">${tick}<b>${o[1]}</b><span>${price(o[2])}</span></button>`).join('')}</div>`;
-  if (s === 3) return title('Vytápění') + `${CFG.model === 'dum-s' ? '<p class="small muted" style="margin:-8px 0 14px">Dům S kvůli hmotnosti a odstupům od stěn kamna nemá.</p>' : ''}<div class="stack" style="gap:10px">${topOpts().map(o => `<button type="button" class="opt row" data-g="topeni" data-v="${o[0]}" aria-pressed="${CFG.topeni === o[0]}">${ic(o[3])}<b>${o[1]}</b><span>${price(o[2])}</span>${tick}</button>`).join('')}</div>`;
+  if (s === 3) return title('Vytápění') + `${HEAT_NOTE[CFG.model] ? `<p class="small muted" style="margin:-8px 0 14px">${HEAT_NOTE[CFG.model]}</p>` : ''}<div class="stack" style="gap:10px">${topOpts().map(o => `<button type="button" class="opt row" data-g="topeni" data-v="${o[0]}" aria-pressed="${CFG.topeni === o[0]}">${ic(o[3])}<b>${o[1]}</b><span>${price(o[2])}</span>${tick}</button>`).join('')}</div>`;
   if (s === 4) return title('Balíčky navíc') + `<p class="small muted" style="margin:-8px 0 14px">Můžete zvolit více položek, nebo žádnou.</p><div class="stack" style="gap:10px">${OPT.extras.map(o => `<button type="button" class="opt row" data-g="extras" data-v="${o[0]}" aria-pressed="${CFG.extras.has(o[0])}">${ic(o[4])}<span><b>${o[1]}</b><br>${o[3]}</span><span>${price(o[2])}</span>${tick}</button>`).join('')}</div>`;
   if (s === 5) return title('Kam dům povezeme?') + `<div class="field"><label for="cfg-km">Vzdálenost od Chabeřic <output id="cfg-km-o">${CFG.km} km</output></label><input type="range" id="cfg-km" min="5" max="400" step="5" value="${CFG.km}"></div><p class="small muted" id="cfg-km-t" style="margin-top:12px"></p>`;
   return title('Kam poslat nabídku') + `<form class="cfg-form" data-form><div class="field"><label for="cfg-n">Jméno</label><input class="input" id="cfg-n" autocomplete="name" required></div><div class="field"><label for="cfg-e">E-mail</label><input class="input" id="cfg-e" type="email" autocomplete="email" required></div>
