@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1440 -1830 3440 4289.5" class="dwg" style="background:#FBF8F2" role="img" aria-label=""><style>
+.ln{fill:none;stroke:#1E211D;stroke-width:22;stroke-linejoin:round}.thin{fill:none;stroke:#1E211D;stroke-width:9}
+.wall{fill:#3A4036;stroke:#1E211D;stroke-width:8}.body{fill:#E9DCC6;stroke:#1E211D;stroke-width:18}
+.roof{fill:#3A4036;stroke:#1E211D;stroke-width:12}.steel{fill:#B9BDB4;stroke:#1E211D;stroke-width:10}
+.wheel{fill:#2A2E28;stroke:#1E211D;stroke-width:8}.glass{fill:#CFE0E6;stroke:#1E211D;stroke-width:9}
+.fur{fill:#F6F1E8;stroke:#8C8577;stroke-width:8}.room{fill:#FBF8F2}
+.dim,.tick{fill:none;stroke:#5A6054;stroke-width:7}.tick{stroke-width:12}.grd{fill:none;stroke:#8C8577;stroke-width:12}
+.hl{fill:none;stroke:#A8402F;stroke-width:10;stroke-dasharray:70 45}
+text{font-family:Manrope,Arial,sans-serif;fill:#1E211D}.td{fill:#3A4036;font-weight:600}.tl{font-weight:700}
+.tm{fill:#5A6054}.tr{fill:#A8402F;font-weight:700}
+</style><rect class="fur" x="-450" y="-1450" width="900" height="450"/><circle class="wall" cx="0" cy="0" r="1000"/><circle class="glass" cx="0" cy="0" r="958"/><circle class="thin" cx="0" cy="0" r="628"/><rect class="wall" x="1060" y="-225" width="500" height="450"/><circle class="steel" cx="1310" cy="0" r="60"/><text class="tm" x="1310" y="472.5" font-size="165" text-anchor="middle">kamna</text><line class="dim" x1="-1000" y1="1040" x2="-1000" y2="1960"/><line class="dim" x1="1560" y1="1040" x2="1560" y2="1960"/><line class="dim" x1="-1060" y1="1900" x2="1620" y2="1900"/><line class="tick" x1="-1035" y1="1935" x2="-965" y2="1865"/><line class="tick" x1="1525" y1="1935" x2="1595" y2="1865"/><text class="td" x="280" y="2030" font-size="165" text-anchor="middle">s kamny 2 560</text><line class="dim" x1="-1000" y1="1040" x2="-1000" y2="1480"/><line class="dim" x1="1000" y1="1040" x2="1000" y2="1480"/><line class="dim" x1="-1060" y1="1420" x2="1060" y2="1420"/><line class="tick" x1="-1035" y1="1455" x2="-965" y2="1385"/><line class="tick" x1="965" y1="1455" x2="1035" y2="1385"/><text class="td" x="0" y="1550" font-size="165" text-anchor="middle">Ø 2 000</text></svg>

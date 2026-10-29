@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-990 -1380 1980 2909.5" class="dwg" style="background:#FBF8F2" role="img" aria-label=""><style>
+.ln{fill:none;stroke:#1E211D;stroke-width:22;stroke-linejoin:round}.thin{fill:none;stroke:#1E211D;stroke-width:9}
+.wall{fill:#3A4036;stroke:#1E211D;stroke-width:8}.body{fill:#E9DCC6;stroke:#1E211D;stroke-width:18}
+.roof{fill:#3A4036;stroke:#1E211D;stroke-width:12}.steel{fill:#B9BDB4;stroke:#1E211D;stroke-width:10}
+.wheel{fill:#2A2E28;stroke:#1E211D;stroke-width:8}.glass{fill:#CFE0E6;stroke:#1E211D;stroke-width:9}
+.fur{fill:#F6F1E8;stroke:#8C8577;stroke-width:8}.room{fill:#FBF8F2}
+.dim,.tick{fill:none;stroke:#5A6054;stroke-width:7}.tick{stroke-width:12}.grd{fill:none;stroke:#8C8577;stroke-width:12}
+.hl{fill:none;stroke:#A8402F;stroke-width:10;stroke-dasharray:70 45}
+text{font-family:Manrope,Arial,sans-serif;fill:#1E211D}.td{fill:#3A4036;font-weight:600}.tl{font-weight:700}
+.tm{fill:#5A6054}.tr{fill:#A8402F;font-weight:700}
+</style><rect class="fur" x="-400" y="-1000" width="800" height="440"/><circle class="wall" cx="0" cy="0" r="550"/><circle class="glass" cx="0" cy="0" r="515"/><circle class="thin" cx="0" cy="0" r="255"/><line class="dim" x1="-550" y1="590" x2="-550" y2="1030"/><line class="dim" x1="550" y1="590" x2="550" y2="1030"/><line class="dim" x1="-610" y1="970" x2="610" y2="970"/><line class="tick" x1="-585" y1="1005" x2="-515" y2="935"/><line class="tick" x1="515" y1="1005" x2="585" y2="935"/><text class="td" x="0" y="1100" font-size="165" text-anchor="middle">Ø 1 100</text></svg>

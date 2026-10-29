@@ -459,16 +459,17 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 .wlegend div { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
 .wlegend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; }
 .cmp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-@media (max-width: 900px) { .cmp-grid { grid-template-columns: 1fr; } }
-.cmp { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-md); overflow: hidden; --p: 50%; user-select: none; }
-.cmp img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-.cmp .cmp-top { clip-path: inset(0 0 0 var(--p)); }
-.cmp::after { content: ''; position: absolute; top: 0; bottom: 0; left: var(--p); width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.2); pointer-events: none; }
-.cmp .knob { position: absolute; top: 50%; left: var(--p); width: 36px; height: 36px; margin: -18px 0 0 -18px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.3); display: grid; place-items: center; pointer-events: none; color: #1E211D; font-size: 14px; font-weight: 700; }
-.cmp input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; margin: 0; }
-.cmp input:focus-visible + .knob { outline: 2px solid var(--accent); outline-offset: 2px; }
-.cmp .lbl { position: absolute; top: 10px; padding: 3px 9px; border-radius: var(--radius-pill); background: rgba(21,24,20,.72); color: #F2ECE1; font-size: 12px; font-weight: 600; pointer-events: none; }
-.cmp .lbl.l { left: 10px; } .cmp .lbl.r { right: 10px; }
+.cmp-grid.n2 { grid-template-columns: repeat(2, 1fr); } .cmp-grid.n1 { grid-template-columns: 1fr; max-width: 720px; }
+@media (max-width: 900px) { .cmp-grid, .cmp-grid.n2 { grid-template-columns: 1fr; } }
+.rcmp { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-md); overflow: hidden; --p: 50%; user-select: none; }
+.rcmp img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.rcmp .cmp-top { clip-path: inset(0 0 0 var(--p)); }
+.rcmp::after { content: ''; position: absolute; top: 0; bottom: 0; left: var(--p); width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.2); pointer-events: none; }
+.rcmp .knob { position: absolute; top: 50%; left: var(--p); width: 36px; height: 36px; margin: -18px 0 0 -18px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.3); display: grid; place-items: center; pointer-events: none; color: #1E211D; font-size: 14px; font-weight: 700; }
+.rcmp input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; margin: 0; }
+.rcmp input:focus-visible + .knob { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rcmp .lbl { position: absolute; top: 10px; padding: 3px 9px; border-radius: var(--radius-pill); background: rgba(21,24,20,.72); color: #F2ECE1; font-size: 12px; font-weight: 600; pointer-events: none; }
+.rcmp .lbl.l { left: 10px; } .rcmp .lbl.r { right: 10px; }
 .flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; counter-reset: flow; }
 @media (max-width: 720px) { .flow { grid-template-columns: 1fr; } }
 .flow div { counter-increment: flow; padding: 18px 20px; border-radius: var(--radius-md); background: var(--surface-raised); box-shadow: inset 0 0 0 1px var(--line); }
@@ -971,7 +972,7 @@ const REAL = {
 };
 function realSections(m) {
   const r = REAL[m.real], d = `img/${m.real}/vykresy/`, w = r.weight, tot = w.total, pc = v => (v / w.limit * 100).toFixed(1) + '%', kg = v => v.toLocaleString('cs-CZ').replace(/\s/g, ' ') + ' kg';
-  const cmp = (k, t) => `<figure style="margin:0"><div class="cmp"><img src="img/${m.real}/render/${k}.webp" alt="${m.name}, 3D model v Blenderu: ${t.toLowerCase()}" loading="lazy"><img class="cmp-top" src="${IMG(m.real + '/foto/' + k)}" alt="${m.name}, vizualizace: ${t.toLowerCase()}" loading="lazy"><input type="range" min="0" max="100" value="50" aria-label="Posunout předěl mezi 3D modelem a vizualizací: ${t.toLowerCase()}"><span class="knob" aria-hidden="true">↔</span><span class="lbl l">3D model</span><span class="lbl r">Vizualizace</span></div><figcaption class="small muted" style="margin-top:10px">${t}</figcaption></figure>`;
+  const cmp = (k, t) => `<figure style="margin:0"><div class="rcmp"><img src="img/${m.real}/render/${k}.webp" alt="${m.name}, 3D model v Blenderu: ${t.toLowerCase()}" loading="lazy"><img class="cmp-top" src="${IMG(m.real + '/foto/' + k)}" alt="${m.name}, vizualizace: ${t.toLowerCase()}" loading="lazy"><input type="range" min="0" max="100" value="50" aria-label="Posunout předěl mezi 3D modelem a vizualizací: ${t.toLowerCase()}"><span class="knob" aria-hidden="true">↔</span><span class="lbl l">3D model</span><span class="lbl r">Vizualizace</span></div><figcaption class="small muted" style="margin-top:10px">${t}</figcaption></figure>`;
   return `
 <section class="section" id="rozmery"><div class="wrap"><div class="head"><p class="eyebrow">Výkresy</p><h2 class="h1">Rozměry ${m.name.replace('Dům', 'Domu')}</h2><p class="lead">Zjednodušené výkresy z projektové dokumentace. Kliknutím otevřete výkres ve velkém.</p></div>
   <div class="dims">${r.dims.map(x => `<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>
@@ -1269,27 +1270,53 @@ for (const k in STUBS) PAGES[k] = () => `<section class="section"><div class="wr
 
 /* ---------- sauny ---------- */
 const SAUNY = {
-  'sauna-podvozek': { key: 'sauna-podvozek', kind: 'sauna', name: 'Sauna na podvozku', short: 'Na podvozku', size: '2 × 3,2 m', people: '4 osoby', price: 349000, img: 'sn-01', tags: [['Modřín', 'nature'], ['Nejoblíbenější', 'accent']],
+  'sauna-podvozek': { key: 'sauna-podvozek', kind: 'sauna', name: 'Sauna na podvozku', short: 'Na podvozku', size: '2 × 3,2 m', people: '4 osoby', price: 349000, img: 'sauna-podvozek/foto/zaklad', tags: [['Modřín', 'nature'], ['Nejoblíbenější', 'accent']],
     line: 'Sauna s předsíní, kterou převezete na chatu i k jezeru.', desc: 'Předsíň s lavicí a věšáky, saunovací místnost pro čtyři a kamna na dřevo. Stojí na vlastním podvozku, takže ji usadíme bez základů a později převezeme jinam.',
     setup: 'Podvozek a patky', heatTxt: 'Kamna na dřevo',
     rooms: [['Předsíň', 'Lavice, věšáky, police na ručníky, okno s izolačním dvojsklem'], ['Saunovací místnost', 'Dvě úrovně lavic z osiky, opěradla, okno do krajiny, LED pás pod lavicí'], ['Kamna', 'Saunová kamna na dřevo s prosklenými dvířky a kameny, komín s izolovaným prostupem'], ['Konstrukce', 'Zateplené stěny, modřínový obklad, smrkové palubky uvnitř, podvozek s brzdami']],
-    gallery: ['sn-01', 'snp-01', 'snp-02', 'snp-03', 'snp-04'] },
-  'sauna-zahradni': { key: 'sauna-zahradni', kind: 'sauna', name: 'Zahradní sauna', short: 'Zahradní', size: '2,2 × 2,4 m', people: '2–3 osoby', price: 249000, img: 'sn-02', tags: [['Modřín', 'nature']],
+    gallery: ['sauna-podvozek/foto/zaklad', 'sauna-podvozek/foto/interier', 'sauna-podvozek/foto/doplnky', 'sauna-podvozek/foto/podvozek', 'snp-04'] },
+  'sauna-zahradni': { key: 'sauna-zahradni', kind: 'sauna', name: 'Zahradní sauna', short: 'Zahradní', size: '2,2 × 2,4 m', people: '2–3 osoby', price: 249000, img: 'sauna-zahradni/foto/zaklad', tags: [['Modřín', 'nature']],
     line: 'Kompaktní sauna na zahradu, usazená na patkách.', desc: 'Menší sauna pro dva až tři, bez předsíně. Usadíme ji na betonové patky přímo na zahradě. Ideální k domu, kde se převlékáte uvnitř.',
     setup: 'Patky', heatTxt: 'Kamna na dřevo',
     rooms: [['Saunovací místnost', 'Lavice z osiky ve dvou úrovních, okno do zahrady, LED osvětlení'], ['Kamna', 'Saunová kamna na dřevo s kameny, nebo elektrická kamna'], ['Konstrukce', 'Zateplené stěny, modřínový obklad, smrkové palubky uvnitř'], ['Usazení', 'Betonové patky, vyrovnání a připojení na místě za jeden den']],
-    gallery: ['sn-02', 'snz-01', 'snz-02', 'snz-03', 'snz-04'] },
-  'kad-koupaci': { key: 'kad-koupaci', kind: 'kad', name: 'Koupací káď', short: 'Koupací káď', size: 'průměr 2 m', people: '6 osob', price: 119000, img: 'sn-03', tags: [['Celoroční', 'nature']],
+    gallery: ['sauna-zahradni/foto/zaklad', 'sauna-zahradni/foto/interier', 'sauna-zahradni/foto/doplnky', 'snz-01', 'snz-02'] },
+  'kad-koupaci': { key: 'kad-koupaci', kind: 'kad', name: 'Koupací káď', short: 'Koupací káď', size: 'průměr 2 m', people: '6 osob', price: 119000, img: 'kad-koupaci/foto/doplnky', tags: [['Celoroční', 'nature']],
     line: 'Horká káď s kamny na dřevo, i v lednu pod hvězdami.', desc: 'Modřínová káď pro šest lidí s vnějšími kamny na dřevo. Voda se ohřeje za dvě až tři hodiny. Skvělá k sauně i jako samostatný kousek wellness na zahradě.',
     setup: 'Rovná plocha', heatTxt: 'Vnější kamna',
     rooms: [['Káď', 'Modřínové dužiny, dvě nerezové obruče, lavice dokola, výpustný ventil'], ['Kamna', 'Vnější kamna na dřevo z oceli, komín s ochranou proti dotyku'], ['Příslušenství', 'Schůdky z modřínu, kryt proti listí'], ['Provoz', 'Napouštění hadicí, vypouštění ventilem, zimní provoz s kamny']],
-    gallery: ['sn-03', 'kk-01', 'kk-02', 'kk-03', 'kk-04'] },
-  'kad-ochlazovaci': { key: 'kad-ochlazovaci', kind: 'kad', name: 'Ochlazovací káď', short: 'Ochlazovací káď', size: 'průměr 1,1 m', people: '1–2 osoby', price: 39000, img: 'sn-04', tags: [['K sauně', 'nature']],
+    gallery: ['kad-koupaci/foto/zaklad', 'kad-koupaci/foto/doplnky', 'sn-03', 'kk-01', 'kk-02'] },
+  'kad-ochlazovaci': { key: 'kad-ochlazovaci', kind: 'kad', name: 'Ochlazovací káď', short: 'Ochlazovací káď', size: 'průměr 1,1 m', people: '1–2 osoby', price: 39000, img: 'kad-ochlazovaci/foto/zaklad', tags: [['K sauně', 'nature']],
     line: 'Studená voda hned vedle sauny, na pár kroků.', desc: 'Malá modřínová káď se studenou vodou pro ochlazení mezi saunováním. Postavíme ji vedle sauny na terasu nebo na zahradu.',
     setup: 'Rovná plocha', heatTxt: 'Bez ohřevu',
     rooms: [['Káď', 'Modřínové dužiny, nerezové obruče, výpustný ventil'], ['Příslušenství', 'Schůdky z modřínu, kryt'], ['Umístění', 'Vedle sauny na terase nebo na zpevněné ploše'], ['Provoz', 'Napouštění hadicí, v zimě vypustit, nebo nechat zamrznout povrch']],
-    gallery: ['sn-04', 'ko-01', 'ko-02', 'ko-03', 'ko-04'] },
+    gallery: ['kad-ochlazovaci/foto/zaklad', 'sauna-podvozek/foto/doplnky', 'sn-04', 'ko-01', 'ko-02'] },
 };
+const SREAL = {   // výkresy, rozměry a porovnání render × vizualizace podle dokumentace v projekt/
+  'sauna-podvozek': { dims: [['Sauna', '3,2 × 2,0 m'], ['Celkem s ojí', '5,1 m'], ['Výška s komínem', '3,79 m'], ['Uvnitř', '2,10 m'], ['Sauna / předsíň', '2,7 / 1,9 m²'], ['Hmotnost', '1 892 kg']],
+    dwg: [['pudorys', 'Půdorys', 'Předsíň s lavicí, saunovací místnost se dvěma lavicemi a kamny.'], ['bokorys', 'Boční pohled', 'Pultová střecha s přesahem nad vstupem, komín 600 mm nad střechou.'], ['podvozek', 'Podvozek', 'Přívěs O2 do 2 000 kg s nájezdovou brzdou. Utáhne ho běžné osobní auto.']],
+    cmp: [['zaklad', 'Exteriér'], ['interier', 'Saunovací místnost'], ['podvozek', 'Podvozek']] },
+  'sauna-zahradni': { dims: [['Sauna', '2,4 × 2,2 m'], ['Výška s komínem', '3,48 m'], ['Výška střechy', '2,92 m'], ['Uvnitř', '2,10 m'], ['Saunovací místnost', '3,8 m²'], ['Hmotnost', '1 296 kg']],
+    dwg: [['pudorys', 'Půdorys', 'Jedna místnost bez předsíně, dvě lavice a kamna u vstupu.'], ['bokorys', 'Boční pohled', 'Usazení na šesti betonových patkách, pultová střecha s komínem.']],
+    cmp: [['zaklad', 'Exteriér'], ['interier', 'Saunovací místnost'], ['doplnky', 'S doplňky']] },
+  'kad-koupaci': { dims: [['Průměr', '2,0 m'], ['S kamny', '2,56 m'], ['Výška', '1,25 m'], ['Komín', '2,30 m'], ['Voda', '2 532 l'], ['Plná', '3 479 kg']],
+    dwg: [['pudorys', 'Půdorys', 'Lavice dokola, vnější kamna napojená dvěma nerezovými trubkami, schůdky.'], ['bokorys', 'Pohled', 'Modřínové dužiny, dvě nerezové obruče, komín s ochranou proti dotyku.']],
+    cmp: [['zaklad', 'Káď s kamny'], ['doplnky', 'S podestou a LED']] },
+  'kad-ochlazovaci': { dims: [['Průměr', '1,1 m'], ['Výška', '1,18 m'], ['Voda', '773 l'], ['Prázdná', '145 kg'], ['Plná', '1 078 kg'], ['Ohřev', 'bez ohřevu']],
+    dwg: [['pudorys', 'Půdorys', 'Káď se schůdky.'], ['bokorys', 'Pohled', 'Modřínové dužiny a nerezové obruče.']],
+    cmp: [['zaklad', 'Ochlazovací káď']] },
+};
+function saunaReal(p) {
+  const r = SREAL[p.key]; if (!r) return '';
+  const d = `img/${p.key}/vykresy/`;
+  const cmp = (k, t) => `<figure style="margin:0"><div class="rcmp"><img src="img/${p.key}/render/${k}.webp" alt="${p.name}, 3D model v Blenderu: ${t.toLowerCase()}" loading="lazy"><img class="cmp-top" src="${IMG(p.key + '/foto/' + k)}" alt="${p.name}, vizualizace: ${t.toLowerCase()}" loading="lazy"><input type="range" min="0" max="100" value="50" aria-label="Posunout předěl mezi 3D modelem a vizualizací: ${t.toLowerCase()}"><span class="knob" aria-hidden="true">↔</span><span class="lbl l">3D model</span><span class="lbl r">Vizualizace</span></div><figcaption class="small muted" style="margin-top:10px">${t}</figcaption></figure>`;
+  return `
+<section class="section" id="rozmery"><div class="wrap"><div class="head"><p class="eyebrow">Výkresy</p><h2 class="h1">Rozměry</h2><p class="lead">Zjednodušené výkresy z projektové dokumentace. Kliknutím otevřete výkres ve velkém.</p></div>
+  <div class="dims">${r.dims.map(x => `<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>
+  <div class="dwg-grid">${r.dwg.map((x, i) => `<figure class="dwg-fig ${r.dwg.length === 3 && i === 2 ? 'wide' : ''}"><a href="${d}${x[0]}.svg" target="_blank" rel="noopener"><img src="${d}${x[0]}.svg" alt="${p.name}: ${x[1].toLowerCase()} s kótami" loading="lazy"></a><figcaption><b>${x[1]}.</b> ${x[2]}</figcaption></figure>`).join('')}</div>
+  <p class="note" style="margin-top:16px">Rozměry v milimetrech. Výkresy jsou studie, přesné hodnoty potvrdí výrobní dokumentace.</p></div></section>
+<section class="section sunken" id="jak-vznika"><div class="wrap"><div class="head"><p class="eyebrow">Jak vznikají vizualizace</p><h2 class="h1">Obrázky podle skutečného modelu</h2><p class="lead">Vizualizace vycházejí z 3D modelu, který odpovídá výkresům. Posuňte předěl a porovnejte model s výslednou vizualizací.</p></div>
+  <div class="cmp-grid n${r.cmp.length}">${r.cmp.map(x => cmp(x[0], x[1])).join('')}</div></div></section>`;
+}
 const SOPT = {
   sauna: { heat: [['drevo', 'Kamna na dřevo', 0, 'topeni'], ['elektro', 'Elektrická kamna 9 kW', 18000, 'elektrina'], ['vnejsi', 'Kamna s vnějším přikládáním', 24000, 'drevo']],
     extras: [['sprcha', 'Venkovní sprcha', 'Na stěně sauny, teplá i studená voda', 14000, 'sprcha'], ['led', 'Osvětlení LED', 'Pás pod lavicí a světlo nad vstupem', 9000, 'elektrina'], ['terasa', 'Terasa s lavicí', 'Modřínová terasa 2 × 3 m u vstupu', 32000, 'list'], ['kad', 'Ochlazovací káď', 'Postavíme ji hned vedle sauny', 39000, 'voda']] },
@@ -1387,12 +1414,13 @@ ${heroImg({ img: p.img, alt: p.name, posM: '68% 50%', top: `<div class="tags her
 <section class="section tight"><div class="wrap"><div class="gallery">${p.gallery.map((g, i) => `<figure><img src="${IMG(g)}" alt="${p.name}, ukázka ${i + 1}" loading="lazy">${vis}</figure>`).join('')}</div></div></section>
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Výbava</p><h2 class="h1">Co je v ceně</h2></div>
   <div class="two-col">${p.rooms.map(r => `<div class="panel flat"><h3 class="h3">${r[0]}</h3><p class="muted">${r[1]}</p></div>`).join('')}</div></div></section>
+${saunaReal(p)}
 <section class="section sunken" id="sestava"><div class="wrap"><div class="head"><p class="eyebrow">Sestavení</p><h2 class="h1">${p.kind === 'sauna' ? 'Poskládejte si saunu.' : 'Doplňte káď podle sebe.'}</h2><p class="lead">Cena se přepočítá hned. Přesnou nabídku vám pošleme e-mailem.</p></div>
   <div class="cfg" data-scfg="${p.key}"><div class="panel scfg-in">
     ${o.heat ? `<h3 class="h3" style="margin-bottom:14px">Kamna</h3><div class="stack" style="gap:10px;margin-bottom:32px">${o.heat.map(h => `<button type="button" class="opt row" data-sg="heat" data-v="${h[0]}" aria-pressed="${SCFG.heat === h[0]}">${ic(h[3])}<b>${h[1]}</b><span>${h[2] ? '+ ' + kc(h[2]) : 'v ceně'}</span><span class="tick">${ic('check')}</span></button>`).join('')}</div>` : ''}
     <h3 class="h3" style="margin-bottom:6px">Doplňky</h3><p class="small muted" style="margin-bottom:14px">Můžete zvolit více položek, nebo žádnou.</p>
     <div class="stack" style="gap:10px">${o.extras.map(x => `<button type="button" class="opt row" data-sg="extras" data-v="${x[0]}" aria-pressed="${SCFG.extras.has(x[0])}">${ic(x[4])}<span><b>${x[1]}</b><br>${x[2]}</span><span>+ ${kc(x[3])}</span><span class="tick">${ic('check')}</span></button>`).join('')}</div></div>
-    <aside class="cfg-sum" aria-label="Souhrn"><div class="media-r"><img src="${IMG(p.img)}" alt="">${vis}</div><div class="sum-body"><h3 class="h2">${p.name}</h3><div class="sum-lines" id="scfg-lines"></div>
+    <aside class="cfg-sum" aria-label="Souhrn"><div class="media-r"><img id="scfg-img" src="${IMG(p.key + '/foto/zaklad')}" alt="">${vis}</div><div class="sum-body"><h3 class="h2">${p.name}</h3><div class="sum-lines" id="scfg-lines"></div>
       <div class="sum-total"><span>Cena s DPH</span><div class="price" id="scfg-total"></div><span id="scfg-month"></span></div>
       ${btnP('Poslat nabídku do e-mailu', '#poptavka')}<p class="note" style="color:var(--stone-300)">Ceny doplňků jsou orientační, upřesníme je v nabídce.</p></div></aside></div></div></section>
 <section class="section"><div class="wrap"><div class="two-col">
@@ -1414,6 +1442,8 @@ function initScfg() {
     root.querySelector('#scfg-lines').innerHTML = lines.map(l => `<div><span>${l[0]}</span><b>${l[1] ? kc(l[1]) : 'v ceně'}</b></div>`).join('');
     root.querySelector('#scfg-total').textContent = kc(total);
     root.querySelector('#scfg-month').textContent = total > 100000 ? 'splátka od ' + kc(monthly(total)) + '/měs. při 20% akontaci na 12 let' : 'jednorázově, bez splátek';
+    const img = root.querySelector('#scfg-img'), extra = SCFG.extras.size && ['sauna-podvozek', 'sauna-zahradni', 'kad-koupaci'].includes(p.key);   // varianta s doplňky existuje u těchto výrobků
+    if (img) img.src = IMG(`${p.key}/foto/${extra ? 'doplnky' : 'zaklad'}`);
     root.querySelectorAll('[data-sg]').forEach(b => b.setAttribute('aria-pressed', b.dataset.sg === 'heat' ? SCFG.heat === b.dataset.v : SCFG.extras.has(b.dataset.v)));
   };
   root.addEventListener('click', e => { const b = e.target.closest('[data-sg]'); if (!b) return;
@@ -1436,7 +1466,7 @@ ${ritual()}
 ${leadSection({ model: 'sada', eyebrow: 'Sada dům + sauna', title: 'Pošleme vám nabídku na sadu.', text: 'Napište nám, kde má dům se saunou stát. Do 24 hodin se ozveme s nabídkou, termínem a kontrolou pozemku.' })}`;
 
 /* ---------- router ---------- */
-document.addEventListener('input', e => { const c = e.target.closest('.cmp'); if (c) c.style.setProperty('--p', e.target.value + '%'); });
+document.addEventListener('input', e => { const c = e.target.closest('.rcmp'); if (c) c.style.setProperty('--p', e.target.value + '%'); });
 const app = document.getElementById('app'), hdr = document.getElementById('hdr');
 function route() {
   let h = (location.hash || '#uvod').slice(1); let param = '';
