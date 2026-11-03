@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&family=Manrope:wght@400;500;600;700&display=swap">
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <style>
 /* Layout: střídání světlých obsahových sekcí (Len) a tmavých scroll kapitol (Les); obsah max 1240 px, text max 680 px. Tokeny z design systému Nordhouse. */
 :root {
@@ -340,6 +341,24 @@ figure { margin: 0; }
 .calc-out .big { font-family: var(--font-display); font-weight: 300; font-size: 56px; line-height: 60px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .calc-out .muted { color: var(--stone-300); }
 @media (max-width: 900px) { .calc { grid-template-columns: 1fr; } .calc-in, .calc-out { padding: 28px 22px; } .calc-out .big { font-size: 44px; line-height: 48px; } }
+/* 3D prohlížeč domu */
+.v3d { position: relative; border-radius: var(--radius-lg); overflow: hidden; background: #dfe5e0; box-shadow: var(--shadow-card); }
+.v3d-canvas { height: min(68vh, 640px); min-height: 380px; touch-action: none; }
+.v3d-canvas canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+.v3d-canvas canvas:active { cursor: grabbing; }
+.v3d-status { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-muted); font-weight: 600; }
+.v3d-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.v3d-bar .seg button { padding: 8px 14px; }
+.v3d-legend { position: absolute; left: 14px; bottom: 14px; background: rgba(247,243,236,.92); border-radius: var(--radius-md); padding: 10px 14px; font-size: 13px; display: grid; gap: 4px; }
+.v3d-legend i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; margin-right: 8px; vertical-align: middle; }
+.v3d-status[hidden], .v3d-legend[hidden] { display: none; }
+.v3d-hint { position: absolute; right: 14px; bottom: 14px; background: rgba(30,33,29,.7); color: var(--linen-25); border-radius: var(--radius-pill); padding: 6px 12px; font-size: 12px; pointer-events: none; }
+@media (max-width: 720px) { .v3d-bar .seg { width: 100%; } .v3d-bar .seg button { flex: 1 1 auto; padding: 8px 10px; font-size: 13px; } .v3d-hint { display: none; } .v3d-legend { grid-template-columns: 1fr 1fr; gap: 2px 12px; font-size: 11px; left: 8px; bottom: 8px; padding: 8px 10px; } }
+.schema-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
+.schema-grid figure { margin: 0; background: var(--surface-raised); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-card); }
+.schema-grid img { width: 100%; height: auto; display: block; }
+.schema-grid figcaption { margin-top: 12px; font-size: 14px; color: var(--ink-muted); }
+.schema-grid figcaption b { color: var(--ink); }
 .seg { display: inline-flex; flex-wrap: wrap; gap: 6px; background: var(--surface-sunken); padding: 5px; border-radius: var(--radius-pill); }
 .seg button { border: 0; background: transparent; padding: 9px 18px; border-radius: var(--radius-pill); cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink-muted); }
 .seg button[aria-pressed="true"] { background: var(--forest-900); color: var(--linen-25); }
@@ -942,8 +961,10 @@ const REAL = {
   'dum-s': {
     dims: [['Délka domu', '6,0 m'], ['Celkem s ojí', '7,75 m'], ['Šířka', '2,5 m'], ['Výška od terénu', '3,94 m'], ['Světlá výška', 'až 2,80 m'], ['Podlaha nad terénem', '0,83 m']],
     dwg: [['pudorys', 'Půdorys', 'Obytný prostor s kuchyní 9,5 m², koupelna 2,4 m². Vstup proskleným štítem.', 'wide'], ['bokorys', 'Boční pohled', 'Dům 6 000 mm, oj 1 600 mm, výška 3 936 mm pod silničním limitem 4 m.'], ['rez', 'Příčný řez', 'Max. šířka se střechou 2 550 mm. Pod hřebenem 2 795 mm světlé výšky.']],
-    chassis: [['Kategorie', 'Přívěs O2 do 3 500 kg. Utáhne ho osobní auto s řidičským oprávněním B+E.'], ['Rám', 'Podélníky UPE 160, příčníky à 600 mm, obvodový úhelník. Svařovaný a žárově zinkovaný.'], ['Nápravy', 'Tandem 2× torzní náprava 1 800 kg, bržděná. Osy 2 450 a 3 350 mm od štítu, rozvor 900 mm.'], ['Kola', '4× 195/50 R13C, rozchod 2 220 mm. Kola leží celá pod obrysem domu.'], ['Oj a brzda', 'A-oj, nájezdová brzda s kulovou spojkou 3 500 kg, opěrné kolečko.'], ['Stání', '4 kličkové opěrné nohy v rozích. Na místě odlehčí kola a dům vyrovnají.'], ['Výška rámu', '650 mm nad terénem, podlaha domu 830 mm.']],
-    weight: { house: 2768, chassis: 663, total: 3430, limit: 3500 },  // součet zaokrouhlených položek dává 3 431, dokumentace uvádí 3 430
+    chassis: [['Kategorie', 'Přívěs O2 do 3 500 kg. Utáhne ho osobní auto s řidičským oprávněním B+E.'], ['Rám', 'Podélníky UPE 160, příčníky à 600 mm, obvodový úhelník. Svařovaný a žárově zinkovaný.'], ['Nápravy', 'Tandem 2× torzní náprava 1 800 kg, bržděná. Osy 2 700 a 3 600 mm od štítu, rozvor 900 mm. Na spojku připadá 5 % hmotnosti, přívěs jede stabilně.'], ['Kola', '4× 195/50 R13C, rozchod 2 220 mm. Kola leží celá pod obrysem domu.'], ['Oj a brzda', 'A-oj, nájezdová brzda s kulovou spojkou 3 500 kg, opěrné kolečko.'], ['Stání', '6 kličkových nohou 2 000 kg přímo pod podélníky, v rozích i uprostřed, s roznášecími deskami 400 × 400 mm. Rám se při stání neprohýbá. Proti větru dům drží 6 zemních vrutů s popruhy.'], ['Výška rámu', '650 mm nad terénem, podlaha domu 830 mm.']],
+    weight: { house: 2768, chassis: 663, total: 3430, limit: 3500 },
+    model3d: 'img/dum-s/3d/dum-s.glb',
+    schemata: [['img/dum-s/schemata/elektro.svg', 'Schéma zapojení elektřiny', 'Přívodka 32 A, rozvaděč s chráničem a jističi, okruhy světel, zásuvek s USB-C, kuchyně, ohřevu vody a topení. Off-grid: panely, odpojovač DC, měnič a baterie.'], ['img/dum-s/schemata/odpady.svg', 'Schéma odpadů', 'Dřez, umyvadlo, sprcha a WC odtékají svisle do zatepleného sběrného potrubí pod rámem a jedním hrdlem DN110 do přípojky, jímky nebo čistírny. Odvětrání nad střechu.']],  // součet zaokrouhlených položek dává 3 431, dokumentace uvádí 3 430
     lead: 'Dům S stojí na vlastním silničním podvozku. Je to přívěs do 3,5 t, takže ho převezete autem s řidičákem B+E. Na pozemku nepotřebuje základy.',
     rendered: 'Žárově zinkovaný rám s tandemovou nápravou.',
     wnote: 'Proto má Dům S lehké skladby a elektrické topení místo kamen.',
@@ -970,6 +991,30 @@ const REAL = {
     cmp: [['prirodni-0000', 'Exteriér'], ['int-smrk-0', 'Interiér'], ['loznice', 'Ložnice']],
   },
 };
+function model3dSection(m, r) {
+  const v = [['zvenku', 'Zvenku'], ['zvenku2', 'Zezadu'], ['rez', 'Bez střechy'], ['obyvak', 'Obývák'], ['kuchyn', 'Kuchyň'], ['koupelna', 'Koupelna']];
+  const l = [['xray', 'Rozvody (rentgen)'], ['L_offgrid', 'Off-grid'], ['L_tc', 'Tepelné čerpadlo']];
+  const leg = [['#1a59d9', 'Studená voda'], ['#d91f1a', 'Teplá voda'], ['#8c9194', 'Odpad'], ['#f2bf0d', 'Elektřina 230 V'], ['#f2660d', 'Solár DC'], ['#33b38c', 'Rekuperace'], ['#b86b33', 'Chladivo TČ']];
+  return `
+<section class="section" id="model-3d"><div class="wrap"><div class="head"><p class="eyebrow">3D model</p><h2 class="h1">Projděte si ${m.name} zvenku i zevnitř</h2><p class="lead">Stejný model, ze kterého vycházejí výkresy a výroba. Otáčejte myší nebo prstem. Uvnitř se rozhlédnete tažením. Rentgen ukáže vedení vody, odpadů a elektřiny ve stěnách a pod podlahou.</p></div>
+  <div class="v3d-wrap" data-src="${r.model3d}">
+    <div class="v3d-bar"><div class="seg" role="group" aria-label="Pohled">${v.map(x => `<button type="button" data-view="${x[0]}" aria-pressed="${x[0] === 'zvenku'}">${x[1]}</button>`).join('')}</div>
+      <div class="seg" role="group" aria-label="Vrstvy">${l.map(x => `<button type="button" data-layer="${x[0]}" aria-pressed="false">${x[1]}</button>`).join('')}</div></div>
+    <div class="v3d"><div class="v3d-canvas" role="img" aria-label="Interaktivní 3D model: ${m.name}"></div><div class="v3d-status">Načítám 3D model…</div>
+      <div class="v3d-legend" hidden>${leg.map(x => `<span><i style="background:${x[0]}"></i>${x[1]}</span>`).join('')}</div><span class="v3d-hint">Táhnout: otočit · kolečko: přiblížit · pravé tlačítko: posunout</span></div>
+  </div>
+  <p class="note" style="margin-top:16px">Model je zjednodušený pro web: barvy materiálů odpovídají, textury dřeva a detaily kování jsou ve výrobní dokumentaci. Off-grid a tepelné čerpadlo jsou volitelné balíčky.</p></div></section>
+${r.schemata ? `<section class="section" id="technika" style="padding-top:0"><div class="wrap"><div class="head"><p class="eyebrow">Technika</p><h2 class="h1">Jak je zapojená elektřina a odpady</h2><p class="lead">Schémata z technického modelu. Každý okruh má vlastní jistič, odpady mají spád nejméně 1,5 % a vedou mimo nosné trámy. Kliknutím otevřete schéma ve velkém.</p></div>
+  <div class="schema-grid">${r.schemata.map(x => `<figure><a href="${x[0]}" target="_blank" rel="noopener"><img src="${x[0]}" alt="${x[1]}" loading="lazy"></a><figcaption><b>${x[1]}.</b> ${x[2]}</figcaption></figure>`).join('')}</div>
+  <p class="note" style="margin-top:16px">Schémata jsou projekční studie. Elektroinstalaci provede a revizí doloží elektrikář s oprávněním, přípojky na pozemku si zajišťuje majitel.</p></div></section>` : ''}`;
+}
+function initDum3d() {
+  const el = document.querySelector('.v3d-wrap'); if (!el) return;
+  const start = () => import('./js/dum3d.js').then(mod => mod.init(el, { src: el.dataset.src })).catch(() => { el.querySelector('.v3d-status').textContent = '3D model se v tomto prohlížeči nepodařilo spustit.'; });
+  if (!('IntersectionObserver' in window)) return start();
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); start(); } }, { rootMargin: '300px' });
+  io.observe(el);
+}
 function realSections(m) {
   const r = REAL[m.real], d = `img/${m.real}/vykresy/`, w = r.weight, tot = w.total, pc = v => (v / w.limit * 100).toFixed(1) + '%', kg = v => v.toLocaleString('cs-CZ').replace(/\s/g, ' ') + ' kg';
   const cmp = (k, t) => `<figure style="margin:0"><div class="rcmp"><img src="img/${m.real}/render/${k}.webp" alt="${m.name}, 3D model v Blenderu: ${t.toLowerCase()}" loading="lazy"><img class="cmp-top" src="${IMG(m.real + '/foto/' + k)}" alt="${m.name}, vizualizace: ${t.toLowerCase()}" loading="lazy"><input type="range" min="0" max="100" value="50" aria-label="Posunout předěl mezi 3D modelem a vizualizací: ${t.toLowerCase()}"><span class="knob" aria-hidden="true">↔</span><span class="lbl l">3D model</span><span class="lbl r">Vizualizace</span></div><figcaption class="small muted" style="margin-top:10px">${t}</figcaption></figure>`;
@@ -978,6 +1023,7 @@ function realSections(m) {
   <div class="dims">${r.dims.map(x => `<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>
   <div class="dwg-grid">${r.dwg.map(x => `<figure class="dwg-fig ${x[3] || ''}"><a href="${d}${x[0]}.svg" target="_blank" rel="noopener"><img src="${d}${x[0]}.svg" alt="${m.name}: ${x[1].toLowerCase()} s kótami" loading="lazy"></a><figcaption><b>${x[1]}.</b> ${x[2]}</figcaption></figure>`).join('')}</div>
   <p class="note" style="margin-top:16px">Rozměry v milimetrech. Výkresy jsou studie, přesné hodnoty potvrdí výrobní dokumentace.</p></div></section>
+${r.model3d ? model3dSection(m, r) : ''}
 <section class="section sunken" id="podvozek"><div class="wrap"><div class="head"><p class="eyebrow">Podvozek</p><h2 class="h1">Na čem dům stojí</h2><p class="lead">${r.lead}</p></div>
   <div class="trio">
     <figure><a class="shot svg" href="${d}podvozek.svg" target="_blank" rel="noopener" style="display:block"><img src="${d}podvozek.svg" alt="Výkres podvozku ${m.name.replace('Dům', 'Domu')} s kótami" loading="lazy"></a><figcaption><b>Výkres</b>Půdorys rámu, náprav a oje s hlavními rozměry.</figcaption></figure>
@@ -1484,7 +1530,7 @@ function route() {
   document.title = 'Nordhouse';
   const sn = h === 'sauny' || !!SAUNY[h] || h === 'sada-dum-sauna';
   document.getElementById('stickyCta').innerHTML = sn ? `<a class="btn btn-secondary" href="#sada-dum-sauna">Sada s domem</a><a class="btn btn-primary" href="${h === 'sauny' ? '#sauny-modely' : '#sauny'}">Vybrat saunu</a>` : `<a class="btn btn-secondary" href="#zkusebni-noc">Přespat na zkoušku</a><a class="btn btn-primary" href="#konfigurator">Navrhnout dům</a>`;
-  initCalc(app); initBooking(); initCfg(param); initInvest(); initScfg(); initForms(); initReveal();
+  initCalc(app); initBooking(); initCfg(param); initInvest(); initScfg(); initForms(); initReveal(); initDum3d();
   if (anchor) document.getElementById(anchor)?.scrollIntoView(); else window.scrollTo(0, 0);
   onScroll();
 }
