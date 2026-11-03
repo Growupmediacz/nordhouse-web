@@ -625,6 +625,15 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
   .sticky-cta { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; gap: 10px; padding: 12px var(--gutter-r) calc(12px + env(safe-area-inset-bottom, 0px)) var(--gutter-l); background: var(--surface); box-shadow: 0 -1px 0 var(--line), var(--shadow-float); }
   .sticky-cta .btn { flex: 1; justify-content: center; padding: 13px 12px; }
   body { padding-bottom: 76px; }
+  /* konfigurátor: Zpět · cena a krok · Pokračovat */
+  .sticky-cta.cfg-mode { align-items: center; }
+  .sticky-cta .sc-back { flex: 0 0 auto; padding-inline: 16px; }
+  .sticky-cta .sc-back[hidden] { display: none; }
+  .sticky-cta .sc-sum { flex: 1 1 auto; min-width: 0; display: grid; text-align: center; line-height: 1.2; }
+  .sticky-cta .sc-sum span { font-size: 11px; color: var(--ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sticky-cta .sc-sum b { font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .sticky-cta .sc-next { flex: 0 0 auto; padding-inline: 18px; }
+  .wiz-foot { scroll-margin-bottom: 100px; }
 }
 
 /* wizard konfigurátoru */
@@ -1274,6 +1283,23 @@ function initCfg(param) {
     if (km) { const t = () => { CFG.km = +km.value; document.getElementById('cfg-km-o').textContent = CFG.km + ' km'; document.getElementById('cfg-km-t').textContent = CFG.km <= 100 ? 'Doprava a usazení zdarma.' : 'Nad 100 km vám cenu dopravy upřesníme v nabídce.'; summary(); }; km.addEventListener('input', t); t(); }
     host.querySelectorAll('form[data-form]').forEach(f => f.addEventListener('submit', e => { e.preventDefault(); f.innerHTML = `<div class="form-ok full"><b>${ic('zprava')}Nabídka připravena k odeslání</b><p class="small">V ostré verzi přijde PDF nabídka e-mailem. V prototypu se nic neodesílá.</p></div>`; }));
     summary();
+    stickyBar();
+  }
+  // mobil: spodní lišta ovládá konfigurátor (místo obecných odkazů), ať není nutné skrolovat k tlačítkům pod volbami
+  function stickyBar() {
+    const sc = document.getElementById('stickyCta'), last = CFG.step === STEPS.length - 1;
+    const total = cfgLines().reduce((t, l) => t + (l[1] || 0), 0);
+    sc.classList.add('cfg-mode');
+    sc.innerHTML = `<button type="button" class="btn btn-secondary sc-back"${CFG.step ? '' : ' hidden'}>Zpět</button>
+      <div class="sc-sum" aria-live="polite"><span>Krok ${CFG.step + 1}/${STEPS.length} · ${STEPS[CFG.step]}</span><b>${kc(total)}</b></div>
+      <button type="button" class="btn btn-primary sc-next">${last ? 'Odeslat' : 'Pokračovat'}</button>`;
+    sc.querySelector('.sc-back').addEventListener('click', () => document.getElementById('cfg-back').click());
+    sc.querySelector('.sc-next').addEventListener('click', () => {
+      if (!last) return document.getElementById('cfg-next').click();
+      const f = host.querySelector('form[data-form]');
+      if (!f) return;
+      if (f.checkValidity()) f.requestSubmit(); else { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.reportValidity(); }
+    });
   }
   host.addEventListener('click', e => { const b = e.target.closest('.opt'); if (!b) return; const g = b.dataset.g;
     if (g === 'extras') { CFG.extras.has(b.dataset.v) ? CFG.extras.delete(b.dataset.v) : CFG.extras.add(b.dataset.v); } else CFG[g] = b.dataset.v; upd(); });
@@ -1566,7 +1592,7 @@ function route() {
   const nav = document.querySelector(`[data-nav="${h.startsWith('dum-') || h === 'invest' ? 'domy' : (SAUNY[h] || h === 'sada-dum-sauna') ? 'sauny' : h}"]`); if (nav) nav.setAttribute('aria-current', 'page');
   document.title = 'Nordhouse';
   const sn = h === 'sauny' || !!SAUNY[h] || h === 'sada-dum-sauna';
-  document.getElementById('stickyCta').innerHTML = sn ? `<a class="btn btn-secondary" href="#sada-dum-sauna">Sada s domem</a><a class="btn btn-primary" href="${h === 'sauny' ? '#sauny-modely' : '#sauny'}">Vybrat saunu</a>` : `<a class="btn btn-secondary" href="#zkusebni-noc">Přespat na zkoušku</a><a class="btn btn-primary" href="#konfigurator">Navrhnout dům</a>`;
+  document.getElementById('stickyCta').classList.remove('cfg-mode'); document.getElementById('stickyCta').innerHTML = sn ? `<a class="btn btn-secondary" href="#sada-dum-sauna">Sada s domem</a><a class="btn btn-primary" href="${h === 'sauny' ? '#sauny-modely' : '#sauny'}">Vybrat saunu</a>` : `<a class="btn btn-secondary" href="#zkusebni-noc">Přespat na zkoušku</a><a class="btn btn-primary" href="#konfigurator">Navrhnout dům</a>`;
   initCalc(app); initBooking(); initCfg(param); initInvest(); initScfg(); initForms(); initReveal(); initDum3d();
   if (anchor) document.getElementById(anchor)?.scrollIntoView(); else window.scrollTo(0, 0);
   onScroll();
