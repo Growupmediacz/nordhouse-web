@@ -48,6 +48,7 @@ const LOOK = {
   NH_fasada: m => ({ map: boards(m, 0.14, 'u', { light: 1.3 }), roughness: 0.8 }),
   NH_terasa: m => ({ map: boards(m, 0.145, 'v'), roughness: 0.85 }),
   NH_obklad: m => ({ map: boards(m, 0.12, 'u', { grain: 0.06, gap: 0.25, vary: 0.08 }), roughness: 0.6 }),
+  NH_topol: m => ({ map: boards(m, 1.25, 'u', { grain: 0.04, gap: 0.18, gapPx: 2, vary: 0.03 }), roughness: 0.55 }),
   NH_obklad_tmavy: m => ({ map: boards(m, 0.12, 'u', { grain: 0.07, gap: 0.3 }), roughness: 0.6 }),
   NH_podlaha: m => ({ map: boards(m, 0.19, 'v', { grain: 0.08, gap: 0.35 }), roughness: 0.5 }),
   NH_dvirka: m => ({ map: boards(m, 0.6, 'u', { grain: 0.05, gap: 0, vary: 0.04 }), roughness: 0.45 }),
@@ -118,7 +119,7 @@ export function init(root, cfg) {
     zvenku: { pos: B(-5.8, -7.6, 3.9), tgt: B(3.2, 1.25, 1.7), inside: false, roof: true },
     zvenku2: { pos: B(11.5, 8.5, 3.4), tgt: B(3.0, 1.25, 1.7), inside: false, roof: true },
     rez: { pos: B(3.0, -4.2, 8.6), tgt: B(3.0, 1.25, 1.0), inside: false, roof: false },
-    obyvak: { pos: B(0.55, 0.95, 2.3), tgt: B(4.2, 1.2, 1.95), inside: true, roof: true },
+    obyvak: { pos: B(0.5, 1.0, 2.25), tgt: B(4.2, 1.25, 1.62), inside: true, roof: true },
     kuchyn: { pos: B(4.35, 1.25, 2.4), tgt: B(0.2, 1.0, 1.9), inside: true, roof: true },
     koupelna: { pos: B(4.9, 1.6, 2.32), tgt: B(5.7, 0.5, 1.5), inside: true, roof: true },
   };
