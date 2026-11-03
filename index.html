@@ -180,6 +180,18 @@ p { margin: 0; }
 @media (min-width: 961px) { .site-header .wrap, .hero-v3 .hero-content { max-width: none; padding-left: max(clamp(32px, 5vw, 96px), env(safe-area-inset-left, 0px)); padding-right: max(clamp(32px, 5vw, 96px), env(safe-area-inset-right, 0px)); } }
 @media (max-width: 960px) { .hero-bar { display: none; } .hero-v3 .hero-content { padding-bottom: 72px; } }
 @media (max-width: 720px) { .hero-v3 { min-height: 92vh; align-items: end; } .hero-eyebrow { font-size: 12px; letter-spacing: .24em; margin-bottom: 18px; } .hero-sub { margin-top: 22px; } .hero-v3 .btn-row { margin-top: 28px; gap: 12px; } .btn-xl { padding: 15px 24px; font-size: 15px; } }
+/* lišta pod heroem v toku stránky: nikdy nepřekryje text ani tlačítka, ať je okno jakkoli nízké */
+@media (min-width: 961px) {
+  .hero-v3 { grid-template-rows: 1fr auto; align-items: stretch; }
+  .hero-v3 .hero-content { align-self: center; padding-bottom: 40px; }
+  .hero-v3 .hero-bar { position: relative; left: auto; bottom: auto; transform: none; justify-self: center; grid-row: 2; margin: 0 16px 44px; max-width: calc(100% - 32px); }
+}
+@media (min-width: 961px) and (max-width: 1240px) { .hero-bar button { padding: 18px 20px; gap: 10px; font-size: 14px; } .hero-bar .bar-cta { padding: 18px 26px; font-size: 14px; } .hero-bar button .ico { width: 20px; height: 20px; } }
+/* mobil: text heroe leží přes fotku, tmavší přechod odspodu a jemný stín písma */
+@media (max-width: 720px) {
+  .hero-v3 .hero-media::after, .hero-v3.hero-img .hero-media::after { background: linear-gradient(180deg, rgba(14,20,30,.5) 0%, rgba(14,20,30,.12) 20%, rgba(14,20,30,.5) 38%, rgba(14,20,30,.8) 58%, rgba(14,20,30,.9) 100%); }
+  .hero-v3 .hero-title, .hero-v3 .hero-sub, .hero-v3 .hero-eyebrow, .hero-v3 .detail-hero-price { text-shadow: 0 1px 14px rgba(0,0,0,.5); }
+}
 
 
 /* průřez stěnou podle vizualizace */
@@ -346,14 +358,37 @@ figure { margin: 0; }
 .v3d-canvas { height: min(68vh, 640px); min-height: 380px; touch-action: none; }
 .v3d-canvas canvas { display: block; width: 100%; height: 100%; cursor: grab; }
 .v3d-canvas canvas:active { cursor: grabbing; }
-.v3d-status { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-muted); font-weight: 600; }
-.v3d-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
-.v3d-bar .seg button { padding: 8px 14px; }
-.v3d-legend { position: absolute; left: 14px; bottom: 14px; background: rgba(247,243,236,.92); border-radius: var(--radius-md); padding: 10px 14px; font-size: 13px; display: grid; gap: 4px; }
+.v3d-status { position: absolute; inset: 0; display: grid; place-items: center; color: #5A6054; font-weight: 600; }
+.v3d-status[hidden], .v3d-legend[hidden], .v3d-place[hidden] { display: none; }
+.v3d-modes { margin-bottom: 10px; }
+.v3d-modes button[aria-selected="true"] { background: var(--ink); color: var(--surface); }
+.v3d-modes button { white-space: nowrap; }
+.v3d-places { min-height: 40px; margin-bottom: 14px; }
+.v3d-place { display: flex; flex-wrap: wrap; gap: 8px; }
+.v3d-place button { border: 1.5px solid var(--line); background: var(--surface-raised); color: var(--ink); border-radius: var(--radius-pill); padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.v3d-place button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.v3d-layers { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+.v3d-layers-lbl { font-size: 13px; font-weight: 600; color: var(--ink-muted); margin-right: 4px; }
+.v3d-toggle { display: inline-flex; align-items: center; gap: 10px; border: 1.5px solid var(--line); background: var(--surface-raised); color: var(--ink); border-radius: var(--radius-md); padding: 8px 14px 8px 10px; cursor: pointer; text-align: left; }
+.v3d-toggle i { flex: none; width: 34px; height: 20px; border-radius: 10px; background: var(--line-strong); position: relative; transition: background var(--dur-fast); }
+.v3d-toggle i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform var(--dur-fast) var(--ease-out); }
+.v3d-toggle[aria-pressed="true"] { border-color: var(--ink); }
+.v3d-toggle[aria-pressed="true"] i { background: var(--success); }
+.v3d-toggle[aria-pressed="true"] i::after { transform: translateX(14px); }
+.v3d-toggle b { display: block; font-size: 14px; line-height: 18px; }
+.v3d-toggle small { display: block; font-size: 12px; line-height: 16px; color: var(--ink-muted); }
+.v3d-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 14px; padding: 12px 16px; border-radius: var(--radius-md); background: var(--surface-sunken); color: var(--ink); font-size: 13px; }
 .v3d-legend i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; margin-right: 8px; vertical-align: middle; }
-.v3d-status[hidden], .v3d-legend[hidden] { display: none; }
-.v3d-hint { position: absolute; right: 14px; bottom: 14px; background: rgba(30,33,29,.7); color: var(--linen-25); border-radius: var(--radius-pill); padding: 6px 12px; font-size: 12px; pointer-events: none; }
-@media (max-width: 720px) { .v3d-bar .seg { width: 100%; } .v3d-bar .seg button { flex: 1 1 auto; padding: 8px 10px; font-size: 13px; } .v3d-hint { display: none; } .v3d-legend { grid-template-columns: 1fr 1fr; gap: 2px 12px; font-size: 11px; left: 8px; bottom: 8px; padding: 8px 10px; } }
+.v3d-hint { position: absolute; right: 14px; bottom: 14px; background: rgba(30,33,29,.7); color: #F2ECE1; border-radius: var(--radius-pill); padding: 6px 12px; font-size: 12px; pointer-events: none; }
+@media (max-width: 720px) {
+  .v3d-canvas { height: clamp(300px, 92vw, 460px); min-height: 0; }
+  .v3d-modes { display: flex; width: 100%; } .v3d-modes button { flex: 1 1 0; padding: 10px 6px; font-size: 14px; }
+  .v3d-place { flex-wrap: nowrap; } .v3d-place button { flex: 1 1 0; padding: 8px 6px; font-size: 13px; }
+  .v3d-hint { display: none; }
+  .v3d-layers { display: grid; grid-template-columns: 1fr; gap: 8px; } .v3d-layers-lbl { display: none; }
+  .v3d-toggle { width: 100%; padding: 10px 12px; }
+  .v3d-legend { display: grid; grid-template-columns: 1fr 1fr; font-size: 12px; } .v3d-legend[hidden] { display: none; }
+}
 .schema-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
 .schema-grid figure { margin: 0; background: var(--surface-raised); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-card); }
 .schema-grid img { width: 100%; height: auto; display: block; }
@@ -992,16 +1027,18 @@ const REAL = {
   },
 };
 function model3dSection(m, r) {
-  const v = [['zvenku', 'Zvenku'], ['zvenku2', 'Zezadu'], ['rez', 'Bez střechy'], ['obyvak', 'Obývák'], ['kuchyn', 'Kuchyň'], ['koupelna', 'Koupelna']];
-  const l = [['xray', 'Rozvody (rentgen)'], ['L_offgrid', 'Off-grid'], ['L_tc', 'Tepelné čerpadlo']];
+  // ovládání: 1) režim (zvenku / uvnitř / bez střechy), 2) místo v režimu, 3) vrstvy pod modelem s legendou
+  const modes = [['ven', 'Zvenku', [['zvenku', 'Zepředu'], ['zvenku2', 'Zezadu']]], ['uvnitr', 'Uvnitř', [['obyvak', 'Obývák'], ['kuchyn', 'Kuchyň'], ['koupelna', 'Koupelna']]], ['rez', 'Shora', [['rez', '']]]];
+  const l = [['xray', 'Rozvody', 'rentgen stěn a podlahy'], ['L_offgrid', 'Off-grid', 'solár a baterie'], ['L_tc', 'Tepelné čerpadlo', 'venkovní jednotka']];
   const leg = [['#1a59d9', 'Studená voda'], ['#d91f1a', 'Teplá voda'], ['#8c9194', 'Odpad'], ['#f2bf0d', 'Elektřina 230 V'], ['#f2660d', 'Solár DC'], ['#33b38c', 'Rekuperace'], ['#b86b33', 'Chladivo TČ']];
   return `
-<section class="section" id="model-3d"><div class="wrap"><div class="head"><p class="eyebrow">3D model</p><h2 class="h1">Projděte si ${m.name} zvenku i zevnitř</h2><p class="lead">Stejný model, ze kterého vycházejí výkresy a výroba. Otáčejte myší nebo prstem. Uvnitř se rozhlédnete tažením. Rentgen ukáže vedení vody, odpadů a elektřiny ve stěnách a pod podlahou.</p></div>
+<section class="section" id="model-3d"><div class="wrap"><div class="head"><p class="eyebrow">3D model</p><h2 class="h1">Projděte si ${m.name} zvenku i zevnitř</h2><p class="lead">Stejný model, ze kterého vycházejí výkresy a výroba. Otáčejte myší nebo prstem, uvnitř se rozhlédnete tažením. Rozvody ukážou vedení vody, odpadů a elektřiny ve stěnách a pod podlahou.</p></div>
   <div class="v3d-wrap" data-src="${r.model3d}">
-    <div class="v3d-bar"><div class="seg" role="group" aria-label="Pohled">${v.map(x => `<button type="button" data-view="${x[0]}" aria-pressed="${x[0] === 'zvenku'}">${x[1]}</button>`).join('')}</div>
-      <div class="seg" role="group" aria-label="Vrstvy">${l.map(x => `<button type="button" data-layer="${x[0]}" aria-pressed="false">${x[1]}</button>`).join('')}</div></div>
-    <div class="v3d"><div class="v3d-canvas" role="img" aria-label="Interaktivní 3D model: ${m.name}"></div><div class="v3d-status">Načítám 3D model…</div>
-      <div class="v3d-legend" hidden>${leg.map(x => `<span><i style="background:${x[0]}"></i>${x[1]}</span>`).join('')}</div><span class="v3d-hint">Táhnout: otočit · kolečko: přiblížit · pravé tlačítko: posunout</span></div>
+    <div class="v3d-modes seg" role="tablist" aria-label="Pohled na model">${modes.map((x, i) => `<button type="button" role="tab" data-mode="${x[0]}" data-first="${x[2][0][0]}" aria-selected="${!i}">${x[1]}</button>`).join('')}</div>
+    <div class="v3d-places">${modes.filter(x => x[2].length > 1).map((x, i) => `<div class="v3d-place" data-for="${x[0]}" role="group" aria-label="${x[1]}"${i ? ' hidden' : ''}>${x[2].map((y, j) => `<button type="button" data-view="${y[0]}" aria-pressed="${!i && !j}">${y[1]}</button>`).join('')}</div>`).join('')}</div>
+    <div class="v3d"><div class="v3d-canvas" role="img" aria-label="Interaktivní 3D model: ${m.name}"></div><div class="v3d-status">Načítám 3D model…</div><span class="v3d-hint">Táhnout: otočit · kolečko: přiblížit · pravé tlačítko: posunout</span></div>
+    <div class="v3d-layers" role="group" aria-label="Zobrazit ve modelu"><span class="v3d-layers-lbl">Zobrazit</span>${l.map(x => `<button type="button" class="v3d-toggle" data-layer="${x[0]}" aria-pressed="false"><i aria-hidden="true"></i><span><b>${x[1]}</b><small>${x[2]}</small></span></button>`).join('')}</div>
+    <div class="v3d-legend" hidden>${leg.map(x => `<span><i style="background:${x[0]}"></i>${x[1]}</span>`).join('')}</div>
   </div>
   <p class="note" style="margin-top:16px">Model je zjednodušený pro web: barvy materiálů odpovídají, textury dřeva a detaily kování jsou ve výrobní dokumentaci. Off-grid a tepelné čerpadlo jsou volitelné balíčky.</p></div></section>
 ${r.schemata ? `<section class="section" id="technika" style="padding-top:0"><div class="wrap"><div class="head"><p class="eyebrow">Technika</p><h2 class="h1">Jak je zapojená elektřina a odpady</h2><p class="lead">Schémata z technického modelu. Každý okruh má vlastní jistič, odpady mají spád nejméně 1,5 % a vedou mimo nosné trámy. Kliknutím otevřete schéma ve velkém.</p></div>

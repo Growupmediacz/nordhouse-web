@@ -128,7 +128,7 @@ export function init(root, cfg) {
     const v0 = views[name];
     setRoof(v0.roof || state.xray);
     // zvenku: na úzkém (mobilním) displeji kamera odstoupí, aby byl vidět celý dům
-    const f = v0.inside ? 1 : Math.max(1, Math.pow(1.45 / camera.aspect, 0.55));
+    const f = v0.inside ? 1 : Math.max(1, Math.pow(1.2 / camera.aspect, 0.55));
     const v = { ...v0, pos: v0.tgt.clone().add(v0.pos.clone().sub(v0.tgt).multiplyScalar(f)) };
     const from = { p: camera.position.clone(), t: controls.target.clone() };
     // uvnitř se rozhlíží z místa: cíl těsně před kamerou
@@ -202,6 +202,12 @@ export function init(root, cfg) {
   () => { status.textContent = 'Model se nepodařilo načíst. Zkuste obnovit stránku.'; });
 
   root.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
+  // režim (Zvenku / Uvnitř / Bez střechy) ukáže svá místa a skočí na první z nich
+  root.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => {
+    root.querySelectorAll('[data-mode]').forEach(x => x.setAttribute('aria-selected', x === b));
+    root.querySelectorAll('.v3d-place').forEach(p => { p.hidden = p.dataset.for !== b.dataset.mode; });
+    go(b.dataset.first);
+  }));
   root.querySelectorAll('[data-layer]').forEach(b => b.addEventListener('click', () => {
     const on = b.getAttribute('aria-pressed') !== 'true';
     b.setAttribute('aria-pressed', on);
