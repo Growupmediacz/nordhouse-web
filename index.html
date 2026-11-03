@@ -1167,7 +1167,7 @@ ${heroImg({ img: 'hero-noc', alt: 'Příjezd k rozsvícenému Domu L za soumraku
     <div class="field"><label for="b-mail">E-mail</label><input class="input" id="b-mail" type="email" autocomplete="email" required></div>
     <div class="sum-total" style="border-color:var(--line)"><span>Celkem</span><div class="price" id="b-total">0 Kč</div><span>2 900 Kč za noc · odečteme z ceny domu při objednávce</span></div>
     <button class="btn btn-primary" type="submit" style="justify-content:center">Rezervovat pobyt${arrow}</button>
-    <div id="b-ok" hidden class="form-ok"><b>${ic('kalendar')}Rezervace připravena</b><p class="small">V ostré verzi tu proběhne platba a přijde potvrzení e-mailem s instrukcemi k příjezdu.</p></div>
+    <div id="b-ok" hidden class="form-ok"><b>${ic('kalendar')}Děkujeme za rezervaci</b><p class="small">Potvrzení s platebními údaji a instrukcemi k příjezdu vám pošleme e-mailem.</p></div>
     <p class="note">Příjezd od 15:00, odjezd do 10:00. Storno zdarma do 78 hodin před příjezdem.</p>
   </form></div></div></section>
 <section class="section"><div class="wrap"><div class="split"><div class="stack-lg"><p class="eyebrow">Kde to je</p><h2 class="h1">Chabeřice u Zruče nad Sázavou</h2><p class="lead">Zhruba hodina jízdy z Prahy po D1, exit Hvězdonice nebo Šternov. Dům stojí na kraji obce u lesa, parkujete přímo u něj.</p>
@@ -1279,7 +1279,7 @@ function initCfg(param) {
     document.getElementById('cfg-next').hidden = CFG.step === STEPS.length - 1;
     const km = document.getElementById('cfg-km');
     if (km) { const t = () => { CFG.km = +km.value; document.getElementById('cfg-km-o').textContent = CFG.km + ' km'; document.getElementById('cfg-km-t').textContent = CFG.km <= 100 ? 'Doprava a usazení zdarma.' : 'Nad 100 km vám cenu dopravy upřesníme v nabídce.'; summary(); }; km.addEventListener('input', t); t(); }
-    host.querySelectorAll('form[data-form]').forEach(f => f.addEventListener('submit', e => { e.preventDefault(); f.innerHTML = `<div class="form-ok full"><b>${ic('zprava')}Nabídka připravena k odeslání</b><p class="small">V ostré verzi přijde PDF nabídka e-mailem. V prototypu se nic neodesílá.</p></div>`; }));
+    host.querySelectorAll('form[data-form]').forEach(f => f.addEventListener('submit', e => { e.preventDefault(); f.innerHTML = `<div class="form-ok full"><b>${ic('zprava')}Děkujeme, nabídku připravujeme</b><p class="small">PDF nabídku s vaší konfigurací vám pošleme e-mailem.</p></div>`; }));
     summary();
     stickyBar();
   }
@@ -1608,7 +1608,7 @@ function initInvest() {
 function initForms() {
   app.querySelectorAll('form[data-form]').forEach(f => f.addEventListener('submit', e => { e.preventDefault();
     if (f.classList.contains('btn-row')) { f.innerHTML = `<p class="lead" style="color:var(--linen-25)">Díky, ozveme se, jakmile otevřeme objednávky saun.</p>`; return; }
-    f.innerHTML = `<div class="form-ok"><b>${ic('zprava')}Poptávka připravena k odeslání</b><p class="small">V ostré verzi se ozveme do 24 hodin. V prototypu se formulář nikam neodesílá.</p></div>`; }));
+    f.innerHTML = `<div class="form-ok"><b>${ic('zprava')}Děkujeme za poptávku</b><p class="small">Ozveme se vám do 24 hodin.</p></div>`; }));
 }
 function initReveal() {
   if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
