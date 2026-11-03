@@ -658,6 +658,13 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 .model-card .meta .ico { width: 18px; height: 18px; color: var(--ink); }
 .spec { grid-template-columns: 26px 1fr; column-gap: 14px; align-items: center; }
 .spec .ico { grid-row: span 2; width: 26px; height: 26px; color: var(--wood-ink); }
+.spec b { overflow-wrap: anywhere; min-width: 0; }
+/* mobil: ikona nad popiskem, ať hodnota má celou šířku dlaždice */
+@media (max-width: 720px) {
+  .spec { grid-template-columns: 1fr; row-gap: 6px; padding: 18px 16px; align-content: start; }
+  .spec .ico { grid-row: auto; width: 24px; height: 24px; }
+  .spec b { font-size: 20px; line-height: 26px; }
+}
 .wall-img { border-radius: var(--radius-md); overflow: hidden; background: var(--linen-25); box-shadow: var(--shadow-card); }
 .wall-img img { width: 100%; display: block; }
 /* O nás */
