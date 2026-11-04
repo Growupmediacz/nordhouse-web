@@ -1389,22 +1389,22 @@ const SAUNY = {
     line: 'Sauna s předsíní, kterou převezete na chatu i k jezeru.', desc: 'Předsíň s lavicí a věšáky, saunovací místnost pro čtyři a kamna na dřevo. Stojí na vlastním podvozku, takže ji usadíme bez základů a později převezeme jinam.',
     setup: 'Podvozek a patky', heatTxt: 'Kamna na dřevo',
     rooms: [['Předsíň', 'Lavice, věšáky, police na ručníky, okno s izolačním dvojsklem'], ['Saunovací místnost', 'Dvě úrovně lavic z osiky, opěradla, okno do krajiny, LED pás pod lavicí'], ['Kamna', 'Saunová kamna na dřevo s prosklenými dvířky a kameny, komín s izolovaným prostupem'], ['Konstrukce', 'Zateplené stěny, modřínový obklad, smrkové palubky uvnitř, podvozek s brzdami']],
-    gallery: ['sauna-podvozek/foto/zaklad', 'sauna-podvozek/foto/interier', 'sauna-podvozek/foto/doplnky', 'sauna-podvozek/foto/podvozek', 'snp-04'] },
+    gallery: ['sauna-podvozek/foto/zaklad', 'sauna-podvozek/foto/interier', 'sauna-podvozek/foto/doplnky', 'sauna-podvozek/foto/podvozek', 'snp-podvozek'] },
   'sauna-zahradni': { key: 'sauna-zahradni', kind: 'sauna', name: 'Zahradní sauna', short: 'Zahradní', size: '2,2 × 2,4 m', people: '2–3 osoby', price: 249000, img: 'sauna-zahradni/foto/zaklad', tags: [['Modřín', 'nature']],
     line: 'Kompaktní sauna na zahradu, usazená na patkách.', desc: 'Menší sauna pro dva až tři, bez předsíně. Usadíme ji na betonové patky přímo na zahradě. Ideální k domu, kde se převlékáte uvnitř.',
     setup: 'Patky', heatTxt: 'Kamna na dřevo',
     rooms: [['Saunovací místnost', 'Lavice z osiky ve dvou úrovních, okno do zahrady, LED osvětlení'], ['Kamna', 'Saunová kamna na dřevo s kameny, nebo elektrická kamna'], ['Konstrukce', 'Zateplené stěny, modřínový obklad, smrkové palubky uvnitř'], ['Usazení', 'Betonové patky, vyrovnání a připojení na místě za jeden den']],
-    gallery: ['sauna-zahradni/foto/zaklad', 'sauna-zahradni/foto/interier', 'sauna-zahradni/foto/doplnky', 'snz-01', 'snz-02'] },
+    gallery: ['sauna-zahradni/foto/zaklad', 'sauna-zahradni/foto/interier', 'sauna-zahradni/foto/doplnky', 'snz-leto', 'snz-zima'] },
   'kad-koupaci': { key: 'kad-koupaci', kind: 'kad', name: 'Koupací káď', short: 'Koupací káď', size: 'průměr 2 m', people: '6 osob', price: 119000, img: 'kad-koupaci/foto/doplnky', tags: [['Celoroční', 'nature']],
     line: 'Horká káď s kamny na dřevo, i v lednu pod hvězdami.', desc: 'Modřínová káď pro šest lidí s vnějšími kamny na dřevo. Voda se ohřeje za dvě až tři hodiny. Skvělá k sauně i jako samostatný kousek wellness na zahradě.',
     setup: 'Rovná plocha', heatTxt: 'Vnější kamna',
     rooms: [['Káď', 'Modřínové dužiny, dvě nerezové obruče, lavice dokola, výpustný ventil'], ['Kamna', 'Vnější kamna na dřevo z oceli, komín s ochranou proti dotyku'], ['Příslušenství', 'Schůdky z modřínu, kryt proti listí'], ['Provoz', 'Napouštění hadicí, vypouštění ventilem, zimní provoz s kamny']],
-    gallery: ['kad-koupaci/foto/zaklad', 'kad-koupaci/foto/doplnky', 'sn-03', 'kk-01', 'kk-02'] },
+    gallery: ['kad-koupaci/foto/zaklad', 'kad-koupaci/foto/doplnky', 'sauna-kad-zima', 'kk-01', 'kk-02'] },
   'kad-ochlazovaci': { key: 'kad-ochlazovaci', kind: 'kad', name: 'Ochlazovací káď', short: 'Ochlazovací káď', size: 'průměr 1,1 m', people: '1–2 osoby', price: 39000, img: 'kad-ochlazovaci/foto/zaklad', tags: [['K sauně', 'nature']],
     line: 'Studená voda hned vedle sauny, na pár kroků.', desc: 'Malá modřínová káď se studenou vodou pro ochlazení mezi saunováním. Postavíme ji vedle sauny na terasu nebo na zahradu.',
     setup: 'Rovná plocha', heatTxt: 'Bez ohřevu',
     rooms: [['Káď', 'Modřínové dužiny, nerezové obruče, výpustný ventil'], ['Příslušenství', 'Schůdky z modřínu, kryt'], ['Umístění', 'Vedle sauny na terase nebo na zpevněné ploše'], ['Provoz', 'Napouštění hadicí, v zimě vypustit, nebo nechat zamrznout povrch']],
-    gallery: ['kad-ochlazovaci/foto/zaklad', 'sauna-podvozek/foto/doplnky', 'sn-04', 'ko-01', 'ko-02'] },
+    gallery: ['kad-ochlazovaci/foto/zaklad', 'sauna-podvozek/foto/doplnky', 'sauna-kad-ochlazeni', 'ko-01', 'ko-02'] },
 };
 const SREAL = {   // výkresy, rozměry a porovnání render × vizualizace podle dokumentace v projekt/
   'sauna-podvozek': { dims: [['Sauna', '3,2 × 2,0 m'], ['Celkem s ojí', '5,1 m'], ['Výška s komínem', '3,79 m'], ['Uvnitř', '2,10 m'], ['Sauna / předsíň', '2,7 / 1,9 m²'], ['Hmotnost', '1 892 kg']],
@@ -1468,7 +1468,7 @@ function saunaSteps() {
   return `<ol class="steps">${s.map(x => `<li class="reveal"><span class="when">${x[0]}</span><b>${x[1]}</b><p>${x[2]}</p></li>`).join('')}</ol>`;
 }
 function ritual() {
-  const r = [['sn-05', '1 · Prohřátí', '10–15 minut v teple, polévání kamenů'], ['sn-04', '2 · Ochlazení', 'Studená káď nebo sprcha hned za dveřmi'], ['sn-06', '3 · Odpočinek', 'Deka, čaj a výhled. Pak znovu.']];
+  const r = [['sn-05', '1 · Prohřátí', '10–15 minut v teple, polévání kamenů'], ['sauna-kad-ochlazeni', '2 · Ochlazení', 'Studená káď nebo sprcha hned za dveřmi'], ['sauna-odpocinek', '3 · Odpočinek', 'Deka, čaj a výhled. Pak znovu.']];
   return `<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Saunová chvíle</p><h2 class="h1">Teplo, chlad a klid. Třikrát za večer.</h2><p class="lead">Sauna, káď a terasa navazují na sebe, takže mezi nimi uděláte pár kroků.</p></div>
     <div class="seasons three">${r.map(x => `<figure class="season reveal"><img src="${IMG(x[0])}" alt="${x[1].slice(4)} u sauny Nordhouse" loading="lazy"><figcaption><b>${x[1]}</b><span>${x[2]}</span></figcaption></figure>`).join('')}</div>
     <p class="note" style="margin-top:12px">Vizualizace</p></div></section>`;
@@ -1577,7 +1577,7 @@ ${heroImg({ img: 'dum-m/foto/prirodni-0011', alt: 'Dům Nordhouse a sauna propoj
 ${ritual()}
 <section class="section sunken"><div class="wrap"><div class="split">
   <div class="stack-lg"><p class="eyebrow">Pro glamping</p><h2 class="h1">Sauna zvedne cenu za noc.</h2><p class="lead">Ubytování se saunou nebo kádí si hosté vybírají častěji a zaplatí za ně víc. Sauna se hodí ke každé sestavě Verze Invest.</p><div class="btn-row">${btnS('Verze Invest', '#invest')}</div></div>
-  <div class="media-r reveal"><img src="${IMG('sn-03')}" alt="Koupací káď v zimě vedle sauny" loading="lazy">${vis}</div></div></div></section>
+  <div class="media-r reveal"><img src="${IMG('sauna-kad-zima')}" alt="Koupací káď v zimě vedle sauny" loading="lazy">${vis}</div></div></div></section>
 ${leadSection({ model: 'sada', eyebrow: 'Sada dům + sauna', title: 'Pošleme vám nabídku na sadu.', text: 'Napište nám, kde má dům se saunou stát. Do 24 hodin se ozveme s nabídkou, termínem a kontrolou pozemku.' })}`;
 
 /* ---------- router ---------- */
