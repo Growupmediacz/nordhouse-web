@@ -866,7 +866,7 @@ function wallSection() {
     </div></div></section>`;
 }
 function seasons() {
-  const s = [['sz-01', 'Zima', 'Kamna, trojskla a sníh za oknem'], ['sz-04', 'Jaro', 'Déšť na terase, čaj uvnitř'], ['dum-m/foto/prirodni-0101', 'Léto', 'Otevřené dveře do louky'], ['sz-02', 'Podzim', 'Mlha nad lesem a teplo uvnitř']];
+  const s = [['sz-zima', 'Zima', 'Kamna, trojskla a sníh za oknem'], ['sz-04', 'Jaro', 'Déšť na terase, čaj uvnitř'], ['dum-m/foto/prirodni-0101', 'Léto', 'Otevřené dveře do louky'], ['sz-podzim', 'Podzim', 'Mlha nad lesem a teplo uvnitř']];
   return `<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Celoročně</p><h2 class="h1">Dům pro všechna čtyři roční období.</h2></div>
     <div class="seasons">${s.map(x => `<figure class="season reveal"><img src="${IMG(x[0])}" alt="${x[1]} u domu Nordhouse" loading="lazy"><figcaption><b>${x[1]}</b><span>${x[2]}</span></figcaption></figure>`).join('')}</div>
     <p class="note" style="margin-top:12px">Vizualizace</p></div></section>`;
@@ -932,7 +932,7 @@ PAGES['uvod'] = () => `
   ${vis}
 </section>
 ${features()}
-${chapter({ eyebrow: 'Příjezd', title: 'Přivezeme ho celý. Usadíme za jeden den.', text: 'Dům vyjede z dílny v Chabeřicích hotový. Na místě ho vyrovnáme na patky, připojíme elektřinu a vodu a večer už svítí okna. Do 100 km dopravu neplatíte.', poster: 'hs-01', alt: 'Auto veze Dům S na podvozku po silnici k lesu', facts: `<div class="chapter-facts"><div><b>1 den</b><span>usazení na místě</span></div><div><b>0 Kč</b><span>doprava do 100 km</span></div><div><b>0 m³</b><span>betonu na základy</span></div></div>` })}
+${chapter({ eyebrow: 'Příjezd', title: 'Přivezeme ho celý. Usadíme za jeden den.', text: 'Dům vyjede z dílny v Chabeřicích hotový. Na místě ho vyrovnáme na patky, připojíme elektřinu a vodu a večer už svítí okna. Do 100 km dopravu neplatíte.', poster: 'prevoz', alt: 'Auto veze dům na podvozku po silnici při západu slunce', facts: `<div class="chapter-facts"><div><b>1 den</b><span>usazení na místě</span></div><div><b>0 Kč</b><span>doprava do 100 km</span></div><div><b>0 m³</b><span>betonu na základy</span></div></div>` })}
 ${chapter({ eyebrow: 'Uvnitř', title: 'Teplo i v lednu, světlo i v listopadu.', text: 'Zateplené stěny, podlaha i střecha, okna s izolačním trojsklem a kamna nebo tepelné čerpadlo. Velké okno ve štítu pustí dovnitř les a louku.', poster: 'dum-m/foto/obytna', flip: true, alt: 'Interiér Domu M s kamny a proskleným štítem do lesa' })}
 <section class="section"><div class="wrap">
   <div class="head split"><div class="stack"><p class="eyebrow">Modely</p><h2 class="h1">Tři velikosti, stejná kvalita.</h2><p class="lead">Všechny domy jsou celoroční, se stejnými materiály a zárukou. Liší se velikostí a dispozicí.</p></div>${btnS('Srovnat modely', '#domy')}</div>
@@ -952,7 +952,7 @@ ${processSection()}
 </div></section>
 <section class="section sunken"><div class="wrap"><div class="split">
   <div class="stack-lg"><p class="eyebrow">Reference</p><h2 class="h1">První domy předáváme v roce 2027.</h2><p class="lead">Sem přidáme skutečné fotky a příběhy prvních majitelů. Do té doby se přijeďte podívat do dílny nebo přespat v ukázkovém domě.</p><div class="btn-row">${btnS('Domluvit prohlídku výroby', '#kontakt')}</div></div>
-  <div class="media-r reveal"><img src="${IMG('pr-02')}" alt="Převoz domu po silnici za autem" loading="lazy">${vis}</div></div></div></section>
+  <div class="media-r reveal"><img src="${IMG('prevoz')}" alt="Převoz domu po silnici za autem" loading="lazy">${vis}</div></div></div></section>
 ${faqSection()}
 ${leadSection({ sunken: false })}`;
 
@@ -1156,7 +1156,7 @@ ${heroImg({ img: 'hero-noc', alt: 'Příjezd k rozsvícenému Domu L za soumraku
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Proč to zkusit</p><h2 class="h1">Malý dům se nejlépe pozná zevnitř.</h2></div>
   <div class="cards">
     <figure class="panel"><div class="media-r" style="aspect-ratio:4/3"><img src="${IMG('dum-l/foto/loft')}" alt="Loft Domu L se dvěma lůžky" loading="lazy">${vis}</div><h3 class="h3">Prostor pro čtyři</h3><p class="muted small">Uvidíte, jak se na 21 m² vaří, spí a pracuje. A jestli vám stačí.</p></figure>
-    <figure class="panel"><div class="media-r" style="aspect-ratio:4/3"><img src="${IMG('sz-01')}" alt="Dům v zimě se svítícími okny" loading="lazy">${vis}</div><h3 class="h3">Teplo i v zimě</h3><p class="muted small">Přijeďte v lednu a vyzkoušejte si topení, okna i ticho venku.</p></figure>
+    <figure class="panel"><div class="media-r" style="aspect-ratio:4/3"><img src="${IMG('sz-zima')}" alt="Dům v zimě se svítícími okny" loading="lazy">${vis}</div><h3 class="h3">Teplo i v zimě</h3><p class="muted small">Přijeďte v lednu a vyzkoušejte si topení, okna i ticho venku.</p></figure>
     <figure class="panel"><div class="media-r" style="aspect-ratio:4/3"><img src="${IMG('dr-01')}" alt="Detail modřínového obkladu" loading="lazy">${vis}</div><h3 class="h3">Skutečné materiály</h3><p class="muted small">Sáhnete si na dřevo, spoje i povrchy, ze kterých bude váš dům.</p></figure>
   </div></div></section>
 <section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Jak pobyt probíhá</p><h2 class="h1">Jeden večer a jedno ráno u lesa</h2></div>
@@ -1314,7 +1314,7 @@ function initCfg(param) {
 }
 
 PAGES['jak-to-probiha'] = () => `
-${heroImg({ img: 'pr-02', alt: 'Převoz domu po okresní silnici', posM: '55% 50%', eyebrow: 'Jak to probíhá', title: 'Pět kroků, pevná cena, žádná stavba.', sub: 'Od prvního hovoru po usazení u vás uplyne 10–14 týdnů. Celou dobu víte, co se děje a kolik zaplatíte.', btns: [['Zkontrolovat pozemek', '#poptavka'], ['Pozemek a povolení', '#jak-to-probiha-pozemek']], label: 'Jistoty', bar: [B3('mince', 'Platby po částech', '30 % při podpisu, 40 % v polovině výroby, 30 % při převzetí.'), B3('doprava', 'Doprava zdarma', 'Do 100 km od Chabeřic. Dál cenu uvedeme v nabídce.'), B3('zaruka', 'Záruka 5 let', 'Na nosnou konstrukci, střechu a okna.')], cta: ['Zkontrolovat pozemek', '#poptavka'] })}
+${heroImg({ img: 'prevoz', alt: 'Převoz domu po okresní silnici', posM: '55% 50%', eyebrow: 'Jak to probíhá', title: 'Pět kroků, pevná cena, žádná stavba.', sub: 'Od prvního hovoru po usazení u vás uplyne 10–14 týdnů. Celou dobu víte, co se děje a kolik zaplatíte.', btns: [['Zkontrolovat pozemek', '#poptavka'], ['Pozemek a povolení', '#jak-to-probiha-pozemek']], label: 'Jistoty', bar: [B3('mince', 'Platby po částech', '30 % při podpisu, 40 % v polovině výroby, 30 % při převzetí.'), B3('doprava', 'Doprava zdarma', 'Do 100 km od Chabeřic. Dál cenu uvedeme v nabídce.'), B3('zaruka', 'Záruka 5 let', 'Na nosnou konstrukci, střechu a okna.')], cta: ['Zkontrolovat pozemek', '#poptavka'] })}
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Postup</p><h2 class="h1">Co se stane po vaší poptávce</h2></div>${steps()}</div></section>
 <section class="section sunken"><div class="wrap"><div class="split"><div class="media-r reveal"><img src="${IMG('pr-03')}" alt="Usazení domu na stavitelné patky" loading="lazy">${vis}</div>
   <div class="stack-lg"><p class="eyebrow">Doprava a usazení</p><h2 class="h1">Za jeden den z dílny na vaši louku.</h2><p class="lead">Dům převezeme na vlastním podvozku. Na místě ho postavíme na stavitelné patky a kamenné podložky, vyrovnáme a připojíme.</p>
@@ -1370,7 +1370,7 @@ ${chapterImg('dilna-tym', 'Tým', 'Jeden tým od návrhu po předání.', 'Návr
 <section class="section"><div class="wrap"><div class="split">
   <div class="stack-lg"><p class="eyebrow">Jak s vámi pracujeme</p><h2 class="h1">U stolu, nad plánem a vzorky.</h2>
   <ul class="ticks"><li>Schůzka v dílně nebo online, vzorky dřeva a barev</li><li>Pevná cena a termín ve smlouvě</li><li>Fotky z každé fáze výroby</li><li>Předání domu a zaškolení na místě</li></ul></div>
-  <div class="media-r reveal"><img src="${IMG('on-04')}" alt="Schůzka s klienty nad vzorky dřeva" loading="lazy">${vis}</div></div></div></section>
+  <div class="media-r reveal"><img src="${IMG('on-schuzka')}" alt="Schůzka s klienty nad vzorky dřeva" loading="lazy">${vis}</div></div></div></section>
 <section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Partneři</p><h2 class="h2">S kým spolupracujeme</h2></div><div class="logos">${['Pila', 'Okna', 'Izolace', 'Technologie', 'Banka'].map(x => `<span>Logo · ${x}</span>`).join('')}</div></div></section>
 ${stayTeaser('hero-noc').replace('<h2 class="h1">Přespěte si dřív, než koupíte.</h2>', '<h2 class="h1">Přijeďte se podívat. Dílna a ukázkový dům jsou ve stejné obci.</h2>')}
 ${leadSection({ eyebrow: 'Prohlídka dílny', title: 'Domluvte si návštěvu.', text: 'Ukážeme vám rozestavěné domy, materiály a vzorky. Otevírací dobu dílny doplníme. Nordhouse s.r.o., IČO a sídlo doplníme.' })}`;
@@ -1399,12 +1399,12 @@ const SAUNY = {
     line: 'Horká káď s kamny na dřevo, i v lednu pod hvězdami.', desc: 'Modřínová káď pro šest lidí s vnějšími kamny na dřevo. Voda se ohřeje za dvě až tři hodiny. Skvělá k sauně i jako samostatný kousek wellness na zahradě.',
     setup: 'Rovná plocha', heatTxt: 'Vnější kamna',
     rooms: [['Káď', 'Modřínové dužiny, dvě nerezové obruče, lavice dokola, výpustný ventil'], ['Kamna', 'Vnější kamna na dřevo z oceli, komín s ochranou proti dotyku'], ['Příslušenství', 'Schůdky z modřínu, kryt proti listí'], ['Provoz', 'Napouštění hadicí, vypouštění ventilem, zimní provoz s kamny']],
-    gallery: ['kad-koupaci/foto/zaklad', 'kad-koupaci/foto/doplnky', 'sauna-kad-zima', 'kk-01', 'kk-02'] },
+    gallery: ['kad-koupaci/foto/zaklad', 'kad-koupaci/foto/doplnky', 'sauna-kad-zima', 'kk-vecer', 'kk-zima'] },
   'kad-ochlazovaci': { key: 'kad-ochlazovaci', kind: 'kad', name: 'Ochlazovací káď', short: 'Ochlazovací káď', size: 'průměr 1,1 m', people: '1–2 osoby', price: 39000, img: 'kad-ochlazovaci/foto/zaklad', tags: [['K sauně', 'nature']],
     line: 'Studená voda hned vedle sauny, na pár kroků.', desc: 'Malá modřínová káď se studenou vodou pro ochlazení mezi saunováním. Postavíme ji vedle sauny na terasu nebo na zahradu.',
     setup: 'Rovná plocha', heatTxt: 'Bez ohřevu',
     rooms: [['Káď', 'Modřínové dužiny, nerezové obruče, výpustný ventil'], ['Příslušenství', 'Schůdky z modřínu, kryt'], ['Umístění', 'Vedle sauny na terase nebo na zpevněné ploše'], ['Provoz', 'Napouštění hadicí, v zimě vypustit, nebo nechat zamrznout povrch']],
-    gallery: ['kad-ochlazovaci/foto/zaklad', 'sauna-podvozek/foto/doplnky', 'sauna-kad-ochlazeni', 'ko-01', 'ko-02'] },
+    gallery: ['kad-ochlazovaci/foto/zaklad', 'sauna-podvozek/foto/doplnky', 'sauna-kad-ochlazeni', 'ko-rano', 'ko-zima'] },
 };
 const SREAL = {   // výkresy, rozměry a porovnání render × vizualizace podle dokumentace v projekt/
   'sauna-podvozek': { dims: [['Sauna', '3,2 × 2,0 m'], ['Celkem s ojí', '5,1 m'], ['Výška s komínem', '3,79 m'], ['Uvnitř', '2,10 m'], ['Sauna / předsíň', '2,7 / 1,9 m²'], ['Hmotnost', '1 892 kg']],
