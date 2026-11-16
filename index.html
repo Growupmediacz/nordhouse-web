@@ -195,33 +195,6 @@ p { margin: 0; }
 
 
 /* průřez stěnou podle vizualizace */
-.wall3 { background: #F1EDE0; color: #1E211D; padding-block: 96px; }
-.wall3-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 56px; align-items: center; max-width: none; padding-left: max(clamp(32px, 5vw, 96px), env(safe-area-inset-left, 0px)); padding-right: max(clamp(32px, 5vw, 96px), env(safe-area-inset-right, 0px)); }
-.wall3-fig { position: relative; }
-.wall3-fig img { width: 100%; display: block; mix-blend-mode: multiply; -webkit-mask-image: radial-gradient(ellipse 72% 70% at 52% 48%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 72% 70% at 52% 48%, #000 62%, transparent 100%); }
-.wall3-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.wall3-lines polyline { fill: none; stroke: #1E211D; stroke-width: 1; vector-effect: non-scaling-stroke; opacity: .75; }
-.wall3-dot { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: #1E211D; color: #F2ECE1; font-size: 11px; font-weight: 700; display: grid; place-items: center; box-shadow: 0 0 0 3px rgba(241,237,224,.85); }
-.wall3-label { position: absolute; font-size: 13px; line-height: 1.35; color: #1E211D; transform: translateY(-50%); white-space: nowrap; }
-.wall3-vis { position: absolute; left: 0; bottom: 0; font-size: 11px; color: #5A6054; }
-.wall3-eyebrow { color: #8A5A30 !important; }
-.wall3-title { font-family: var(--font-display); font-weight: 300; font-size: clamp(32px, 3.6vw, 42px); line-height: 1.12; letter-spacing: -.01em; margin: 0 0 20px; }
-.wall3-lead { font-size: 19px; line-height: 30px; color: #5A6054; max-width: 560px; }
-.wall3-list { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 10px; max-width: 560px; }
-.wall3-list li { display: grid; grid-template-columns: 30px 1fr auto; gap: 14px; align-items: center; font-size: 15px; line-height: 22px; }
-.wall3-list .sw { width: 30px; height: 30px; border-radius: 6px; display: grid; place-items: end start; box-shadow: inset 0 0 0 1px rgba(30,33,29,.08); }
-.wall3-list .sw b { font-size: 10px; line-height: 1; padding: 0 0 4px 5px; color: rgba(30,33,29,.55); font-weight: 700; }
-.wall3-list em { font-style: normal; color: #5A6054; font-size: 14px; font-variant-numeric: tabular-nums; }
-.wall3-note { font-size: 12px; color: #5A6054; margin-top: 14px; }
-.wall3-stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 28px; padding-top: 28px; border-top: 1px solid #D9D0BF; }
-.wall3-stats div { display: grid; justify-items: center; text-align: center; gap: 8px; padding-inline: 12px; }
-.wall3-stats div + div { border-left: 1px solid #D9D0BF; }
-.wall3-stats .ico { width: 36px; height: 36px; color: #8A5A30; }
-.wall3-stats .ico svg { stroke-width: 1.2; }
-.wall3-stats b { font-family: var(--font-text); font-weight: 700; font-size: 12px; letter-spacing: .14em; white-space: nowrap; text-transform: uppercase; margin-top: 6px; }
-.wall3-stats span { font-size: 12px; line-height: 18px; color: #5A6054; }
-@media (max-width: 1100px) { .wall3-grid { grid-template-columns: 1fr; } .wall3-label, .wall3-lines { display: none; } }
-@media (max-width: 560px) { .wall3 { padding-block: 64px; } .wall3-stats { grid-template-columns: 1fr; gap: 22px; } .wall3-stats div + div { border-left: 0; border-top: 1px solid #D9D0BF; padding-top: 22px; } }
 
 /* feature strip */
 .features { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; }
@@ -252,11 +225,6 @@ p { margin: 0; }
 .chapter-facts span { font-size: 13px; color: var(--chapter-muted); }
 @media (max-width: 900px) { .chapter-grid, .chapter-grid.flip { grid-template-columns: 1fr; gap: 40px; padding-block: 72px; } .chapter-grid.flip .chapter-text { order: 0; } }
 @media (max-width: 480px) { .chapter-facts { grid-template-columns: 1fr 1fr; } }
-.chapter.full { min-height: 80vh; display: grid; align-items: end; }
-.chapter.full .chapter-bg { position: absolute; inset: 0; }
-.chapter.full .chapter-bg img, .chapter.full .chapter-bg video { width: 100%; height: 100%; object-fit: cover; }
-.chapter.full .chapter-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,17,14,0) 30%, rgba(15,17,14,.85) 100%); }
-.chapter.full .chapter-text { position: relative; padding-block: 160px 80px; max-width: 640px; }
 .contours { background-image: url("img/vrstevnice-svetle.svg"); background-size: cover; background-position: center; }
 
 /* reveal */
@@ -354,46 +322,6 @@ figure { margin: 0; }
 .calc-out .muted { color: var(--stone-300); }
 @media (max-width: 900px) { .calc { grid-template-columns: 1fr; } .calc-in, .calc-out { padding: 28px 22px; } .calc-out .big { font-size: 44px; line-height: 48px; } }
 /* 3D prohlížeč domu */
-.v3d { position: relative; border-radius: var(--radius-lg); overflow: hidden; background: #dfe5e0; box-shadow: var(--shadow-card); }
-.v3d-canvas { height: min(68vh, 640px); min-height: 380px; touch-action: none; }
-.v3d-canvas canvas { display: block; width: 100%; height: 100%; cursor: grab; }
-.v3d-canvas canvas:active { cursor: grabbing; }
-.v3d-status { position: absolute; inset: 0; display: grid; place-items: center; color: #5A6054; font-weight: 600; }
-.v3d-status[hidden], .v3d-legend[hidden], .v3d-place[hidden] { display: none; }
-.v3d-modes { margin-bottom: 10px; }
-.v3d-modes button[aria-selected="true"] { background: var(--ink); color: var(--surface); }
-.v3d-modes button { white-space: nowrap; }
-.v3d-places { min-height: 40px; margin-bottom: 14px; }
-.v3d-place { display: flex; flex-wrap: wrap; gap: 8px; }
-.v3d-place button { border: 1.5px solid var(--line); background: var(--surface-raised); color: var(--ink); border-radius: var(--radius-pill); padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
-.v3d-place button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
-.v3d-layers { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
-.v3d-layers-lbl { font-size: 13px; font-weight: 600; color: var(--ink-muted); margin-right: 4px; }
-.v3d-toggle { display: inline-flex; align-items: center; gap: 10px; border: 1.5px solid var(--line); background: var(--surface-raised); color: var(--ink); border-radius: var(--radius-md); padding: 8px 14px 8px 10px; cursor: pointer; text-align: left; }
-.v3d-toggle i { flex: none; width: 34px; height: 20px; border-radius: 10px; background: var(--line-strong); position: relative; transition: background var(--dur-fast); }
-.v3d-toggle i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform var(--dur-fast) var(--ease-out); }
-.v3d-toggle[aria-pressed="true"] { border-color: var(--ink); }
-.v3d-toggle[aria-pressed="true"] i { background: var(--success); }
-.v3d-toggle[aria-pressed="true"] i::after { transform: translateX(14px); }
-.v3d-toggle b { display: block; font-size: 14px; line-height: 18px; }
-.v3d-toggle small { display: block; font-size: 12px; line-height: 16px; color: var(--ink-muted); }
-.v3d-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 14px; padding: 12px 16px; border-radius: var(--radius-md); background: var(--surface-sunken); color: var(--ink); font-size: 13px; }
-.v3d-legend i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; margin-right: 8px; vertical-align: middle; }
-.v3d-hint { position: absolute; right: 14px; bottom: 14px; background: rgba(30,33,29,.7); color: #F2ECE1; border-radius: var(--radius-pill); padding: 6px 12px; font-size: 12px; pointer-events: none; }
-@media (max-width: 720px) {
-  .v3d-canvas { height: clamp(300px, 92vw, 460px); min-height: 0; }
-  .v3d-modes { display: flex; width: 100%; } .v3d-modes button { flex: 1 1 0; padding: 10px 6px; font-size: 14px; }
-  .v3d-place { flex-wrap: nowrap; } .v3d-place button { flex: 1 1 0; padding: 8px 6px; font-size: 13px; }
-  .v3d-hint { display: none; }
-  .v3d-layers { display: grid; grid-template-columns: 1fr; gap: 8px; } .v3d-layers-lbl { display: none; }
-  .v3d-toggle { width: 100%; padding: 10px 12px; }
-  .v3d-legend { display: grid; grid-template-columns: 1fr 1fr; font-size: 12px; } .v3d-legend[hidden] { display: none; }
-}
-.schema-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
-.schema-grid figure { margin: 0; background: var(--surface-raised); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-card); }
-.schema-grid img { width: 100%; height: auto; display: block; }
-.schema-grid figcaption { margin-top: 12px; font-size: 14px; color: var(--ink-muted); }
-.schema-grid figcaption b { color: var(--ink); }
 .seg { display: inline-flex; flex-wrap: wrap; gap: 6px; background: var(--surface-sunken); padding: 5px; border-radius: var(--radius-pill); }
 .seg button { border: 0; background: transparent; padding: 9px 18px; border-radius: var(--radius-pill); cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink-muted); }
 .seg button[aria-pressed="true"] { background: var(--forest-900); color: var(--linen-25); }
@@ -414,6 +342,18 @@ input[type="range"] { width: 100%; accent-color: var(--forest-900); }
 .faq-list details[open] summary::after { transform: rotate(-135deg); top: 34px; }
 .faq-list .ans { padding: 0 40px 24px 0; color: var(--ink-muted); max-width: var(--text-max); }
 @media (max-width: 900px) { .faq { grid-template-columns: 1fr; gap: 24px; } }
+.wall-stats { display: grid; grid-template-columns: repeat(3, 1fr); padding: 28px 0 88px; border-top: 1px solid var(--line); }
+.wall-stats div { display: grid; justify-items: center; text-align: center; gap: 8px; padding-inline: 12px; }
+.wall-stats div + div { border-left: 1px solid var(--line); }
+.wall-stats .ico { width: 36px; height: 36px; color: var(--wood-ink); }
+.wall-stats b { font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; margin-top: 6px; }
+.wall-stats span { font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+@media (max-width: 560px) { .wall-stats { grid-template-columns: 1fr; gap: 22px; padding-bottom: 64px; } .wall-stats div + div { border-left: 0; border-top: 1px solid var(--line); padding-top: 22px; } }
+.gallery.g3 { grid-template-columns: 2fr 1fr; grid-auto-rows: 240px; }
+@media (max-width: 900px) { .gallery.g3 { grid-template-columns: 1fr 1fr; grid-auto-rows: 180px; } }
+.gallery.g2 { grid-template-columns: 2fr 1fr; grid-auto-rows: 380px; margin-bottom: 24px; }
+.gallery.g2 figure:first-child { grid-row: auto; }
+@media (max-width: 900px) { .gallery.g2 { grid-template-columns: 1fr; grid-auto-rows: 230px; } .gallery.g2 figure:first-child { grid-column: auto; } }
 
 /* forms */
 .lead-box { display: grid; grid-template-columns: 5fr 7fr; gap: 0; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-raised); box-shadow: var(--shadow-card); }
@@ -485,14 +425,6 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 .dims b { font-size: 20px; line-height: 28px; font-weight: 600; }
 @media (max-width: 900px) { .dims { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 520px) { .dims { grid-template-columns: repeat(2, 1fr); } }
-.dwg-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; }
-.dwg-grid .wide { grid-column: 1 / -1; }
-@media (max-width: 720px) { .dwg-grid { grid-template-columns: 1fr; } }
-.dwg-fig { margin: 0; background: #FBF8F2; border-radius: var(--radius-md); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); display: flex; flex-direction: column; }
-.dwg-fig a { display: block; padding: 12px 12px 0; flex: 1; display: grid; place-items: center; }
-.dwg-fig img { width: 100%; height: auto; max-height: 460px; object-fit: contain; }
-.dwg-fig figcaption { padding: 10px 16px 14px; font-size: 14px; line-height: 20px; color: #5A6054; }
-.dwg-fig figcaption b { color: #1E211D; font-weight: 600; }
 .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 @media (max-width: 900px) { .trio { grid-template-columns: 1fr; } }
 .trio figure { margin: 0; }
@@ -502,35 +434,8 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 .trio .shot .vis-tag { right: 10px; bottom: 10px; }
 .trio figcaption { margin-top: 10px; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
 .trio figcaption b { color: var(--ink); display: block; font-size: 16px; }
-.kv { display: grid; grid-template-columns: max-content 1fr; gap: 10px 20px; margin: 0; }
-.kv dt { color: var(--ink-muted); font-size: 14px; }
-.kv dd { margin: 0; font-size: 15px; line-height: 22px; }
-@media (max-width: 520px) { .kv { grid-template-columns: 1fr; gap: 2px; } .kv dd { margin-bottom: 10px; } }
-.wbar { display: flex; height: 44px; border-radius: var(--radius-sm); overflow: hidden; background: var(--line); margin: 18px 0 10px; }
-.wbar i { display: grid; place-items: center; font-style: normal; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; }
-.wbar .wh { background: var(--wood-ink); color: #fff; } .wbar .wc { background: var(--ink-muted); color: #fff; } .wbar .wr { background: var(--success); color: #fff; }
-.wlegend { display: grid; gap: 6px; font-size: 14px; }
-.wlegend div { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
-.wlegend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; }
-.cmp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.cmp-grid.n2 { grid-template-columns: repeat(2, 1fr); } .cmp-grid.n1 { grid-template-columns: 1fr; max-width: 720px; }
-@media (max-width: 900px) { .cmp-grid, .cmp-grid.n2 { grid-template-columns: 1fr; } }
-.rcmp { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-md); overflow: hidden; --p: 50%; user-select: none; }
-.rcmp img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-.rcmp .cmp-top { clip-path: inset(0 0 0 var(--p)); }
-.rcmp::after { content: ''; position: absolute; top: 0; bottom: 0; left: var(--p); width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.2); pointer-events: none; }
-.rcmp .knob { position: absolute; top: 50%; left: var(--p); width: 36px; height: 36px; margin: -18px 0 0 -18px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.3); display: grid; place-items: center; pointer-events: none; color: #1E211D; font-size: 14px; font-weight: 700; }
-.rcmp input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; margin: 0; }
-.rcmp input:focus-visible + .knob { outline: 2px solid var(--accent); outline-offset: 2px; }
-.rcmp .lbl { position: absolute; top: 10px; padding: 3px 9px; border-radius: var(--radius-pill); background: rgba(21,24,20,.72); color: #F2ECE1; font-size: 12px; font-weight: 600; pointer-events: none; }
-.rcmp .lbl.l { left: 10px; } .rcmp .lbl.r { right: 10px; }
-.flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; counter-reset: flow; }
-@media (max-width: 720px) { .flow { grid-template-columns: 1fr; } }
-.flow div { counter-increment: flow; padding: 18px 20px; border-radius: var(--radius-md); background: var(--surface-raised); box-shadow: inset 0 0 0 1px var(--line); }
-.flow div::before { content: counter(flow); display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 13px; margin-bottom: 8px; }
 .cards.c2 { grid-template-columns: repeat(2, 1fr); }
 @media (max-width: 720px) { .cards.c2 { grid-template-columns: 1fr; } }
-.flow b { display: block; } .flow span { font-size: 14px; line-height: 20px; color: var(--ink-muted); }
 @media (max-width: 900px) { .gallery { grid-template-columns: 1fr 1fr; grid-auto-rows: 180px; } .gallery figure:first-child { grid-column: span 2; } }
 
 /* specs */
@@ -668,11 +573,6 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 .wall-img { border-radius: var(--radius-md); overflow: hidden; background: var(--linen-25); box-shadow: var(--shadow-card); }
 .wall-img img { width: 100%; display: block; }
 /* O nás */
-.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-.stats div { display: grid; gap: 4px; border-top: 1.5px solid var(--line-strong); padding-top: 18px; }
-.stats b { font-family: var(--font-display); font-weight: 300; font-size: 44px; line-height: 50px; }
-.stats span { color: var(--ink-muted); font-size: 14px; }
-@media (max-width: 820px) { .stats { grid-template-columns: 1fr 1fr; } }
 .team { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 .member { display: grid; gap: 8px; }
 .member .ph { aspect-ratio: 4 / 5; border-radius: var(--radius-md); background: var(--surface-raised); display: grid; place-items: center; color: var(--line-strong); border: 1.5px dashed var(--line-strong); }
@@ -680,9 +580,6 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 .member b { font-family: var(--font-display); font-weight: 500; font-size: 18px; }
 .member span { font-size: 14px; color: var(--ink-muted); }
 @media (max-width: 900px) { .team { grid-template-columns: 1fr 1fr; } }
-.logos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
-.logos span { height: 72px; border-radius: var(--radius-sm); border: 1.5px dashed var(--line-strong); display: grid; place-items: center; font-size: 13px; color: var(--ink-muted); }
-@media (max-width: 720px) { .logos { grid-template-columns: 1fr 1fr; } }
 .quote { font-family: var(--font-display); font-weight: 300; font-size: 24px; line-height: 32px; border-left: 2px solid var(--amber-400); padding-left: 18px; }
 .ph-note { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; background: var(--amber-200); color: var(--forest-900); padding: 7px 14px; border-radius: var(--radius-pill); }
 .ph-note .ico { width: 16px; height: 16px; }
@@ -777,15 +674,15 @@ function monthly(price, down = 0.2, years = 12) { const P = price * (1 - down), 
 const MODELS = {
   'dum-s': { key: 'dum-s', name: 'Dům S', area: 15, net: 12.1, len: 6, people: '2 osoby', loft: 'bez loftu', price: 790000, card: 'dum-s/foto/prirodni-0000', wide: 'dum-s/foto/prirodni-0000', inside: 'dum-s/foto/int-smrk-0', heat: 'Přímotopy / TČ', real: 'dum-s', tags: [['Celoroční', 'nature']],
     line: 'Studio pro dva na víkendy i práci v klidu.', desc: 'Nejmenší dům s plnohodnotnou koupelnou a kuchyní. Rozkládací postel, pracovní místo u okna a elektrické topení. Vejde se na menší zahradu a jde snadno převézt.',
-    rooms: [['Obytná část', 'Rozkládací pohovka 160 × 200 cm u proskleného štítu, stolek, úložný prostor pod lavicí', 'dum-s/foto/obytna'], ['Kuchyňská linka', 'Linka 160 cm: dřez, dvouplotýnková indukce, lednice 90 l, police nad oknem', 'dum-s/foto/kuchyn'], ['Koupelna', 'Sprchový kout 80 × 80 cm, závěsné WC, umyvadlo, posuvné dveře', 'dum-s/foto/koupelna'], ['Skříň a technika', 'Šatní skříň, ohřívač vody 50 l, rozvaděč, elektrické přímotopy', 'dum-s/foto/technika']],
+    rooms: [['Obytná část', 'Rozkládací pohovka 160 × 200 cm u proskleného štítu, stolek, úložný prostor pod lavicí', 'dum-s/foto/obytna'], ['Kuchyňská linka', 'Linka 160 cm: dřez, dvouplotýnková indukce, lednice 90 l, police nad oknem', 'dum-s/foto/kuchyn'], ['Koupelna', 'Sprchový kout 80 × 80 cm, závěsné WC, umyvadlo, posuvné dveře', 'dum-s/foto/koupelna']],
     gallery: ['dum-s/foto/prirodni-0000', 'dum-s/foto/int-smrk-0', 'dum-s/foto/zezadu', 'dum-s/foto/obytna', 'dum-s/foto/kuchyn'] },
   'dum-m': { key: 'dum-m', name: 'Dům M', area: 18, net: 14.7, len: 7.2, people: '2–4 osoby', loft: 'spací loft', price: 1190000, card: 'dum-m/foto/prirodni-0001', wide: 'dum-m/foto/prirodni-0001', inside: 'dum-m/foto/int-smrk-1', heat: 'Tepelné čerpadlo', real: 'dum-m', tags: [['Celoroční', 'nature'], ['Nejoblíbenější', 'accent']],
     line: 'Dům pro páry i malé rodiny, se spacím loftem pod střechou.', desc: 'Obývák s velkým oknem ve štítu, plná kuchyň, koupelna a spací loft se střešním oknem. Nejčastější volba pro chatu i celoroční bydlení.',
-    rooms: [['Obytná část', 'Rozkládací pohovka u proskleného štítu, lavice a sklopný stůl pro 2–4 osoby, vnitřní jednotka tepelného čerpadla', 'dum-m/foto/obytna'], ['Kuchyně', 'Linka 210 cm: dřez, myčka 45 cm, indukce s troubou, lednice 120 l', 'dum-m/foto/kuchyn'], ['Koupelna', 'Sprchový kout 80 × 80 cm, závěsné WC, umyvadlo, žebřík na ručníky', 'dum-m/foto/koupelna'], ['Loft', 'Matrace 140 × 200 cm pod střechou, jen na spaní, střešní okno a okno ve štítu', 'dum-m/foto/loft'], ['Schody a technika', 'Schody s úložnými boxy, šatní skříň, ohřívač 50 l, rekuperace', 'dum-m/foto/technika']],
+    rooms: [['Obytná část', 'Rozkládací pohovka u proskleného štítu, lavice a sklopný stůl pro 2–4 osoby, vnitřní jednotka tepelného čerpadla', 'dum-m/foto/obytna'], ['Kuchyně', 'Linka 210 cm: dřez, myčka 45 cm, indukce s troubou, lednice 120 l', 'dum-m/foto/kuchyn'], ['Koupelna', 'Sprchový kout 80 × 80 cm, závěsné WC, umyvadlo, žebřík na ručníky', 'dum-m/foto/koupelna'], ['Loft', 'Matrace 140 × 200 cm pod střechou, jen na spaní, střešní okno a okno ve štítu', 'dum-m/foto/loft']],
     gallery: ['dum-m/foto/prirodni-0001', 'dum-m/foto/int-smrk-1', 'dum-m/foto/zezadu', 'dum-m/foto/obytna', 'dum-m/foto/loft'] },
   'dum-l': { key: 'dum-l', name: 'Dům L', area: 19.5, net: 16, len: 7.8, people: '2 osoby', loft: 'ložnice, bez loftu', price: 1590000, card: 'dum-l/foto/prirodni-0000', wide: 'dum-l/foto/prirodni-0000', inside: 'dum-l/foto/int-smrk-0', heat: 'Tepelné čerpadlo', real: 'dum-l', tags: [['Celoroční', 'nature'], ['Ukázkový dům', 'accent']],
     line: 'Největší model pro celoroční bydlení nebo pronájem.', desc: 'Obytná kuchyň s jídelním stolem pro čtyři, samostatná ložnice v přízemí a velká terasa. Tento model si můžete vyzkoušet na jednu noc v Chabeřicích.',
-    rooms: [['Obytná kuchyň', 'Jídelní stůl pro 4 u proskleného štítu, posuvné dveře na terasu', 'dum-l/foto/obytna'], ['Kuchyně', 'Linka 240 cm: dřez, myčka 45 cm, indukce s troubou, lednice', 'dum-l/foto/kuchyn'], ['Ložnice', 'Postel 140 × 200 cm, šatní skříň, okna do lesa na třech stranách', 'dum-l/foto/loznice'], ['Koupelna', 'Sprcha 90 × 90 cm, WC, umyvadlo, příprava pro pračku', 'dum-l/foto/koupelna'], ['Technika', 'Technická skříň s ohřívačem 80 l, rekuperací a rozvaděčem, vnitřní jednotka tepelného čerpadla', 'dum-l/foto/technika']],
+    rooms: [['Obytná kuchyň', 'Jídelní stůl pro 4 u proskleného štítu, posuvné dveře na terasu', 'dum-l/foto/obytna'], ['Kuchyně', 'Linka 240 cm: dřez, myčka 45 cm, indukce s troubou, lednice', 'dum-l/foto/kuchyn'], ['Ložnice', 'Postel 140 × 200 cm, šatní skříň, okna do lesa na třech stranách', 'dum-l/foto/loznice'], ['Koupelna', 'Sprcha 90 × 90 cm, WC, umyvadlo, příprava pro pračku', 'dum-l/foto/koupelna']],
     gallery: ['dum-l/foto/prirodni-0000', 'dum-l/foto/int-smrk-0', 'dum-l/foto/zezadu', 'dum-l/foto/obytna', 'dum-l/foto/loznice'] },
 };
 
@@ -854,26 +751,10 @@ function processSection(sunken = true) {
       <div class="fact-box">${ic('dum')}<b>Záruka 5 let</b><p>Na nosnou konstrukci, střechu a okna. Servis zajistíme i po záruce.</p></div>
     </div></div></section>`;
 }
-function wallSection() {
-  const L = [['Modřín', '22 mm', '#B5743F', 'Modřínové<br>obklady', [26, 33], [0, 19], [17, 21]], ['Provětrávaná mezera s latěmi', '40 mm', '#55595A', 'Provětrávaná<br>mezera s latěmi', [35, 47], [0, 35], [19, 37]], ['Dřevovláknitá deska', '60 mm', '#A88762', 'Dřevovláknitá deska', [43, 24], [37, 2], [42, 6]],
-    ['Ocelový skelet + izolace', '160 mm', '#D9BF97', 'Ocelový skelet<br>+ izolace', [55, 40], [82, 12], [81, 14]], ['Parozábrana a instalační předstěna', '40 mm', '#D8D6D0', 'Parozábrana', [64, 52], [82, 44], [81, 46]], ['Interiér smrk', '15 mm', '#EAD7B8', 'Interiérové smrkové<br>palubky', [76, 62], [82, 70], [81, 72]]];
-  const lines = L.map(l => { const [px, py] = l[4], [ex, ey] = l[6], mid = ex < px ? Math.min(ex + 6, px) : Math.max(ex - 5, px); return `<polyline points="${ex},${ey} ${mid},${ey} ${px},${py}" />`; }).join('');
-  return `<section class="wall3" id="prurez"><div class="wrap wall3-grid">
-    <figure class="wall3-fig reveal"><img src="${IMG('dr-02')}" alt="Rozložený průřez stěnou Nordhouse se šesti vrstvami" loading="lazy">
-      <svg class="wall3-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>
-      ${L.map((l, i) => `<span class="wall3-dot" style="left:${l[4][0]}%;top:${l[4][1]}%">${i + 1}</span><span class="wall3-label ${l[5][0] > 50 ? 'r' : ''}" style="left:${l[5][0]}%;top:${l[5][1]}%">${l[3]}</span>`).join('')}
-      <span class="wall3-vis">Vizualizace</span></figure>
-    <div class="wall3-text"><p class="eyebrow wall3-eyebrow">Plášť</p><h2 class="wall3-title">Z čeho je stěna</h2><p class="wall3-lead">Nosnou konstrukci tvoří pozinkovaný ocelový skelet. Dřevo zůstává na fasádě a uvnitř, kde ho vidíte a kde se ho dotknete.</p>
-      <ol class="wall3-list">${L.map((l, i) => `<li><span class="sw" style="background:${l[2]}"><b>${i + 1}</b></span><span>${l[0]}</span><em>${l[1]}</em></li>`).join('')}</ol>
-      <p class="wall3-note">Tloušťky jsou ilustrační, doplníme z technických listů výroby.</p>
-      <div class="wall3-stats"><div>${ic('dum')}<b>Pozinkovaná ocel</b><span>nosný skelet</span></div><div>${ic('drevo')}<b>Modřín a smrk</b><span>fasáda a interiér</span></div><div>${ic('voda')}<b>Dřevo uvnitř</b><span>vyrovnává vlhkost</span></div></div>
-    </div></div></section>`;
-}
-function seasons() {
-  const s = [['sz-zima', 'Zima', 'Teplo, trojskla a sníh za oknem'], ['sz-04', 'Jaro', 'Déšť na terase, čaj uvnitř'], ['dum-m/foto/prirodni-0101', 'Léto', 'Otevřené dveře do louky'], ['sz-podzim', 'Podzim', 'Mlha nad lesem a teplo uvnitř']];
-  return `<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Celoročně</p><h2 class="h1">Dům pro všechna čtyři roční období.</h2></div>
-    <div class="seasons">${s.map(x => `<figure class="season reveal"><img src="${IMG(x[0])}" alt="${x[1]} u domu Nordhouse" loading="lazy"><figcaption><b>${x[1]}</b><span>${x[2]}</span></figcaption></figure>`).join('')}</div>
-    <p class="note" style="margin-top:12px">Vizualizace</p></div></section>`;
+// Skladba stěny: 3D vzorek stěny rozkládaný scrollem (mountStena v js/podvozek.js), pod ním tři dlaždice.
+function wallSection({ stats = true, title = 'Z čeho je stěna', lead = 'Nosnou konstrukci tvoří pozinkovaný ocelový skelet. Dřevo zůstává na fasádě a uvnitř, kde ho vidíte a kde se ho dotknete.' } = {}) {
+  return `<section id="prurez" aria-label="Skladba stěny"><div data-st data-pv-opts="${attrJson({ head: { eyebrow: 'Plášť', title, lead } })}"></div>
+  ${stats ? `<div class="wrap"><div class="wall-stats"><div>${ic('dum')}<b>Pozinkovaná ocel</b><span>nosný skelet</span></div><div>${ic('drevo')}<b>Modřín a smrk</b><span>fasáda a interiér</span></div><div>${ic('voda')}<b>Dřevo uvnitř</b><span>vyrovnává vlhkost</span></div></div></div>` : ''}</section>`;
 }
 function faqSection(list = FAQ_MAIN, title = 'Na co se ptáte nejčastěji', more = true) {
   return `<section class="section"><div class="wrap"><div class="faq"><div class="stack"><p class="eyebrow">Časté otázky</p><h2 class="h1">${title}</h2>${more ? `<a class="link" href="#faq">Všechny otázky ${arrow}</a>` : ''}</div>
@@ -936,8 +817,9 @@ PAGES['uvod'] = () => `
   ${vis}
 </section>
 ${features()}
-${chapter({ eyebrow: 'Příjezd', title: 'Přivezeme ho celý. Usadíme za jeden den.', text: 'Dům vyjede z dílny v Chabeřicích hotový. Na místě ho vyrovnáme na opěrných nohách, připojíme elektřinu a vodu a večer už svítí okna. Do 100 km dopravu neplatíte.', poster: 'prevoz', alt: 'Auto veze dům na podvozku po silnici při západu slunce', facts: `<div class="chapter-facts"><div><b>1 den</b><span>usazení na místě</span></div><div><b>0 Kč</b><span>doprava do 100 km</span></div><div><b>0 m³</b><span>betonu na základy</span></div></div>
-  <div class="pv-teaser"><p class="small" style="color:var(--chapter-muted);margin:28px 0 16px;max-width:460px">Pod domem je silniční přívěs do 3 500 kg pro řidičák B+E, na něm lehký ocelový skelet a navrch dřevo.</p>${btnG('Na čem dům stojí', '#podvozek')}</div>` })}
+${chapter({ eyebrow: 'Příjezd', title: 'Přivezeme ho celý. Usadíme za jeden den.', text: 'Dům vyjede z dílny v Chabeřicích hotový. Na místě ho vyrovnáme na opěrných nohách, připojíme elektřinu a vodu a večer už svítí okna. Do 100 km dopravu neplatíte.', poster: 'prevoz', alt: 'Auto veze dům na podvozku po silnici při západu slunce', facts: `<div class="chapter-facts"><div><b>1 den</b><span>usazení na místě</span></div><div><b>0 Kč</b><span>doprava do 100 km</span></div><div><b>0 m³</b><span>betonu na základy</span></div></div>` })}
+<section id="konstrukce" aria-label="Konstrukce domu"><div data-pv="m" data-pv-opts="${attrJson({ compact: true, head: { eyebrow: 'Konstrukce', lead: 'Dole silniční přívěs do 3 500 kg, na něm lehký ocelový skelet a navrch dřevo. Posouvejte stránkou a dům se rozloží na jednotlivé vrstvy.', cta: { label: 'Na čem dům stojí', href: '#podvozek', className: 'btn btn-secondary' } } })}"></div></section>
+${wallSection({ title: 'Lehký na cestu, pevný na místě.', lead: 'Ocelový skelet se nekroutí ani nesesychá, takže dům drží tvar i po převozu. Je lehký, a proto celý dům utáhne auto s řidičákem B+E. Dřevo zůstává tam, kde ho vidíte a kde se ho dotknete.' })}
 ${chapter({ eyebrow: 'Uvnitř', title: 'Teplo i v lednu, světlo i v listopadu.', text: 'Zateplené stěny, podlaha i střecha, okna s izolačním trojsklem a tepelné čerpadlo. Velké okno ve štítu pustí dovnitř les a louku.', poster: 'dum-m/foto/obytna', flip: true, alt: 'Interiér Domu M s kamny a proskleným štítem do lesa' })}
 <section class="section"><div class="wrap">
   <div class="head split"><div class="stack"><p class="eyebrow">Modely</p><h2 class="h1">Tři velikosti, stejná kvalita.</h2><p class="lead">Všechny domy jsou celoroční, se stejnými materiály a zárukou. Liší se velikostí a dispozicí.</p></div>${btnS('Srovnat modely', '#domy')}</div>
@@ -945,19 +827,12 @@ ${chapter({ eyebrow: 'Uvnitř', title: 'Teplo i v lednu, světlo i v listopadu.'
   <p class="small muted" style="margin-top:20px">Chcete domy pronajímat? <a class="link" href="#invest">Verze Invest pro glamping ${arrow}</a></p>
 </div></section>
 ${stayTeaser()}
-${wallSection()}
-<section class="chapter full"><div class="chapter-bg"><video src="vid/hs-05.mp4" poster="${IMG('hs-05w')}" autoplay muted loop playsinline aria-label="Ranní mlha nad loukou, pár s kávou na terase"></video></div>
-  <div class="wrap"><div class="chapter-text reveal"><p class="eyebrow">Ráno</p><h2 class="display-l">Ráno vás vzbudí světlo, ne provoz.</h2><p class="lead">Káva na terase, mlha nad loukou a nikam se nespěchá. Přesně kvůli tomu domy stavíme.</p></div></div>${vis}</section>
-${seasons()}
 ${chapter({ eyebrow: 'Sauny', title: 'Sauna, která ladí s vaším domem.', text: 'Ze stejného modřínu jako dům, s kamny na dřevo. Sauna na podvozku od 349 000 Kč, zahradní sauna od 249 000 Kč a kádě od 39 000 Kč. Při objednávce s domem sleva 40 000 Kč.', poster: 'dum-l/foto/prirodni-0010', alt: 'Dům L a sauna na podvozku propojené chodníkem', facts: `<div class="btn-row" style="margin-top:32px">${btnP('Prohlédnout sauny', '#sauny')}${btnG('Sada dům + sauna', '#sada-dum-sauna')}</div>` })}
 ${processSection()}
 <section class="section"><div class="wrap">
   <div class="head"><p class="eyebrow">Splátky</p><h2 class="h1">Kolik by vás dům stál měsíčně.</h2><p class="lead">Orientační výpočet s partnerskou bankou. Přesnou nabídku úvěru připravíme spolu s nabídkou domu.</p></div>
   ${calcBlock('home')}
 </div></section>
-<section class="section sunken"><div class="wrap"><div class="split">
-  <div class="stack-lg"><p class="eyebrow">Reference</p><h2 class="h1">První domy předáváme v roce 2027.</h2><p class="lead">Sem přidáme skutečné fotky a příběhy prvních majitelů. Do té doby se přijeďte podívat do dílny nebo přespat v ukázkovém domě.</p><div class="btn-row">${btnS('Domluvit prohlídku výroby', '#kontakt')}</div></div>
-  <div class="media-r reveal"><img src="${IMG('prevoz')}" alt="Převoz domu po silnici za autem" loading="lazy">${vis}</div></div></div></section>
 ${faqSection()}
 ${leadSection({ sunken: false })}`;
 
@@ -1019,85 +894,32 @@ const PV_OJ = ['Oj a brzda', 'A-oj s nájezdovou brzdou Knott a kulovou spojkou,
 const PV_VYSKA = ['Výška plošiny', '620 mm nad terénem, podlaha domu 732 mm.'];
 const PV_SKELET = ['Nosná konstrukce', 'Lehký skelet z pozinkovaných ocelových profilů, přišroubovaný k plošině přívěsu. Dřevo tvoří fasádu a vnitřní obklad.'];
 const PV_PRIVES = (t, l) => ['Přívěs', `Vlemmix ${t} „plateau“ z Nizozemska, dodává mooh.cz. Sériově homologovaný, rám žárově zinkovaný, plošina ${l} × 2,44 m.`];
-const PV_WNOTE = 'Předběžný výpočet z modelu po jednotlivých dílech, bez vody a osobních věcí. Hmotnost ocelového skeletu je zatím odhad, čísla potvrdíme vážením prvních domů.';
 const REAL = {
   'dum-s': {
     dims: [['Délka domu', '6,0 m'], ['Přívěs s ojí', '7,5 m'], ['Šířka se střechou', '2,55 m'], ['Výška od terénu', '3,99 m'], ['Světlá výška', 'až 2,93 m'], ['Podlaha nad terénem', '0,73 m']],
-    dwg: [['pudorys', 'Půdorys', 'Obytný prostor s kuchyní 9,6 m², koupelna 2,4 m². Vstup proskleným štítem.', 'wide'], ['bokorys', 'Podélný řez', 'Dům 6 000 mm na přívěsu Vlemmix TH600, oj 1 500 mm. Výška 3 990 mm pod silničním limitem 4 m, celkem s ojí a přesahem střechy 7 650 mm.'], ['rez', 'Příčný řez', 'Max. šířka se střechou 2 550 mm. Podlaha 732 mm nad terénem, pod hřebenem 2 935 mm světlé výšky.'], ['podvozek', 'Podvozek', 'Půdorys rámu přívěsu, náprav a oje s hlavními rozměry.', 'wide']],
     chassis: [PV_KAT, PV_PRIVES('TH600', '6,0'), PV_NAPRAVY, PV_KOLA, PV_OJ, ['Stání', '4 kličkové opěrné nohy v rozích s roznášecími deskami.'], PV_VYSKA, PV_SKELET],
     weight: { house: 2061, chassis: 648, total: 2709, limit: 3500 },
-    model3d: 'img/dum-s/3d/dum-s.glb',
-    schemata: [['img/dum-s/schemata/elektro.svg', 'Schéma zapojení elektřiny', 'Přívodka 32 A, rozvaděč s chráničem a jističi, okruhy světel, zásuvek s USB-C, kuchyně, ohřevu vody a topení. Off-grid: panely, odpojovač DC, měnič a baterie.'], ['img/dum-s/schemata/odpady.svg', 'Schéma odpadů', 'Dřez, umyvadlo, sprcha a WC odtékají svisle do zatepleného sběrného potrubí pod rámem a jedním hrdlem DN110 do přípojky, jímky nebo čistírny. Odvětrání nad střechu.']],
-    lead: 'Dům S stojí na silničním přívěsu Vlemmix TH600. Je to přívěs do 3,5 t, takže ho převezete autem s řidičákem B+E. Na pozemku nepotřebuje základy.',
-    wnote: PV_WNOTE + ' Dům S topí elektricky, kamna nemá.',
-    cmp: [['prirodni-0000', 'Exteriér'], ['int-smrk-0', 'Interiér'], ['podvozek', 'Podvozek']],
   },
   'dum-m': {
     dims: [['Délka domu', '7,2 m'], ['Přívěs s ojí', '8,7 m'], ['Šířka se střechou', '2,55 m'], ['Výška od terénu', '3,99 m'], ['Světlá výška', 'až 2,95 m'], ['Podlaha nad terénem', '0,73 m']],
-    dwg: [['pudorys', 'Půdorys', 'Obytný prostor s kuchyní 11,7 m², koupelna 2,9 m². Loft nad koupelnou a koncem kuchyně, schody s úložnými boxy.', 'wide'], ['bokorys', 'Podélný řez', 'Dům 7 200 mm na přívěsu Vlemmix TH720, oj 1 500 mm, kola celá pod plošinou. Výška 3 991 mm, celkem s ojí a přesahem střechy 8 850 mm.'], ['rez', 'Příčný řez loftem', 'Pod loftem 1 900 mm, nad podlahou loftu v hřebeni zhruba 0,94 m, loft je jen na spaní. Max. šířka 2 550 mm.'], ['podvozek', 'Podvozek', 'Půdorys rámu přívěsu, náprav a oje s hlavními rozměry.', 'wide']],
     chassis: [PV_KAT, PV_PRIVES('TH720', '7,2'), PV_NAPRAVY, PV_KOLA, PV_OJ, ['Stání', '4 kličkové opěrné nohy v rozích a 2 podpěry pod převislými konci.'], PV_VYSKA, PV_SKELET],
     weight: { house: 2607, chassis: 698, total: 3305, limit: 3500 },
-    lead: 'Dům M stojí na silničním přívěsu Vlemmix TH720. Je to přívěs do 3,5 t, takže ho převezete autem s řidičákem B+E. Kola jsou celá pod plošinou, v interiéru nejsou podběhy.',
-    wnote: PV_WNOTE + ' Dům M kamna nemá, topí tepelným čerpadlem. Jeho venkovní jednotka se veze zvlášť.',
-    cmp: [['prirodni-0001', 'Exteriér'], ['int-smrk-1', 'Interiér'], ['loft', 'Loft']],
   },
   'dum-l': {
     dims: [['Délka domu', '7,8 m'], ['Přívěs s ojí', '9,3 m'], ['Šířka se střechou', '2,55 m'], ['Výška od terénu', '3,99 m'], ['Světlá výška', 'až 2,95 m'], ['Podlaha nad terénem', '0,73 m']],
-    dwg: [['pudorys', 'Půdorys', 'Obytná kuchyň 8,4 m², koupelna 1,7 m², chodba 1,1 m², ložnice 4,3 m². Vstup posuvnými dveřmi z terasy, ložnice v přízemí.', 'wide'], ['bokorys', 'Podélný řez', 'Dům 7 800 mm na přívěsu Vlemmix TH780, oj 1 500 mm, kola celá pod plošinou. Výška 3 991 mm, celkem s ojí a přesahem střechy 9 450 mm.'], ['rez', 'Příčný řez', 'Max. šířka se střechou 2 550 mm. Podlaha 732 mm nad terénem, pod hřebenem zhruba 2 950 mm světlé výšky.'], ['podvozek', 'Podvozek', 'Půdorys rámu přívěsu, náprav a oje s hlavními rozměry.', 'wide']],
     chassis: [PV_KAT, PV_PRIVES('TH780', '7,8'), PV_NAPRAVY, PV_KOLA, PV_OJ, ['Stání', '4 kličkové opěrné nohy v rozích a 2 podpěry pod převislými konci.'], PV_VYSKA, PV_SKELET],
     weight: { house: 2666, chassis: 728, total: 3395, limit: 3500 },
-    lead: 'Dům L stojí na silničním přívěsu Vlemmix TH780. Je to přívěs do 3,5 t, takže ho převezete autem s řidičákem B+E. Aby se vešel do limitu, nemá loft a ložnice je v přízemí.',
-    wnote: PV_WNOTE + ' Do limitu zbývá jen malá rezerva. Venkovní jednotka tepelného čerpadla se veze zvlášť.',
-    cmp: [['prirodni-0000', 'Exteriér'], ['int-smrk-0', 'Interiér'], ['loznice', 'Ložnice']],
   },
 };
-function model3dSection(m, r) {
-  // ovládání: 1) režim (zvenku / uvnitř / bez střechy), 2) místo v režimu, 3) vrstvy pod modelem s legendou
-  const modes = [['ven', 'Zvenku', [['zvenku', 'Zepředu'], ['zvenku2', 'Zezadu']]], ['uvnitr', 'Uvnitř', [['obyvak', 'Obývák'], ['kuchyn', 'Kuchyň'], ['koupelna', 'Koupelna']]], ['rez', 'Shora', [['rez', '']]]];
-  const l = [['xray', 'Rozvody', 'rentgen stěn a podlahy'], ['L_offgrid', 'Off-grid', 'solár a baterie'], ['L_tc', 'Tepelné čerpadlo', 'venkovní jednotka']];
-  const leg = [['#1a59d9', 'Studená voda'], ['#d91f1a', 'Teplá voda'], ['#8c9194', 'Odpad'], ['#f2bf0d', 'Elektřina 230 V'], ['#f2660d', 'Solár DC'], ['#33b38c', 'Rekuperace'], ['#b86b33', 'Chladivo TČ']];
-  return `
-<section class="section" id="model-3d"><div class="wrap"><div class="head"><p class="eyebrow">3D model</p><h2 class="h1">Projděte si ${m.name} zvenku i zevnitř</h2><p class="lead">Stejný model, ze kterého vycházejí výkresy a výroba. Otáčejte myší nebo prstem, uvnitř se rozhlédnete tažením. Rozvody ukážou vedení vody, odpadů a elektřiny ve stěnách a pod podlahou.</p></div>
-  <div class="v3d-wrap" data-src="${r.model3d}">
-    <div class="v3d-modes seg" role="tablist" aria-label="Pohled na model">${modes.map((x, i) => `<button type="button" role="tab" data-mode="${x[0]}" data-first="${x[2][0][0]}" aria-selected="${!i}">${x[1]}</button>`).join('')}</div>
-    <div class="v3d-places">${modes.filter(x => x[2].length > 1).map((x, i) => `<div class="v3d-place" data-for="${x[0]}" role="group" aria-label="${x[1]}"${i ? ' hidden' : ''}>${x[2].map((y, j) => `<button type="button" data-view="${y[0]}" aria-pressed="${!i && !j}">${y[1]}</button>`).join('')}</div>`).join('')}</div>
-    <div class="v3d"><div class="v3d-canvas" role="img" aria-label="Interaktivní 3D model: ${m.name}"></div><div class="v3d-status">Načítám 3D model…</div><span class="v3d-hint">Táhnout: otočit · kolečko: přiblížit · pravé tlačítko: posunout</span></div>
-    <div class="v3d-layers" role="group" aria-label="Zobrazit ve modelu"><span class="v3d-layers-lbl">Zobrazit</span>${l.map(x => `<button type="button" class="v3d-toggle" data-layer="${x[0]}" aria-pressed="false"><i aria-hidden="true"></i><span><b>${x[1]}</b><small>${x[2]}</small></span></button>`).join('')}</div>
-    <div class="v3d-legend" hidden>${leg.map(x => `<span><i style="background:${x[0]}"></i>${x[1]}</span>`).join('')}</div>
-  </div>
-  <p class="note" style="margin-top:16px">Model je zjednodušený pro web: barvy materiálů odpovídají, textury dřeva a detaily spojů jsou ve výrobní dokumentaci. Off-grid a tepelné čerpadlo jsou volitelné balíčky.</p></div></section>
-${r.schemata ? `<section class="section" id="technika" style="padding-top:0"><div class="wrap"><div class="head"><p class="eyebrow">Technika</p><h2 class="h1">Jak je zapojená elektřina a odpady</h2><p class="lead">Schémata z technického modelu. Každý okruh má vlastní jistič, odpady mají spád nejméně 1,5 % a vedou mimo nosné profily skeletu. Kliknutím otevřete schéma ve velkém.</p></div>
-  <div class="schema-grid">${r.schemata.map(x => `<figure><a href="${x[0]}" target="_blank" rel="noopener"><img src="${x[0]}" alt="${x[1]}" loading="lazy"></a><figcaption><b>${x[1]}.</b> ${x[2]}</figcaption></figure>`).join('')}</div>
-  <p class="note" style="margin-top:16px">Schémata jsou projekční studie. Elektroinstalaci provede a revizí doloží elektrikář s oprávněním, přípojky na pozemku si zajišťuje majitel.</p></div></section>` : ''}`;
-}
-function initDum3d() {
-  const el = document.querySelector('.v3d-wrap'); if (!el) return;
-  const start = () => import('./js/dum3d.js').then(mod => mod.init(el, { src: el.dataset.src })).catch(() => { el.querySelector('.v3d-status').textContent = '3D model se v tomto prohlížeči nepodařilo spustit.'; });
-  if (!('IntersectionObserver' in window)) return start();
-  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); start(); } }, { rootMargin: '300px' });
-  io.observe(el);
-}
-function realSections(m) {
-  const r = REAL[m.real], d = `img/${m.real}/vykresy/`, w = r.weight, tot = w.total, pc = v => (v / w.limit * 100).toFixed(1) + '%', kg = v => v.toLocaleString('cs-CZ').replace(/\s/g, ' ') + ' kg';
-  const cmp = (k, t) => `<figure style="margin:0"><div class="rcmp"><img src="img/${m.real}/render/${k}.webp" alt="${m.name}, 3D model v Blenderu: ${t.toLowerCase()}" loading="lazy"><img class="cmp-top" src="${IMG(m.real + '/foto/' + k)}" alt="${m.name}, vizualizace: ${t.toLowerCase()}" loading="lazy"><input type="range" min="0" max="100" value="50" aria-label="Posunout předěl mezi 3D modelem a vizualizací: ${t.toLowerCase()}"><span class="knob" aria-hidden="true">↔</span><span class="lbl l">3D model</span><span class="lbl r">Vizualizace</span></div><figcaption class="small muted" style="margin-top:10px">${t}</figcaption></figure>`;
-  return `
-<section class="section" id="rozmery"><div class="wrap"><div class="head"><p class="eyebrow">Výkresy</p><h2 class="h1">Rozměry ${m.name.replace('Dům', 'Domu')}</h2><p class="lead">Zjednodušené výkresy z projektové dokumentace. Kliknutím otevřete výkres ve velkém.</p></div>
-  <div class="dims">${r.dims.map(x => `<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>
-  <div class="dwg-grid">${r.dwg.map(x => `<figure class="dwg-fig ${x[3] || ''}"><a href="${d}${x[0]}.svg" target="_blank" rel="noopener"><img src="${d}${x[0]}.svg" alt="${m.name}: ${x[1].toLowerCase()} s kótami" loading="lazy"></a><figcaption><b>${x[1]}.</b> ${x[2]}</figcaption></figure>`).join('')}</div>
-  <p class="note" style="margin-top:16px">Rozměry v milimetrech. Výkresy jsou studie, přesné hodnoty potvrdí výrobní dokumentace.</p></div></section>
-${r.model3d ? model3dSection(m, r) : ''}
-<section id="podvozek"><div data-pv="${m.key.slice(4)}"></div>
-<div class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Podvozek ${m.name.replace('Dům', 'Domu')}</p><h2 class="h1">Technické údaje a hmotnost</h2><p class="lead">${r.lead}</p></div>
-  <div class="two-col">
-    <div class="panel"><h3 class="h2" style="margin-bottom:18px">Technické údaje</h3><dl class="kv">${r.chassis.map(x => `<dt>${x[0]}</dt><dd>${x[1]}</dd>`).join('')}</dl></div>
-    <div class="panel"><h3 class="h2">Hmotnost</h3><p class="muted">Předběžný výpočet z objemových hmotností materiálů a vybavení. Skutečnou hmotnost potvrdíme vážením.</p>
-      <div class="wbar" role="img" aria-label="Dům ${kg(w.house)}, podvozek ${kg(w.chassis)}, rezerva ${kg(w.limit - tot)} do limitu ${kg(w.limit)}"><i class="wh" style="width:${pc(w.house)}">Dům</i><i class="wc" style="width:${pc(w.chassis)}">Podvozek</i><i class="wr" style="width:${pc(w.limit - tot)}"></i></div>
-      <div class="wlegend"><div><span><i class="sw" style="background:var(--wood-ink)"></i>Dům s vybavením</span><b>${kg(w.house)}</b></div><div><span><i class="sw" style="background:var(--ink-muted)"></i>Podvozek</span><b>${kg(w.chassis)}</b></div><div><span>Celkem</span><b>${kg(tot)}</b></div><div><span><i class="sw" style="background:var(--success)"></i>Rezerva do limitu ${kg(w.limit)}</span><b>${kg(w.limit - tot)}</b></div></div>
-      <p class="note" style="margin-top:14px">${r.wnote}</p></div>
-  </div><p class="small muted" style="margin-top:20px"><a class="link" href="#podvozek">Podvozek a konstrukce všech modelů ${arrow}</a></p></div></div></section>
-<section class="section" id="jak-vznika"><div class="wrap"><div class="head"><p class="eyebrow">Jak vznikají vizualizace</p><h2 class="h1">Obrázky podle skutečného modelu</h2><p class="lead">Vizualizace nejsou ilustrační. Vycházejí z 3D modelu domu, který odpovídá výkresům. Posuňte předěl a porovnejte model s výslednou vizualizací.</p></div>
-  <div class="flow"><div><b>Výkresy</b><span>Rozměry, otvory, vybavení a podvozek z projektové dokumentace.</span></div><div><b>3D model v Blenderu</b><span>Model s přesnými rozměry, materiály a doplňky z konfigurátoru.</span></div><div><b>Vizualizace</b><span>Z renderu modelu vznikne fotorealistický obrázek. Tvar, okna a proporce zůstávají.</span></div></div>
-  <div class="cmp-grid">${r.cmp.map(x => cmp(x[0], x[1])).join('')}</div></div></section>`;
+const attrJson = o => JSON.stringify(o).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+const thOf = r => r.chassis[1][1].match(/TH\d+/)[0];
+// Konstrukce: scroll sekce s rozkládaným modelem (js/podvozek.js) v kompaktní verzi, s čísly konkrétního domu
+function konstrukceSection(m) {
+  const r = REAL[m.real];
+  const opts = { compact: true,
+    head: { eyebrow: 'Konstrukce', title: `${m.name} vrstvu po vrstvě`, lead: `${m.name} stojí na silničním přívěsu Vlemmix ${thOf(r)} do 3 500 kg. Na něm je lehký ocelový skelet a navrch dřevo. Při posouvání stránky se dům rozloží na jednotlivé vrstvy.` },
+    facts: [['Délka domu', r.dims[0][1]], ['Celkem s ojí', r.dims[1][1]], ['Šířka', r.dims[2][1]], ['Výška', r.dims[3][1]], ['Užitná plocha', m2(m.net)], ['Na silnici', 'do 3 500 kg · B+E']] };
+  return `<section id="konstrukce" aria-label="Konstrukce ${m.name.replace('Dům', 'Domu')}"><div data-pv="${m.key.slice(4)}" data-pv-opts="${attrJson(opts)}"></div></section>`;
 }
 function detailPage(m) {
   const others = Object.values(MODELS).filter(x => x.key !== m.key);
@@ -1105,28 +927,26 @@ function detailPage(m) {
   return `
 ${heroImg({ img: m.wide, alt: `${m.name} na louce`, posM: '62% 50%', top: `<div class="tags hero-tags">${m.tags.map(t => `<span class="tag ${t[1]}">${t[0]}</span>`).join('')}</div>`, title: m.name, sub: m.desc, after: `<div class="detail-hero-price"><span class="price">od ${kc(m.price)}</span><span>s DPH · splátka od ${kc(monthly(m.price))}/měs.</span></div>`, btns: [['Konfigurovat', '#konfigurator-' + m.key], ['Poslat nabídku do e-mailu', '#poptavka']], label: 'Co dům potřebuje', bar: BAR_DUM, cta: ['Konfigurovat', '#konfigurator-' + m.key] })}
 <section class="section tight"><div class="wrap"><div class="specs">
-  <div class="spec">${ic('plocha')}<span>Užitná plocha</span><b>${m2(m.net)}</b></div><div class="spec">${ic('delka')}<span>Rozměry</span><b>${num(m.len)} × 2,5 m</b></div><div class="spec">${ic('uzivatel')}<span>Osoby</span><b>${m.people}</b></div><div class="spec">${ic('loft')}<span>Spaní</span><b>${m.loft}</b></div>
-  <div class="spec">${ic('celorocne')}<span>Provoz</span><b>Celoroční</b></div><div class="spec">${ic('topeni')}<span>Vytápění</span><b>${m.heat || 'Tepelné čerpadlo'}</b></div><div class="spec">${ic('sprcha')}<span>Koupelna</span><b>Sprcha + WC</b></div><div class="spec">${ic('kalendar')}<span>Hotovo za</span><b>10–14 týdnů</b></div>
+  <div class="spec">${ic('plocha')}<span>Užitná plocha</span><b>${m2(m.net)}</b></div><div class="spec">${ic('uzivatel')}<span>Osoby</span><b>${m.people}</b></div><div class="spec">${ic('loft')}<span>Spaní</span><b>${m.loft}</b></div><div class="spec">${ic('topeni')}<span>Vytápění</span><b>${m.heat || 'Tepelné čerpadlo'}</b></div>
 </div></div></section>
-<section class="section tight"><div class="wrap"><div class="gallery">${m.gallery.map((g, i) => `<figure><img src="${IMG(g)}" alt="${m.name}, ukázka ${i + 1}" loading="lazy">${vis}</figure>`).join('')}</div></div></section>
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Výbava</p><h2 class="h1">Co najdete uvnitř</h2></div>
+  ${(() => { const g = m.gallery.filter(x => x !== m.wide && !m.rooms.some(r => r[2] === x)); return g.length ? `<div class="gallery g2">${g.map((x, i) => `<figure><img src="${IMG(x)}" alt="${m.name}, ukázka ${i + 1}" loading="lazy">${vis}</figure>`).join('')}</div>` : ''; })()}
   <div class="cards${m.real && m.rooms.length % 2 === 0 ? ' c2' : ''}">${m.rooms.map(r => `<div class="panel flat"><div class="pk-img"><img src="${IMG(r[2])}" alt="${m.name}: ${r[0].toLowerCase()}" loading="lazy">${vis}</div><h3 class="h3">${r[0]}</h3><p class="muted">${r[1]}</p></div>`).join('')}${m.real ? '' : `<div class="panel flat"><div class="pk-img plan">${footprint(m)}</div><h3 class="h3">Půdorys</h3><p class="muted">Výkres s rozměry doplníme z výroby. Dispozici můžete upravit v konfigurátoru.</p></div>`}</div></div></section>
-${m.real ? realSections(m) : ''}
-<section class="section sunken"><div class="wrap"><div class="two-col">
+${m.real ? konstrukceSection(m) : ''}
+<section class="section sunken" id="v-cene"><div class="wrap"><div class="two-col">
   <div class="panel"><h3 class="h2">V ceně</h3><ul class="ticks"><li>Hotový dům s kuchyní, koupelnou a technikou</li><li>Modřínová fasáda a terasa se schody</li><li>Podvozek a usazení</li><li>Doprava do 100 km od Chabeřic</li><li>Záruka 5 let</li></ul></div>
   <div class="panel"><h3 class="h2">Není v ceně</h3><ul class="ticks no"><li>Pozemek</li><li>Přípojky vody, elektřiny a odpadu na pozemku</li><li>Případná povolení a poplatky úřadům</li><li>Tažné auto a řidičské oprávnění B+E, pokud dům povezete sami</li><li>Doprava nad 100 km (cena v nabídce)</li></ul></div>
 </div>
-<div class="head" style="margin:64px 0 24px"><h2 class="h2">Balíčky navíc</h2></div>
+<div class="head split" style="margin:64px 0 24px"><h2 class="h2">Balíčky navíc</h2>${btnS('Vybrat v konfigurátoru', '#konfigurator-' + m.key)}</div>
 <div class="cards">
   <div class="panel"><div class="pk-img"><img src="${IMG(m.real ? `${m.real}/foto/prirodni-100${m.key === 'dum-m' ? 1 : 0}` : 'pk-offgrid-' + m.key.slice(4))}" alt="${m.name} s off-grid balíčkem a solárními panely" loading="lazy">${vis}</div><h3 class="h3">Off-grid</h3><p class="muted small">Solární panely, baterie, nádrž na vodu a čistírna. Dům funguje i bez přípojek.</p><div class="price">+ 190 000 Kč</div></div>
   <div class="panel"><div class="pk-img"><img src="${IMG(m.real ? `${m.real}/foto/prirodni-010${m.key === 'dum-m' ? 1 : 0}` : 'pk-terasa-' + m.key.slice(4))}" alt="${m.name} s terasou XL" loading="lazy">${vis}</div><h3 class="h3">Terasa XL</h3><p class="muted small">Prodloužená terasa podél celé dlouhé strany domu.</p><div class="price">+ 45 000 Kč</div></div>
   <a class="panel link-panel" href="#sada-dum-sauna"><div class="pk-img"><img src="${IMG(m.real ? `${m.real}/foto/prirodni-001${m.key === 'dum-m' ? 1 : 0}` : 'pk-sauna-' + m.key.slice(4))}" alt="${m.name} a sauna na podvozku propojené chodníkem" loading="lazy">${vis}</div><h3 class="h3">Sauna na podvozku</h3><p class="muted small">Ze stejného dřeva, propojená chodníkem. Při objednávce s domem sleva 40 000 Kč.</p><div class="price">+ 349 000 Kč</div><span class="link">Sada dům + sauna ${arrow}</span></a>
 </div><p class="note" style="margin-top:16px">Ceny balíčků jsou orientační, upřesníme je v nabídce.</p></div></section>
 ${stayTeaser(m.key === 'dum-l' ? 'noc-prijezd' : 'hero-noc').replace('Ukázkový Dům L stojí v Chabeřicích u Zruče nad Sázavou, zhruba hodinu jízdy z Prahy. Vyzkoušejte si, jak se v něm spí, topí a vaří.', extra)}
-<section class="section sunken"><div class="wrap"><div class="head split"><div class="stack"><p class="eyebrow">Termín</p><h2 class="h1">Váš ${m.name} může stát u vás v květnu 2027.</h2><p class="lead">Nejbližší volný výrobní slot začíná v únoru. Rezervujete ho podpisem smlouvy.</p></div>${btnP('Rezervovat slot', '#poptavka')}</div>${steps()}</div></section>
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Další modely</p><h2 class="h1">Hledáte jinou velikost?</h2></div><div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">${others.map(modelCard).join('')}</div></div></section>
 ${faqSection(FAQ_MAIN.slice(0, 4), `Otázky k modelu ${m.name}`)}
-${leadSection({ model: m.key, eyebrow: m.name, title: `Pošleme vám nabídku na ${m.name}.`, text: 'Napište nám, kde má dům stát. Do 24 hodin se ozveme s nabídkou, termínem a kontrolou pozemku.' })}`;
+${leadSection({ model: m.key, eyebrow: m.name, title: `Pošleme vám nabídku na ${m.name}.`, text: 'Napište nám, kde má dům stát. Do 24 hodin se ozveme s nabídkou, termínem a kontrolou pozemku. Nejbližší volný výrobní slot začíná v únoru 2027.' })}`;
 }
 PAGES['dum-s'] = () => detailPage(MODELS['dum-s']);
 PAGES['dum-m'] = () => detailPage(MODELS['dum-m']);
@@ -1134,11 +954,6 @@ PAGES['dum-l'] = () => detailPage(MODELS['dum-l']);
 
 PAGES['invest'] = () => `
 ${heroImg({ img: 'md-inv', alt: 'Tři domy Nordhouse jako glamping na louce', posM: '60% 50%', eyebrow: 'Verze Invest', title: 'Malý glamping, který se dá přesunout.', sub: 'Sestava dvou nebo tří domů, kterou usadíme na vašem pozemku za pár dní. Bez betonových základů a s možností domy později přesunout nebo prodat. Pozemek a způsob provozu zkontrolujeme předem.', btns: [['Spočítat návratnost', '#vypocet'], ['Domluvit konzultaci', '#poptavka']], label: 'Proč Verze Invest', bar: [B3('mince', 'Návratnost', 'Modelově 5,5 roku při obsazenosti 35 % a ceně 2 900 Kč za noc. Spočítejte si vlastní čísla.'), B3('umisteni', 'Bez betonových základů', 'Domy stojí na podvozcích, pozemek zůstane, jak je.'), B3('doprava', 'Dají se přesunout', 'Když se lokalita neosvědčí, domy převezeme jinam nebo prodáte.')], cta: ['Spočítat návratnost', '#vypocet'] })}
-<section class="section"><div class="wrap"><div class="features" style="grid-template-columns:repeat(3,1fr)">
-  <div class="feature">${ic('rychlost')}<b>Rychlý start</b><span>Od podpisu po první hosty za 3–4 měsíce.</span></div>
-  <div class="feature">${ic('umisteni')}<b>Bez betonových základů</b><span>Pozemek zůstane, jak je. Domy stojí na podvozcích.</span></div>
-  <div class="feature">${ic('doprava')}<b>Dají se přesunout</b><span>Když se lokalita neosvědčí, domy převezeme jinam.</span></div>
-</div></div></section>
 <section class="section sunken" id="vypocet"><div class="wrap"><div class="head"><p class="eyebrow">Modelový výpočet</p><h2 class="h1">Kolik může sestava vydělat</h2><p class="lead">Průměrná cena tiny house pobytu v Česku je kolem 2 900 Kč za noc. Obsazenost na venkově se liší podle lokality, proto si ji nastavte sami.</p></div>
   <div class="calc"><div class="calc-in">
     <div class="field"><span class="label">Sestava</span><div class="seg" role="group" aria-label="Počet domů" id="inv-n"><button type="button" data-n="2" aria-pressed="false">2× Dům M</button><button type="button" data-n="3" aria-pressed="true">3× Dům M</button></div></div>
@@ -1323,9 +1138,8 @@ function initCfg(param) {
 PAGES['jak-to-probiha'] = () => `
 ${heroImg({ img: 'prevoz', alt: 'Převoz domu po okresní silnici', posM: '55% 50%', eyebrow: 'Jak to probíhá', title: 'Pět kroků, pevná cena, hotový dům na kolech.', sub: 'Od prvního hovoru po usazení u vás uplyne 10–14 týdnů. Celou dobu víte, co se děje a kolik zaplatíte.', btns: [['Zkontrolovat pozemek', '#poptavka'], ['Pozemek a povolení', '#jak-to-probiha-pozemek']], label: 'Jistoty', bar: [B3('mince', 'Platby po částech', '30 % při podpisu, 40 % v polovině výroby, 30 % při převzetí.'), B3('doprava', 'Doprava zdarma', 'Do 100 km od Chabeřic. Dál cenu uvedeme v nabídce.'), B3('zaruka', 'Záruka 5 let', 'Na nosnou konstrukci, střechu a okna.')], cta: ['Zkontrolovat pozemek', '#poptavka'] })}
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Postup</p><h2 class="h1">Co se stane po vaší poptávce</h2></div>${steps()}</div></section>
-<section class="section sunken"><div class="wrap"><div class="split"><div class="media-r reveal"><img src="${IMG('pr-03')}" alt="Usazení domu na opěrných nohách podvozku" loading="lazy">${vis}</div>
-  <div class="stack-lg"><p class="eyebrow">Doprava a usazení</p><h2 class="h1">Za jeden den z dílny na vaši louku.</h2><p class="lead">Dům převezeme na podvozku s technickým průkazem a SPZ. Na místě ho vyrovnáme na opěrných nohách, podložíme a připojíme.</p>
-  <ul class="ticks"><li>Doprava zdarma do 100 km od Chabeřic, dál cenu uvedeme v nabídce</li><li>Předem zkontrolujeme přístupovou cestu pro převoz</li><li>Dům nepotřebuje betonové základy</li></ul></div></div></div></section>
+<section class="section sunken"><div class="wrap"><div class="split"><div class="stack-lg"><p class="eyebrow">Doprava a usazení</p><h2 class="h1">Za jeden den z dílny na vaši louku.</h2><p class="lead">Dům převezeme na podvozku s technickým průkazem a SPZ. Na místě ho vyrovnáme na opěrných nohách, podložíme a připojíme.</p></div>
+  <ul class="ticks" style="align-self:center"><li>Doprava zdarma do 100 km od Chabeřic, dál cenu uvedeme v nabídce</li><li>Předem zkontrolujeme přístupovou cestu pro převoz</li><li>Dům nepotřebuje betonové základy</li></ul></div></div></section>
 <section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Platby</p><h2 class="h1">Platíte podle toho, jak dům roste.</h2></div>
   <div class="cards"><div class="panel"><div class="price">30 %</div><h3 class="h3">Při podpisu smlouvy</h3><p class="muted small">Rezervuje výrobní slot a materiál.</p></div><div class="panel"><div class="price">40 %</div><h3 class="h3">V polovině výroby</h3><p class="muted small">Pošleme fotky hrubé stavby, můžete se přijet podívat.</p></div><div class="panel"><div class="price">30 %</div><h3 class="h3">Při převzetí v dílně</h3><p class="muted small">Až když dům projdete a budete spokojení.</p></div></div></div></section>
 <section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Splátky</p><h2 class="h1">Dům můžete splácet.</h2><p class="lead">Spolupracujeme s partnerskou bankou. Úvěr vyřídíme spolu s nabídkou domu.</p></div>${calcBlock('jtp')}</div></section>
@@ -1339,17 +1153,17 @@ ${faqSection()}
 ${leadSection({ sunken: false })}`;
 
 PAGES['drevo'] = () => `
-${heroImg({ img: 'dr-06', alt: 'Smrkový a modřínový les v ranní mlze', eyebrow: 'Konstrukce a materiály', title: 'Ocelový skelet, dřevěný plášť.', sub: 'Nosnou část tvoří lehký pozinkovaný ocelový skelet. Dřevo je na fasádě a uvnitř domu.', btns: [['Domluvit prohlídku dílny', '#kontakt'], ['Průřez stěnou', '#prurez']], label: 'Materiály', bar: [B3('drevo', 'Modřín', 'Fasáda bez nátěru. Postupně zestříbrá a chrání se sám.'), B3('strom', 'Smrk', 'Interiérové palubky z českého smrku.'), B3('umisteni', 'Chabeřice', 'Vlastní krytá dílna u Zruče nad Sázavou, kousek od ukázkového domu.')], cta: ['Domluvit prohlídku', '#kontakt'] })}
+${heroImg({ img: 'dr-06', alt: 'Smrkový a modřínový les v ranní mlze', eyebrow: 'Konstrukce a materiály', title: 'Ocelový skelet, dřevěný plášť.', sub: 'Nosnou část tvoří lehký pozinkovaný ocelový skelet. Dřevo je na fasádě a uvnitř domu.', btns: [['Domluvit prohlídku dílny', '#kontakt'], ['Na čem dům stojí', '#podvozek']], label: 'Materiály', bar: [B3('drevo', 'Modřín', 'Fasáda bez nátěru. Postupně zestříbrá a chrání se sám.'), B3('strom', 'Smrk', 'Interiérové palubky z českého smrku.'), B3('umisteni', 'Chabeřice', 'Vlastní krytá dílna u Zruče nad Sázavou, kousek od ukázkového domu.')], cta: ['Domluvit prohlídku', '#kontakt'] })}
 <section class="section"><div class="wrap"><div class="features" style="grid-template-columns:repeat(3,1fr)">
   <div class="feature">${ic('list')}<b>Dřevo na očích</b><span>Modřín na fasádě a smrk uvnitř. Dřevo se dotýká vašich rukou i pohledu.</span></div>
   <div class="feature">${ic('voda')}<b>Zdravé klima</b><span>Dřevěné povrchy přirozeně vyrovnávají vlhkost uvnitř.</span></div>
   <div class="feature">${ic('drevo')}<b>České dřevo</b><span>Krátká cesta z pily do dílny v Chabeřicích.</span></div></div></div></section>
-${wallSection()}
+${wallSection({ stats: false })}
 <section class="section sunken"><div class="wrap"><div class="split wide-media"><div class="media-r reveal"><img src="${IMG('dr-05')}" alt="Nový modřín vedle modřínu se stříbrnou patinou" loading="lazy">${vis}</div>
   <div class="stack-lg"><p class="eyebrow wood">Modřín stárne krásně</p><h2 class="h1">Za pět let zestříbrá. Bez nátěru.</h2><p class="lead">Modřín obsahuje pryskyřice, které ho chrání. Na slunci a dešti postupně získá stříbrnou patinu. Kdo chce barvu zachovat, zvolí šedou lazuru.</p></div></div></div></section>
-<section class="section"><div class="wrap"><div class="gallery" style="grid-template-columns:1fr 1fr 1fr;grid-auto-rows:280px"><figure><img src="${IMG('dr-04')}" alt="Detail spoje dřevěné konstrukce" loading="lazy">${vis}</figure><figure><img src="${IMG('dr-01')}" alt="Makro modřínového obkladu s rosou" loading="lazy">${vis}</figure><figure><img src="${IMG('dum-l/foto/koupelna')}" alt="Koupelna Domu L se smrkovým obkladem" loading="lazy">${vis}</figure></div></div></section>
+<section class="section"><div class="wrap"><div class="gallery" style="grid-template-columns:1fr 1fr;grid-auto-rows:320px"><figure style="grid-row:auto"><img src="${IMG('dr-01')}" alt="Makro modřínového obkladu s rosou" loading="lazy">${vis}</figure><figure><img src="${IMG('dum-l/foto/koupelna')}" alt="Koupelna Domu L se smrkovým obkladem" loading="lazy">${vis}</figure></div></div></section>
 <section class="section sunken"><div class="wrap"><div class="split"><div class="stack-lg"><p class="eyebrow">Dokončení</p><h2 class="h1">Přijeďte se podívat, jak dům dokončujeme.</h2><p class="lead">Dílna je v Chabeřicích u Zruče nad Sázavou, kousek od ukázkového domu. Prohlídku spojíte se zkušební nocí.</p><div class="btn-row">${btnP('Domluvit prohlídku', '#kontakt')}${btnS('Přespat v ukázkovém domě', '#zkusebni-noc')}</div><p class="note">Video z dílny doplníme ze skutečné výroby.</p></div>
-  <div class="media-r reveal"><img src="${IMG('dilna-podvozek')}" alt="Pracovník v dílně u podvozku rozestavěného domu" loading="lazy">${vis}</div></div></div></section>`;
+  <div class="media-r reveal"><img src="${IMG('dilna-hotovo')}" alt="Hotový Dům L v dílně před převozem" loading="lazy">${vis}</div></div></div></section>`;
 
 PAGES['kontakt'] = () => `
 <section class="section tight"><div class="wrap"><div class="head" style="margin-bottom:0"><p class="eyebrow">Kontakt</p><h1 class="display-l">Ozvěte se, odpovíme do 24 hodin.</h1><p class="lead">Napište nám, zavolejte, nebo se přijeďte podívat do dílny a ukázkového domu v Chabeřicích.</p></div></div></section>
@@ -1361,29 +1175,16 @@ PAGES['o-nas'] = () => `
 ${heroImg({ img: 'dilna-exterier', alt: 'Dílna Nordhouse při západu slunce, před halou stojí hotový dům', posM: '72% 50%', eyebrow: 'O nás', title: 'Stavíme domy, ve kterých bychom sami bydleli.', sub: 'Jsme truhlářská dílna v Chabeřicích u Zruče nad Sázavou. Každý dům dokončujeme sami, od fasády po poslední lištu.', after: `<p style="margin-top:20px"><span class="ph-note">${ic('zprava')}Texty, čísla a jména doplníme podle podkladů klienta</span></p>`, btns: [['Domluvit návštěvu', '#poptavka'], ['Přespat v ukázkovém domě', '#zkusebni-noc']], label: 'Kdo jsme', bar: [B3('dum', 'Dílna', 'Krytá hala v Chabeřicích. Domy dokončujeme pod střechou, dřevo zůstává suché.'), B3('uzivatel', 'Tým', 'Návrh, dokončení i předání dělají stejní lidé. Máte jeden kontakt.'), B3('umisteni', 'Ukázkový dům', 'Dům L stojí ve stejné obci. Prohlídku dílny spojíte s přespáním.')], cta: ['Domluvit návštěvu', '#poptavka'] })}
 <section class="section"><div class="wrap"><div class="split">
   <div class="media-r reveal" style="aspect-ratio:4/5"><img src="${IMG('on-02')}" alt="Truhlář měří modřínové prkno" loading="lazy">${vis}</div>
-  <div class="stack-lg"><p class="eyebrow">Proč to děláme</p><h2 class="h1">Z truhlárny k domům na kolech.</h2><p class="lead">[Příběh založení, 3–5 vět od majitele: odkud jsme, k čemu jsme se dostali, proč jsme začali stavět domy na kolech a proč jsme přešli na ocelový skelet a spolupráci s mooh.]</p><p class="quote">„[Krátká citace zakladatele.]“</p></div></div></div></section>
-<section class="section tight"><div class="wrap"><div class="stats">${[['[X] let', 'v oboru'], ['[X] domů', 'postavených'], ['[X] lidí', 'v týmu'], ['[X] m²', 'krytá dílna']].map(x => `<div class="reveal"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div></div></section>
-${chapterImg('dilna-tym', 'Tým', 'Jeden tým od návrhu po předání.', 'Návrh, dokončení, dopravu i předání dělají stejní lidé. Od první schůzky máte jeden kontakt.', 'Tým nad plánem domu v dílně')}
+  <div class="stack-lg"><p class="eyebrow">Proč to děláme</p><h2 class="h1">Z truhlárny k domům na kolech.</h2><p class="lead">[Příběh založení, 3–5 vět od majitele: odkud jsme, k čemu jsme se dostali, proč stavíme domy na kolech s ocelovým skeletem.]</p><p class="quote">„[Krátká citace zakladatele.]“</p></div></div></div></section>
 <section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Kdo vám bude stavět</p><h2 class="h1">Lidé z dílny</h2></div>
   <div class="team">${[['Jméno Příjmení', 'Zakladatel, návrh domů'], ['Jméno Příjmení', 'Vedoucí výroby'], ['Jméno Příjmení', 'Truhlář'], ['Jméno Příjmení', 'Obchod a zkušební noci']].map(t => `<div class="member reveal"><div class="ph">${ic('uzivatel')}</div><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
   <p class="note" style="margin-top:16px">Portréty a jména doplníme ze skutečných fotek týmu.</p></div></section>
 <section class="section"><div class="wrap"><div class="split wide-media">
-  <div class="media-r reveal"><img src="${IMG('dilna-plast')}" alt="Truhláři obkládají rozestavěný dům modřínem" loading="lazy">${vis}</div>
+  <div class="media-r reveal"><img src="${IMG('dilna-hotovo')}" alt="Hotový Dům L v dílně před převozem" loading="lazy">${vis}</div>
   <div class="stack-lg"><p class="eyebrow wood">Dílna v Chabeřicích</p><h2 class="h1">Krytá hala, suché dřevo, přesná práce.</h2><p class="lead">Domy stavíme pod střechou, takže na ně neprší a dřevo zůstává suché. Vlastní truhlárna nám dovoluje upravit dispozici i nábytek na míru.</p>
   <div class="media-r reveal" style="aspect-ratio:16/10"><img src="${IMG('dr-03')}" alt="Ruce truhláře s hoblíkem" loading="lazy">${vis}</div></div></div></div></section>
-<section class="section tight"><div class="wrap"><div class="gallery" style="grid-template-columns:1fr 1fr;grid-auto-rows:340px"><figure style="grid-row:auto;grid-column:auto"><img src="${IMG('dilna-ramy')}" alt="Dům na podvozku v dílně při dokončování" loading="lazy">${vis}</figure><figure><img src="${IMG('dilna-hotovo')}" alt="Hotový Dům L v dílně před převozem" loading="lazy">${vis}</figure></div></div></section>
-<section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Co je pro nás důležité</p><h2 class="h1">Tři věci, na kterých stavíme</h2></div>
-  <div class="features" style="grid-template-columns:repeat(3,1fr)">${[['mince', 'Poctivá cena předem', 'Cena ve smlouvě platí. Žádné vícepráce na konci.'], ['drevo', 'České dřevo', 'Smrk a modřín od českých pil, krátká cesta do dílny.'], ['uzivatel', 'Jeden člověk od A do Z', 'Od první schůzky po předání klíčů máte jeden kontakt.']].map(v => `<div class="feature reveal">${ic(v[0])}<b>${v[1]}</b><span>${v[2]}</span></div>`).join('')}</div></div></section>
-<section class="section"><div class="wrap"><div class="split">
-  <div class="stack-lg"><p class="eyebrow">Jak s vámi pracujeme</p><h2 class="h1">U stolu, nad plánem a vzorky.</h2>
-  <ul class="ticks"><li>Schůzka v dílně nebo online, vzorky dřeva a barev</li><li>Pevná cena a termín ve smlouvě</li><li>Fotky z každé fáze výroby</li><li>Předání domu a zaškolení na místě</li></ul></div>
-  <div class="media-r reveal"><img src="${IMG('on-schuzka')}" alt="Schůzka s klienty nad vzorky dřeva" loading="lazy">${vis}</div></div></div></section>
-<section class="section sunken"><div class="wrap"><div class="head"><p class="eyebrow">Partneři</p><h2 class="h2">S kým spolupracujeme</h2></div><div class="logos">${['Pila', 'Okna', 'Izolace', 'Technologie', 'Banka'].map(x => `<span>Logo · ${x}</span>`).join('')}</div></div></section>
 ${stayTeaser('hero-noc').replace('<h2 class="h1">Přespěte si dřív, než koupíte.</h2>', '<h2 class="h1">Přijeďte se podívat. Dílna a ukázkový dům jsou ve stejné obci.</h2>')}
 ${leadSection({ eyebrow: 'Prohlídka dílny', title: 'Domluvte si návštěvu.', text: 'Ukážeme vám rozestavěné domy, materiály a vzorky. Otevírací dobu dílny doplníme. Nordhouse s.r.o., IČO a sídlo doplníme.' })}`;
-function chapterImg(img, eyebrow, title, text, alt) {
-  return `<section class="chapter full"><div class="chapter-bg"><img src="${IMG(img)}" alt="${alt}" loading="lazy"></div><div class="wrap"><div class="chapter-text reveal"><p class="eyebrow">${eyebrow}</p><h2 class="display-l">${title}</h2><p class="lead">${text}</p></div></div>${vis}</section>`;
-}
 
 PAGES['faq'] = () => `<section class="section tight"><div class="wrap"><div class="head" style="margin-bottom:0"><p class="eyebrow">Časté otázky</p><h1 class="display-l">Na co se nás ptáte</h1></div></div></section>${faqSection(FAQ_MAIN, 'Cena, podvozek, registrace, provoz', false)}${leadSection()}`;
 
@@ -1396,7 +1197,7 @@ const SAUNY = {
     line: 'Sauna s předsíní, kterou převezete na chatu i k jezeru.', desc: 'Předsíň s lavicí a věšáky, saunovací místnost pro čtyři až šest a kamna na dřevo. Stojí na podvozku Vlemmix s technickým průkazem a SPZ, takže ji usadíme bez betonových základů a můžete ji převézt jinam.',
     setup: 'Podvozek a patky', heatTxt: 'Kamna na dřevo',
     rooms: [['Předsíň', 'Lavice, věšáky, police na ručníky, okno s izolačním dvojsklem'], ['Saunovací místnost', 'Dvě úrovně lavic z osiky, opěradla, okno do krajiny, LED pás pod lavicí'], ['Kamna', 'Saunová kamna na dřevo s prosklenými dvířky a kameny, komín s izolovaným prostupem'], ['Konstrukce', 'Zateplené stěny, modřínový obklad, smrkové palubky uvnitř, podvozek s brzdami']],
-    gallery: ['sauna-podvozek/foto/zaklad', 'sauna-podvozek/foto/interier', 'sauna-podvozek/foto/doplnky', 'sauna-podvozek/foto/podvozek', 'snp-podvozek'] },
+    gallery: ['sauna-podvozek/foto/zaklad', 'sauna-podvozek/foto/interier', 'sauna-podvozek/foto/doplnky'] },
   'sauna-zahradni': { key: 'sauna-zahradni', kind: 'sauna', name: 'Zahradní sauna', short: 'Zahradní', size: '2,2 × 2,4 m', people: '2–3 osoby', price: 249000, img: 'sauna-zahradni/foto/zaklad', tags: [['Modřín', 'nature']],
     line: 'Kompaktní sauna na zahradu, usazená na patkách.', desc: 'Menší sauna pro dva až tři, bez předsíně. Usadíme ji na betonové patky přímo na zahradě. Ideální k domu, kde se převlékáte uvnitř.',
     setup: 'Patky', heatTxt: 'Kamna na dřevo',
@@ -1413,33 +1214,13 @@ const SAUNY = {
     rooms: [['Káď', 'Modřínové dužiny, nerezové obruče, výpustný ventil'], ['Příslušenství', 'Schůdky z modřínu, kryt'], ['Umístění', 'Vedle sauny na terase nebo na zpevněné ploše'], ['Provoz', 'Napouštění hadicí, v zimě vypustit, nebo nechat zamrznout povrch']],
     gallery: ['kad-ochlazovaci/foto/zaklad', 'sauna-podvozek/foto/doplnky', 'sauna-kad-ochlazeni', 'ko-rano', 'ko-zima'] },
 };
-const SREAL = {   // výkresy, rozměry a porovnání render × vizualizace podle dokumentace v projekt/
-  'sauna-podvozek': { dims: [['Sauna', '3,6 × 2,4 m'], ['Celkem s ojí', '5,35 m'], ['Výška s komínem', '3,74 m'], ['Uvnitř', '2,10 m'], ['Sauna / předsíň', '4,2 / 2,3 m²'], ['Hmotnost', 'cca 2 360 kg']],
-    wnote: 'Hmotnost je předběžný výpočet včetně přívěsu, bez vody. Hmotnost ocelového skeletu je zatím odhad, číslo potvrdíme vážením první sauny.',
-    dwg: [['pudorys', 'Půdorys', 'Předsíň 2,3 m² s lavicí, saunovací místnost 4,2 m² se dvěma lavicemi a kamny.'], ['bokorys', 'Podélný řez', 'Předsíň a saunovací místnost pod pultovou střechou s přesahem nad vstupem. Komín 600 mm nad střechou, vrchol 3 739 mm nad terénem, celkem s ojí 5 350 mm.'], ['podvozek', 'Podvozek', 'Přívěs Vlemmix TH360 kategorie O2 s nájezdovou brzdou. Kvůli hmotnosti je k tahu prakticky vždy potřeba řidičské oprávnění B+E.']],
-    cmp: [['zaklad', 'Exteriér'], ['interier', 'Saunovací místnost'], ['podvozek', 'Podvozek']] },
-  'sauna-zahradni': { dims: [['Sauna', '2,4 × 2,2 m'], ['Výška s komínem', '3,48 m'], ['Výška střechy', '2,92 m'], ['Uvnitř', '2,10 m'], ['Saunovací místnost', '3,8 m²'], ['Hmotnost', '1 296 kg']],
-    dwg: [['pudorys', 'Půdorys', 'Jedna místnost bez předsíně, dvě lavice a kamna u vstupu.'], ['bokorys', 'Boční pohled', 'Usazení na šesti betonových patkách, pultová střecha s komínem.']],
-    cmp: [['zaklad', 'Exteriér'], ['interier', 'Saunovací místnost'], ['doplnky', 'S doplňky']] },
-  'kad-koupaci': { dims: [['Průměr', '2,0 m'], ['S kamny', '2,56 m'], ['Výška', '1,25 m'], ['Komín', '2,30 m'], ['Voda', '2 532 l'], ['Plná', '3 479 kg']],
-    dwg: [['pudorys', 'Půdorys', 'Lavice dokola, vnější kamna napojená dvěma nerezovými trubkami, schůdky.'], ['bokorys', 'Pohled', 'Modřínové dužiny, dvě nerezové obruče, komín s ochranou proti dotyku.']],
-    cmp: [['zaklad', 'Káď s kamny'], ['doplnky', 'S podestou a LED']] },
-  'kad-ochlazovaci': { dims: [['Průměr', '1,1 m'], ['Výška', '1,18 m'], ['Voda', '773 l'], ['Prázdná', '145 kg'], ['Plná', '1 078 kg'], ['Ohřev', 'bez ohřevu']],
-    dwg: [['pudorys', 'Půdorys', 'Káď se schůdky.'], ['bokorys', 'Pohled', 'Modřínové dužiny a nerezové obruče.']],
-    cmp: [['zaklad', 'Ochlazovací káď']] },
+const SREAL = {   // klíčové rozměry podle dokumentace v projekt/
+  'sauna-podvozek': { dims: [['Sauna', '3,6 × 2,4 m'], ['Celkem s ojí', '5,35 m'], ['Výška s komínem', '3,74 m'], ['Uvnitř', '2,10 m'], ['Sauna / předsíň', '4,2 / 2,3 m²'], ['Hmotnost', 'cca 2 360 kg']] },
+  'sauna-zahradni': { dims: [['Sauna', '2,4 × 2,2 m'], ['Výška s komínem', '3,48 m'], ['Výška střechy', '2,92 m'], ['Uvnitř', '2,10 m'], ['Saunovací místnost', '3,8 m²'], ['Hmotnost', '1 296 kg']] },
+  'kad-koupaci': { dims: [['Průměr', '2,0 m'], ['S kamny', '2,56 m'], ['Výška', '1,25 m'], ['Komín', '2,30 m'], ['Voda', '2 532 l'], ['Plná', '3 479 kg']] },
+  'kad-ochlazovaci': { dims: [['Průměr', '1,1 m'], ['Výška', '1,18 m'], ['Voda', '773 l'], ['Prázdná', '145 kg'], ['Plná', '1 078 kg'], ['Ohřev', 'bez ohřevu']] },
 };
-function saunaReal(p) {
-  const r = SREAL[p.key]; if (!r) return '';
-  const d = `img/${p.key}/vykresy/`;
-  const cmp = (k, t) => `<figure style="margin:0"><div class="rcmp"><img src="img/${p.key}/render/${k}.webp" alt="${p.name}, 3D model v Blenderu: ${t.toLowerCase()}" loading="lazy"><img class="cmp-top" src="${IMG(p.key + '/foto/' + k)}" alt="${p.name}, vizualizace: ${t.toLowerCase()}" loading="lazy"><input type="range" min="0" max="100" value="50" aria-label="Posunout předěl mezi 3D modelem a vizualizací: ${t.toLowerCase()}"><span class="knob" aria-hidden="true">↔</span><span class="lbl l">3D model</span><span class="lbl r">Vizualizace</span></div><figcaption class="small muted" style="margin-top:10px">${t}</figcaption></figure>`;
-  return `
-<section class="section" id="rozmery"><div class="wrap"><div class="head"><p class="eyebrow">Výkresy</p><h2 class="h1">Rozměry</h2><p class="lead">Zjednodušené výkresy z projektové dokumentace. Kliknutím otevřete výkres ve velkém.</p></div>
-  <div class="dims">${r.dims.map(x => `<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>
-  <div class="dwg-grid">${r.dwg.map((x, i) => `<figure class="dwg-fig ${r.dwg.length === 3 && i === 2 ? 'wide' : ''}"><a href="${d}${x[0]}.svg" target="_blank" rel="noopener"><img src="${d}${x[0]}.svg" alt="${p.name}: ${x[1].toLowerCase()} s kótami" loading="lazy"></a><figcaption><b>${x[1]}.</b> ${x[2]}</figcaption></figure>`).join('')}</div>
-  <p class="note" style="margin-top:16px">Rozměry v milimetrech. Výkresy jsou studie, přesné hodnoty potvrdí výrobní dokumentace.${r.wnote ? ' ' + r.wnote : ''}</p></div></section>
-<section class="section sunken" id="jak-vznika"><div class="wrap"><div class="head"><p class="eyebrow">Jak vznikají vizualizace</p><h2 class="h1">Obrázky podle skutečného modelu</h2><p class="lead">Vizualizace vycházejí z 3D modelu, který odpovídá výkresům. Posuňte předěl a porovnejte model s výslednou vizualizací.</p></div>
-  <div class="cmp-grid n${r.cmp.length}">${r.cmp.map(x => cmp(x[0], x[1])).join('')}</div></div></section>`;
-}
+const saunaFacts = p => SREAL[p.key] ? `<div class="dims">${SREAL[p.key].dims.map(x => `<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>` : '';
 const SOPT = {
   sauna: { heat: [['drevo', 'Kamna na dřevo', 0, 'topeni'], ['elektro', 'Elektrická kamna 9 kW', 18000, 'elektrina'], ['vnejsi', 'Kamna s vnějším přikládáním', 24000, 'drevo']],
     extras: [['sprcha', 'Venkovní sprcha', 'Na stěně sauny, teplá i studená voda', 14000, 'sprcha'], ['led', 'Osvětlení LED', 'Pás pod lavicí a světlo nad vstupem', 9000, 'elektrina'], ['terasa', 'Terasa s lavicí', 'Modřínová terasa 2 × 3 m u vstupu', 32000, 'list'], ['kad', 'Ochlazovací káď', 'Postavíme ji hned vedle sauny', 39000, 'voda']] },
@@ -1531,13 +1312,12 @@ function saunaDetail(p) {
   return `
 ${heroImg({ img: p.img, alt: p.name, posM: '68% 50%', top: `<div class="tags hero-tags">${p.tags.map(t => `<span class="tag ${t[1]}">${t[0]}</span>`).join('')}</div>`, title: p.name, sub: p.desc, after: `<div class="detail-hero-price"><span class="price">od ${kc(p.price)}</span><span>s DPH${p.price > 100000 ? ` · splátka od ${kc(monthly(p.price))}/měs.` : ''}</span></div>`, btns: [[p.kind === 'sauna' ? 'Sestavit saunu' : 'Sestavit káď', '#sestava'], ['Poslat nabídku do e-mailu', '#poptavka']], label: 'Co sauna potřebuje', bar: p.kind === 'sauna' ? BAR_SAUNA : [B3('topeni', 'Ohřev', p.key === 'kad-koupaci' ? 'Vnější kamna na dřevo. Voda se ohřeje za 2–3 hodiny.' : 'Bez ohřevu. Studená voda na ochlazení po sauně.'), B3('voda', 'Voda', 'Napouštění hadicí, vypouštění ventilem. Přípojka není potřeba.'), B3('doprava', 'Usazení', 'Na rovnou plochu nebo podestu. Do 100 km doprava zdarma.')], cta: [p.kind === 'sauna' ? 'Sestavit saunu' : 'Sestavit káď', '#sestava'] })}
 <section class="section tight"><div class="wrap"><div class="specs">
-  <div class="spec">${ic('delka')}<span>Rozměry</span><b>${p.size}</b></div><div class="spec">${ic('uzivatel')}<span>Osoby</span><b>${p.people}</b></div><div class="spec">${ic('topeni')}<span>Ohřev</span><b>${p.heatTxt}</b></div><div class="spec">${ic('umisteni')}<span>Usazení</span><b>${p.setup}</b></div>
-  <div class="spec">${ic('drevo')}<span>Materiál</span><b>Modřín</b></div><div class="spec">${ic('celorocne')}<span>Provoz</span><b>Celoroční</b></div><div class="spec">${ic('doprava')}<span>Doprava</span><b>Do 100 km zdarma</b></div><div class="spec">${ic('kalendar')}<span>Hotovo za</span><b>6–8 týdnů</b></div>
+  <div class="spec">${ic('uzivatel')}<span>Osoby</span><b>${p.people}</b></div><div class="spec">${ic('topeni')}<span>Ohřev</span><b>${p.heatTxt}</b></div><div class="spec">${ic('umisteni')}<span>Usazení</span><b>${p.setup}</b></div><div class="spec">${ic('kalendar')}<span>Hotovo za</span><b>6–8 týdnů</b></div>
 </div></div></section>
-<section class="section tight"><div class="wrap"><div class="gallery">${p.gallery.map((g, i) => `<figure><img src="${IMG(g)}" alt="${p.name}, ukázka ${i + 1}" loading="lazy">${vis}</figure>`).join('')}</div></div></section>
-<section class="section"><div class="wrap"><div class="head"><p class="eyebrow">Výbava</p><h2 class="h1">Co je v ceně</h2></div>
+<section class="section tight"><div class="wrap"><div class="gallery${p.gallery.length === 3 ? ' g3' : ''}">${p.gallery.map((g, i) => `<figure><img src="${IMG(g)}" alt="${p.name}, ukázka ${i + 1}" loading="lazy">${vis}</figure>`).join('')}</div></div></section>
+<section class="section" style="padding-top:32px"><div class="wrap"><div class="head"><p class="eyebrow">Výbava</p><h2 class="h1">Co je v ceně</h2></div>
+  ${saunaFacts(p)}
   <div class="two-col">${p.rooms.map(r => `<div class="panel flat"><h3 class="h3">${r[0]}</h3><p class="muted">${r[1]}</p></div>`).join('')}</div></div></section>
-${saunaReal(p)}
 <section class="section sunken" id="sestava"><div class="wrap"><div class="head"><p class="eyebrow">Sestavení</p><h2 class="h1">${p.kind === 'sauna' ? 'Poskládejte si saunu.' : 'Doplňte káď podle sebe.'}</h2><p class="lead">Cena se přepočítá hned. Přesnou nabídku vám pošleme e-mailem.</p></div>
   <div class="cfg" data-scfg="${p.key}"><div class="panel scfg-in">
     ${o.heat ? `<h3 class="h3" style="margin-bottom:14px">Kamna</h3><div class="stack" style="gap:10px;margin-bottom:32px">${o.heat.map(h => `<button type="button" class="opt row" data-sg="heat" data-v="${h[0]}" aria-pressed="${SCFG.heat === h[0]}">${ic(h[3])}<b>${h[1]}</b><span>${h[2] ? '+ ' + kc(h[2]) : 'v ceně'}</span><span class="tick">${ic('check')}</span></button>`).join('')}</div>` : ''}
@@ -1576,10 +1356,6 @@ function initScfg() {
 
 PAGES['sada-dum-sauna'] = () => `
 ${heroImg({ img: 'dum-m/foto/prirodni-0011', alt: 'Dům Nordhouse a sauna propojené dřevěným chodníkem', pos: '50% 50%', posM: '45% 50%', eyebrow: 'Sada dům + sauna', title: 'Vaše vlastní wellness na pozemku.', sub: 'Dům i saunu vyrobíme ze stejného dřeva, přivezeme v jednom termínu a propojíme chodníkem. Za sadu vám dáme slevu.', btns: [['Vybrat sadu', '#sady'], ['Prohlédnout sauny', '#sauny']], label: 'Výhody sady', bar: [B3('mince', 'Sleva za sadu', '40 000 Kč na saunu, 80 000 Kč na sadu se dvěma káděmi.'), B3('doprava', 'Jedna doprava', 'Dům i saunu přivezeme a usadíme ve stejný den.'), B3('drevo', 'Stejné dřevo', 'Fasáda domu i sauny ze stejné várky modřínu, aby stárly spolu.')], cta: ['Vybrat sadu', '#sady'] })}
-<section class="section"><div class="wrap"><div class="features" style="grid-template-columns:repeat(3,1fr)">
-  <div class="feature reveal">${ic('mince')}<b>Sleva za sadu</b><span>40 000 Kč na saunu, 80 000 Kč na sadu se dvěma káděmi.</span></div>
-  <div class="feature reveal">${ic('doprava')}<b>Jedna doprava</b><span>Dům i saunu přivezeme a usadíme ve stejný den.</span></div>
-  <div class="feature reveal">${ic('drevo')}<b>Stejné dřevo</b><span>Fasáda domu i sauny ze stejné várky modřínu, aby stárly spolu.</span></div></div></div></section>
 <section class="section sunken" id="sady"><div class="wrap"><div class="head"><p class="eyebrow">Sady</p><h2 class="h1">Tři sestavy pro začátek</h2><p class="lead">Kombinaci můžete libovolně změnit. Sleva platí vždy, když objednáte dům a saunu najednou.</p></div>
   <div class="cards sady">${SADY.map(sadaCard).join('')}</div><p class="note" style="margin-top:16px">Ceny jsou orientační, včetně DPH. Přesnou cenu potvrdíme v nabídce.</p></div></section>
 ${ritual()}
@@ -1595,7 +1371,7 @@ PAGES['podvozek'] = () => {
     [`<a class="link" href="#sauna-podvozek">Sauna na podvozku</a>`, '3,6 × 2,4 m', 'TH360', '5,35 m', 'cca 2 360 kg', '–']];
   return `
 ${heroImg({ img: 'prevoz', alt: 'Auto veze dům na podvozku po silnici', posM: '55% 50%', eyebrow: 'Podvozek a konstrukce', title: 'Na čem dům stojí.', sub: 'Silniční přívěs Vlemmix do 3 500 kg, na něm lehký ocelový skelet a navrch dřevo. Dům přijede za autem a kdykoli se může přestěhovat znovu.', btns: [['Projít dům vrstvu po vrstvě', '#podvozek-3d'], ['Srovnat modely', '#podvozky-modelu']], label: 'Podvozek v kostce', bar: [B3('doprava', 'Do 3 500 kg', 'Přívěs kategorie O2. Utáhne ho auto s tažným zařízením na 3 500 kg a řidič s oprávněním B+E.'), B3('dum', 'Ocelový skelet', 'Nosnou konstrukci tvoří lehké pozinkované ocelové profily.'), B3('drevo', 'Dřevěný plášť', 'Dřevo je na fasádě a uvnitř domu.')], cta: ['Navrhnout dům', '#konfigurator'] })}
-<section id="podvozek-3d"><div data-pv></div></section>
+<section id="podvozek-3d"><div data-pv data-pv-opts="${attrJson({ towing: false, specs: false })}"></div></section>
 <section class="section sunken" id="podvozky-modelu"><div class="wrap"><div class="head"><p class="eyebrow">Modely</p><h2 class="h1">Podvozky jednotlivých modelů</h2></div>
   <div class="table-wrap"><table class="cmp"><thead><tr><th scope="col">Model</th><th scope="col">Rozměry</th><th scope="col">Přívěs Vlemmix</th><th scope="col">Celkem s ojí</th><th scope="col">Celková hmotnost</th><th scope="col">Rezerva do 3 500 kg</th></tr></thead><tbody>
     ${rows.map(r => `<tr><th scope="row">${r[0]}</th>${r.slice(1).map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}
@@ -1603,19 +1379,21 @@ ${heroImg({ img: 'prevoz', alt: 'Auto veze dům na podvozku po silnici', posM: '
   <p class="note" style="margin-top:16px">Hmotnosti jsou předběžný výpočet z modelu, bez vody a osobních věcí. Hmotnost ocelového skeletu je zatím odhad, čísla potvrdíme vážením prvních kusů. U sauny počítáme s registrací přívěsu na nižší celkovou hmotnost, to ještě ověřujeme.</p></div></section>
 ${leadSection({ sunken: false })}`;
 };
-let pvInst = null, pvSeq = 0;
-function destroyPodvozek() { pvSeq++; if (pvInst) { try { pvInst.destroy(); } catch (e) { console.warn('[podvozek]', e); } pvInst = null; } }
+let pvInst = [], pvSeq = 0;
+function destroyPodvozek() { pvSeq++; pvInst.forEach(i => { try { i.destroy(); } catch (e) { console.warn('[podvozek]', e); } }); pvInst = []; }
+// 3D sekce z js/podvozek.js: [data-pv] dům na podvozku (mountPodvozek), [data-st] skladba stěny (mountStena). Volby v data-pv-opts (JSON).
 function initPodvozek() {
-  const el = app.querySelector('[data-pv]'); if (!el) return;
+  const pv = app.querySelector('[data-pv]'), st = app.querySelector('[data-st]'); if (!pv && !st) return;
   const seq = pvSeq;
+  const opts = el => { try { return el.dataset.pvOpts ? JSON.parse(el.dataset.pvOpts) : {}; } catch (e) { console.warn('[podvozek] chybné data-pv-opts', e); return {}; } };
   import('./js/podvozek.js').then(mod => {
-    if (seq !== pvSeq || !el.isConnected) return;   // mezitím se změnila stránka
-    pvInst = mod.mountPodvozek(el, { glb: null, frames: null, ...(el.dataset.pv ? { variant: el.dataset.pv } : {}) });
+    if (seq !== pvSeq) return;   // mezitím se změnila stránka
+    if (pv && pv.isConnected) pvInst.push(mod.mountPodvozek(pv, { glb: null, frames: null, ...(pv.dataset.pv ? { variant: pv.dataset.pv } : {}), ...opts(pv) }));
+    if (st && st.isConnected) pvInst.push(mod.mountStena(st, opts(st)));
   }).catch(err => console.warn('[podvozek] sekci se nepodařilo načíst', err));
 }
 
 /* ---------- router ---------- */
-document.addEventListener('input', e => { const c = e.target.closest('.rcmp'); if (c) c.style.setProperty('--p', e.target.value + '%'); });
 const app = document.getElementById('app'), hdr = document.getElementById('hdr');
 function route() {
   let h = (location.hash || '#uvod').slice(1); let param = '';
@@ -1633,7 +1411,7 @@ function route() {
   document.title = 'Nordhouse';
   const sn = h === 'sauny' || !!SAUNY[h] || h === 'sada-dum-sauna';
   document.getElementById('stickyCta').classList.remove('cfg-mode'); document.getElementById('stickyCta').innerHTML = sn ? `<a class="btn btn-secondary" href="#sada-dum-sauna">Sada s domem</a><a class="btn btn-primary" href="${h === 'sauny' ? '#sauny-modely' : '#sauny'}">Vybrat saunu</a>` : `<a class="btn btn-secondary" href="#zkusebni-noc">Přespat na zkoušku</a><a class="btn btn-primary" href="#konfigurator">Navrhnout dům</a>`;
-  initCalc(app); initBooking(); initCfg(param); initInvest(); initScfg(); initForms(); initReveal(); initDum3d(); initPodvozek();
+  initCalc(app); initBooking(); initCfg(param); initInvest(); initScfg(); initForms(); initReveal(); initPodvozek();
   if (anchor) document.getElementById(anchor)?.scrollIntoView(); else window.scrollTo(0, 0);
   onScroll();
 }

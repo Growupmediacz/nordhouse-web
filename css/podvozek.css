@@ -206,8 +206,93 @@
   .pv-specs li:first-child { padding-left: 0; }
 }
 
+/* kompaktní vložení (detail domu, úvod): kratší hlavička a kapitoly, bez karet a pruhu parametrů */
+.pv--compact { padding-top: 48px; padding-bottom: 24px; }
+.pv--compact .pv-head { margin-bottom: 24px; gap: 12px; }
+.pv--compact .pv-ch { min-height: 44svh; }
+.pv--compact .pv-ch:last-child { min-height: 40svh; padding-bottom: 4svh; }
+.pv-head-cta { margin-top: 4px; }
+.pv-cta { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1.5px solid var(--pv-ink); color: var(--pv-ink); font-weight: 600; text-decoration: none; }
+.pv-facts-note { margin-top: 12px; font-size: 13px; line-height: 20px; color: var(--pv-muted); }
+@media (min-width: 720px) {
+  .pv--compact { padding-top: 80px; padding-bottom: 40px; }
+  .pv--compact .pv-head { margin-bottom: 32px; }
+}
+@media (min-width: 960px) {
+  .pv--compact .pv-chapters { padding: 14svh 0 14svh; }
+  .pv--compact .pv-ch, .pv--compact .pv-ch:last-child { min-height: 52svh; padding: 0; }
+}
+
 /* omezený pohyb: žádné animace vázané na scroll, kapitoly se přepínají skokem */
 @media (prefers-reduced-motion: reduce) {
   .pv *, .pv *::before, .pv *::after { transition: none !important; }
 }
 .pv--reduced .pv-ch-in { opacity: 1; }
+
+/* ---------------------------------------------------------------- velká scéna (detail domu, úvod, #podvozek) */
+.pv-scrolly .pv-ch-title { font-size: clamp(30px, 7.6vw, 36px); line-height: 1.12; }
+@media (max-width: 959px) {
+  .pv-scrolly .pv-stage-wrap { padding-inline: 0; }
+  .pv-scrolly .pv-stage { aspect-ratio: auto; height: min(52svh, 112vw); max-height: none; border-radius: 0; }
+  .pv-scrolly .pv-hud { left: max(16px, var(--pv-gl)); }
+  .pv-scrolly .pv-tag { right: max(12px, var(--pv-gr)); }
+}
+@media (min-width: 960px) {
+  .pv:not(.st) { max-width: none; padding-left: 0; padding-right: 0; }
+  .pv:not(.st) > .pv-head, .pv:not(.st) > .pv-tow, .pv:not(.st) > .pv-specs { box-sizing: content-box; padding-inline: max(32px, calc((100% - var(--container, 1240px)) / 2)); }
+  .pv:not(.st) > .pv-head { max-width: 820px; }
+  .pv:not(.st) > .pv-tow, .pv:not(.st) > .pv-specs { max-width: var(--container, 1240px); margin-inline: 0; }
+  .pv-scrolly { grid-template-columns: minmax(300px, 0.78fr) minmax(0, 2fr); column-gap: clamp(40px, 4.5vw, 88px); padding-left: max(32px, calc((100% - var(--container, 1240px)) / 2)); }
+  .pv-scrolly .pv-stage-wrap { grid-column: 2; grid-row: 1; }
+  .pv-scrolly .pv-chapters { grid-column: 1; grid-row: 1; }
+  .pv-scrolly .pv-stage { aspect-ratio: auto; height: calc(100svh - var(--pv-top) - 20px); max-height: 980px; border-radius: 28px 0 0 28px; }
+  .pv-scrolly .pv-dots { position: absolute; right: 20px; bottom: 16px; padding: 0; z-index: 3; }
+  .pv-scrolly .pv-ch-title { font-size: clamp(36px, 3.3vw, 54px); line-height: 1.08; margin-bottom: 16px; }
+  .pv-scrolly .pv-ch-text { font-size: 17px; line-height: 28px; }
+  .pv-scrolly .pv-ch-in { max-width: 440px; }
+}
+
+/* ---------------------------------------------------------------- stěna (mountStena) */
+.st-scrolly { position: relative; height: 230svh; }
+@media (max-width: 720px) { .st { --pv-bottom-bar: 76px; } }
+.st-pin { position: sticky; top: var(--pv-top); height: calc(100svh - var(--pv-top) - 12px - var(--pv-bottom-bar, 0px)); display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 12px; }
+.st .st-stage { width: auto; aspect-ratio: auto; max-height: none; min-height: 0; margin-inline: calc(-1 * var(--pv-gl)) calc(-1 * var(--pv-gr)); border-radius: 0; }
+.st-mk span { width: 26px; height: 26px; font-size: 12px; }
+.st-mk.is-hl span { background: var(--pv-accent); border-color: var(--pv-accent); color: #1E211D; }
+.st-list { display: grid; }
+.st-row { width: 100%; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; text-align: left; padding: 7px 0; border-top: 1px solid var(--pv-line); font-size: 14px; line-height: 19px; opacity: .42; transition: opacity var(--pv-base) var(--pv-ease); }
+.st-list li:last-child .st-row { border-bottom: 1px solid var(--pv-line); }
+.st-row b { font-weight: 600; }
+.st-row-text { display: none; color: var(--pv-muted); font-size: 14px; line-height: 21px; margin-top: 2px; }
+.st-row em { font-style: normal; color: var(--pv-muted); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.st-row.is-on { opacity: 1; }
+.st-row.is-active .pv-num, .st-row.is-hl .pv-num { background: var(--pv-accent); border-color: var(--pv-accent); color: #1E211D; }
+.st-row:focus-visible { outline-offset: 2px; }
+.st-note { margin-top: 10px; font-size: 12px; line-height: 18px; color: var(--pv-muted); }
+@media (min-width: 960px) {
+  .st-pin { grid-template-columns: minmax(0, 1.65fr) minmax(320px, 1fr); grid-template-rows: minmax(0, 1fr); column-gap: clamp(40px, 4.5vw, 80px); align-items: center; }
+  .st .st-stage { height: 100%; margin: 0 0 0 calc(-1 * max(32px, env(safe-area-inset-left, 0px))); border-radius: 0 28px 28px 0; }
+  .st-row { padding: 12px 0; font-size: 16px; line-height: 22px; align-items: start; }
+  .st-row .pv-num { margin-top: 1px; }
+  .st-row-text { display: block; }
+}
+/* statická verze: bez připnutí, kresba v poměru stran */
+.pv--static .st-scrolly { height: auto; }
+.pv--static .st-pin { position: static; height: auto; }
+.pv--static .st-stage { aspect-ratio: 5 / 4; height: auto; }
+.pv--static .st-row { opacity: 1; }
+@media (min-width: 960px) { .pv--static .st-stage { height: auto; } }
+/* statická kresba stěny */
+.st-svg polygon, .st-svg polyline, .st-svg line { stroke: var(--pv-ink); stroke-width: 1; stroke-linejoin: round; }
+.st-svg .st-fx { fill: var(--c); } .st-svg .st-fy { fill: color-mix(in srgb, var(--c) 78%, #1E211D); } .st-svg .st-fz { fill: color-mix(in srgb, var(--c) 72%, #fff); }
+.st-s-fasada { --c: var(--pv-wood); } .st-s-batten { --c: color-mix(in srgb, var(--pv-wood) 80%, #fff); } .st-s-pir { --c: #D9DDDA; }
+.st-s-wool { --c: #E3CF8F; } .st-s-zinc { --c: var(--pv-steel); } .st-s-parobrzda { --c: #B8CBD9; } .st-s-interier { --c: #EAD7B8; }
+.st-svg .st-s-c { fill: none; stroke: #6D736C; stroke-width: 2.2; }
+.st-svg .st-s-hole { fill: #3A4036; stroke-width: .6; }
+.st-svg .st-s-seam { stroke: color-mix(in srgb, var(--pv-ink) 25%, transparent); stroke-width: .7; }
+.st-s-mk line { stroke-width: .8; } .st-s-mk circle { fill: var(--pv-surface); } .st-s-mk text { font: 700 11px var(--font-text, Manrope, sans-serif); fill: var(--pv-ink); text-anchor: middle; }
+.st-s-l { transition: opacity var(--pv-base) var(--pv-ease); }
+.st--hl .st-s-l:not(.is-hl) { opacity: .3; }
+.st-s-l.is-hl .st-fx, .st-s-l.is-hl .st-fz { stroke: var(--pv-accent); stroke-width: 2; }
+.st .pv-art { display: block; padding: 0; }
+.st .st-svg { position: absolute; left: 3%; top: 5%; width: 94%; height: 90%; }

@@ -15,6 +15,12 @@
 //   mode         'auto' | 'webgl' | 'static'. auto = static na slabých zařízeních a bez WebGL.
 //   lazyMargin   jak daleko před sekcí se má začít načítat three.js (výchozí '120%').
 //   reducedMotion true/false přebije prefers-reduced-motion (pro testování), výchozí podle systému.
+//   compact      true = vložení do jiné stránky (detail domu, úvod): kratší odsazení a kapitoly,
+//                bez karet „Kdo ho utáhne“ a bez pruhu parametrů. Výchozí false (stránka #podvozek).
+//   towing, specs  true/false přebije, zda zobrazit karty „Kdo ho utáhne“ / pruh parametrů (výchozí !compact).
+//   head         { eyebrow, title, lead, cta: { label, href, className } } přepíše hlavičku sekce, false ji skryje.
+//   facts        [[popisek, hodnota], …] nahradí výchozí rozměry v poslední kapitole (např. skutečná čísla domu),
+//   factsNote    poznámka pod nimi (např. „* předběžný výpočet …“).
 //
 // Bez knihoven kromě three.js (načítá se dynamicky až u sekce, slabá zařízení ho nestahují vůbec).
 
@@ -234,6 +240,32 @@ function drawing(D, PARTS) {
 </svg>`;
 }
 
+/* --------------------------------------------- kompaktní vložení (detail, úvod) */
+
+// Upraví vykreslený markup podle voleb compact / towing / specs / head / facts. Texty jdou přes textContent.
+function applyEmbed(root, o) {
+  const compact = !!o.compact;
+  root.classList.toggle('pv--compact', compact);
+  if (!(o.towing ?? !compact)) root.querySelector('.pv-tow')?.remove();
+  if (!(o.specs ?? !compact)) root.querySelector('.pv-specs')?.remove();
+  const head = root.querySelector('.pv-head');
+  if (o.head === false) head?.remove();
+  else if (o.head && head) {
+    const set = (sel, v) => { const el = head.querySelector(sel); if (el && v != null) el.textContent = v; };
+    set('.pv-eyebrow', o.head.eyebrow); set('.pv-h', o.head.title); set('.pv-lead', o.head.lead);
+    if (o.head.cta) {
+      const a = document.createElement('a');
+      a.className = o.head.cta.className || 'pv-cta'; a.href = o.head.cta.href; a.textContent = o.head.cta.label;
+      const w = document.createElement('p'); w.className = 'pv-head-cta'; w.append(a); head.append(w);
+    }
+  }
+  const dl = root.querySelector('.pv-dimlist');
+  if (o.facts && dl) {
+    dl.replaceChildren(...o.facts.map(([k, v]) => { const d = document.createElement('div'), t = document.createElement('dt'), dd = document.createElement('dd'); t.textContent = k; dd.textContent = v; d.append(t, dd); return d; }));
+    if (o.factsNote) { const n = document.createElement('p'); n.className = 'pv-facts-note'; n.textContent = o.factsNote; dl.after(n); }
+  }
+}
+
 /* ------------------------------------------------------------------ mount */
 
 let uid = 0;
@@ -243,6 +275,7 @@ export function mountPodvozek(root, opts = {}) {
   const id = 'pv' + (++uid);
   root.classList.add('pv');
   root.innerHTML = markup(id, D, PARTS);
+  applyEmbed(root, o);
 
   const $ = s => root.querySelector(s), $$ = s => [...root.querySelectorAll(s)];
   const stage = $('.pv-stage'), glBox = $('.pv-gl'), chapters = $$('.pv-ch'), chIn = $$('.pv-ch-in'), dots = $$('.pv-dot');
@@ -390,7 +423,7 @@ export function mountPodvozek(root, opts = {}) {
       root.removeEventListener('click', onDot); root.removeEventListener('keydown', onDotKey);
       root.removeEventListener('click', onPart); root.removeEventListener('keydown', onKey);
       viewer && viewer.dispose();
-      root.innerHTML = ''; root.classList.remove('pv', 'pv--static', 'pv--reduced');
+      root.innerHTML = ''; root.classList.remove('pv', 'pv--static', 'pv--reduced', 'pv--compact');
     },
   };
 }
@@ -444,7 +477,15 @@ async function createViewer(box, o, D, PARTS) {
   if (o.glb) {
     try {
       const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
-      const gltf = await new GLTFLoader().loadAsync(o.glb);
+      const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');   // GLB z Blenderu je komprimovaný Dracem (jako v dum3d.js)
+      const draco = new DRACOLoader().setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/gltf/');
+      const gltf = await new GLTFLoader().setDRACOLoader(draco).loadAsync(o.glb);
+      draco.dispose();
+      // glTF extras jsou pole a díl (part) nese uzel nad sítí: převést na Vector3 a díl předat dolů na sítě.
+      gltf.scene.traverse(c => {
+        for (const k of ['pvExplode', 'pvStow']) if (Array.isArray(c.userData[k])) c.userData[k] = new THREE.Vector3(...c.userData[k]);
+        if (!c.userData.part && c.parent && c.parent.userData.part) c.userData.part = c.parent.userData.part;
+      });
       if (LAYERS.every(n => gltf.scene.getObjectByName(n))) model = gltf.scene;
       else console.warn('[podvozek] GLB nemá uzly', LAYERS.join(', '), '– použije se procedurální model.');
     } catch (e) { console.warn('[podvozek] GLB se nenačetl, použije se procedurální model.', e); }
@@ -524,7 +565,8 @@ async function createViewer(box, o, D, PARTS) {
 
   // Kotvy hotspotů.
   const hsEls = [...stageEl.querySelectorAll('.pv-hs')];
-  const anchors = PARTS.map(pd => { const a = new THREE.Object3D(); a.position.set(...pd.at); model.getObjectByName(pd.layer).add(a); return a; });
+  // GLB může kotvu přepsat prázdným uzlem hs_<díl> přímo ve vrstvě (např. opěrné kolečko je v modelu jinde než ve výchozí poloze).
+  const anchors = PARTS.map(pd => { const a = new THREE.Object3D(), hn = model.getObjectByName('hs_' + pd.id); hn ? a.position.copy(hn.position) : a.position.set(...pd.at); model.getObjectByName(pd.layer).add(a); return a; });
 
   // Barvy z tokenů (světlý/tmavý motiv).
   let dark = false;
@@ -1194,4 +1236,315 @@ function contactTex(THREE) {
   for (let i = 0; i < 28; i++) { const k = i * 1.6; g.fillStyle = 'rgba(0,0,0,0.045)'; rr(6 + k * 2.4, 6 + k, 500 - k * 4.8, 116 - k * 2, 40); g.fill(); }
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   return t;
+}
+
+/* ===================================================================== Stěna */
+// mountStena(root, opts) → { goTo, destroy }: skladba stěny rozkládaná scrollem. Vzorek stěny 1,25 × 1,0 m, vrstvy se
+// postupně oddělují podél tloušťky stěny a kamera se pomalu stáčí na bok. Stejná pravidla jako mountPodvozek:
+// three.js se načte až u sekce, kreslí se jen když je sekce vidět, statická SVG kresba bez WebGL, na slabých
+// zařízeních a při omezeném pohybu. Volby: head { eyebrow, title, lead } | false, note, mode, lazyMargin, reducedMotion.
+// Skladba podle projekt/dum-m-v2/params.py (BUILDUPS „Stěna“), názvy fasády a interiéru podle webu.
+const WALL = [
+  { key: 'fasada', name: 'Modřín', t: '18 mm', d: 0.018, text: 'Svislý obklad, který vidíte zvenku.' },
+  { key: 'late', name: 'Odvětraná mezera s latěmi', t: '31 mm', d: 0.031, text: 'Za obkladem proudí vzduch a odvádí vlhkost.' },
+  { key: 'pir', name: 'PIR deska s hliníkovou fólií', t: '30 mm', d: 0.03, text: 'Přeruší tepelné mosty přes ocelové sloupky.' },
+  { key: 'skelet', name: 'Ocelové C-profily a minerální vlna', t: '89 mm', d: 0.089, text: 'Pozinkované sloupky po 60 cm nesou dům, mezi nimi je izolace.' },
+  { key: 'parobrzda', name: 'Parobrzda', t: 'fólie', d: 0.002, text: 'Nepustí vlhkost z interiéru do stěny.' },
+  { key: 'interier', name: 'Interiér smrk', t: '6,5 mm', d: 0.0065, text: 'Dřevo tam, kde se ho dotknete.' },
+];
+const WN = WALL.length, WW = 1.25, WH = 1.0, WX = 0.95;            // šířka a výška vzorku; posun do strany na metr posunu do hloubky
+// Mezery mezi vrstvami po rozkladu (m): kolem ocelového skeletu víc místa, aby byl dobře vidět.
+const WGAP = [0.17, 0.17, 0.36, 0.3, 0.13];
+const WOFF = WALL.map((_, k) => WGAP.slice(k).reduce((a, v) => a + v, 0)), WSPREAD = WOFF[0];
+const STUDS = [-0.62, -0.02, 0.58];                                 // líc pásnice sloupků (x), osová vzdálenost 600 mm
+// Poloha vrstev v tloušťce: interiér vzadu (z = 0), fasáda vpředu.
+const WZ = (() => { const z = []; let at = 0; for (let k = WN - 1; k >= 0; k--) { z[k] = at; at += WALL[k].d; } return z; })();
+const wallSep = (p, k) => ease(clamp((p - 0.04 - k * 0.12) / 0.26, 0, 1) * 0.76 + 0.12);   // 0 → 1 oddělení vrstvy k
+
+function wallMarkup(id, o) {
+  const h = o.head === false ? '' : `<div class="pv-head"><p class="pv-eyebrow">${o.head?.eyebrow ?? 'Plášť'}</p><h2 class="pv-h">${o.head?.title ?? 'Z čeho je stěna'}</h2><p class="pv-lead">${o.head?.lead ?? ''}</p></div>`;
+  const rows = WALL.map((L, k) => `<li><button type="button" class="st-row" data-l="${k}"><span class="pv-num" aria-hidden="true">${k + 1}</span><span class="st-row-main"><b>${L.name}</b><span class="st-row-text">${L.text}</span></span><em>${L.t}</em></button></li>`).join('');
+  const mks = WALL.map((L, k) => `<button type="button" class="pv-hs st-mk" data-l="${k}" tabindex="-1" aria-hidden="true" aria-label="${k + 1}: ${L.name}"><span>${k + 1}</span></button>`).join('');
+  return `${h}
+<div class="st-scrolly">
+  <div class="st-pin">
+    <div class="pv-stage st-stage">
+      <div class="pv-art">${wallDrawing()}</div>
+      <div class="pv-gl" aria-hidden="true"></div>
+      <div class="pv-overlay">${mks}</div>
+      <p class="pv-tag">Vzorek stěny 1,25 × 1 m</p>
+    </div>
+    <div class="st-side"><ol class="st-list" id="${id}-list" aria-label="Vrstvy stěny zvenku dovnitř">${rows}</ol>
+      <p class="st-note">${o.note ?? 'Tloušťky jsou ilustrační, doplníme z technických listů výroby.'}</p></div>
+  </div>
+</div>`;
+}
+
+// Statická kresba: vrstvy rozložené v izometrii (bez WebGL, slabá zařízení, omezený pohyb).
+function wallDrawing() {
+  const K = 0.866, S = 330, Wd = WW * S * 0.62, Hd = WH * S * 0.7, gap = 46;
+  const T = [12, 15, 15, 34, 3, 6];                     // tloušťky pro čitelnost (px), pořadí jako WALL
+  const xs = []; let at = 0; for (let k = WN - 1; k >= 0; k--) { xs[k] = at + (WN - 1 - k) * gap; at += T[k]; }
+  const P = (x, y, z) => `${((x - y) * K).toFixed(1)},${((x + y) * 0.5 - z).toFixed(1)}`;
+  const q = (pts, c) => `<polygon class="${c}" points="${pts.map(p => P(...p)).join(' ')}"/>`;
+  const slab = (x0, x1, y0, y1, z0, z1, c) => q([[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]], c + ' st-fx') + q([[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]], c + ' st-fy') + q([[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], c + ' st-fz');
+  const ln = (a, b, c = '') => { const [x1, y1] = P(...a).split(','), [x2, y2] = P(...b).split(','); return `<line${c ? ` class="${c}"` : ''} x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; };
+  const studY = [Wd * 0.04, Wd * 0.5, Wd * 0.96 - 13];
+  const g = WALL.map((L, k) => {
+    const x0 = xs[k], x1 = x0 + T[k];
+    let s = '';
+    if (L.key === 'late') s = studY.map(y => slab(x0, x1, y + 3, y + 10, 0, Hd, 'st-s-batten')).join('');
+    else if (L.key === 'skelet') {
+      s = slab(x0 + 1, x1 - 1, 0, Wd, 0, Hd, 'st-s-wool');
+      s += studY.map(y => q([[x1, y, 0], [x1, y + 13, 0], [x1, y + 13, Hd], [x1, y, Hd]], 'st-s-zinc st-fx')).join('');
+      s += studY.map(y => `<polyline class="st-s-c" points="${[[x1 - 4, y, Hd], [x1, y, Hd], [x1, y + 13, Hd], [x0, y + 13, Hd], [x0, y, Hd], [x0 + 4, y, Hd]].map(p => P(...p)).join(' ')}"/>`).join('');
+      const e = studY[2] + 13;
+      s += q([[x0, e, 0], [x1, e, 0], [x1, e, Hd], [x0, e, Hd]], 'st-s-zinc st-fy');
+      for (const zc of [Hd * 0.22, Hd * 0.52, Hd * 0.82]) {
+        const pts = []; for (let a = 0; a <= 360; a += 30) { const r = a * Math.PI / 180; pts.push([x0 + T[k] / 2 + Math.cos(r) * 6, e, zc + Math.sin(r) * 13 * (Math.abs(Math.sin(r)) > 0.5 ? 1 : 0.85)]); }
+        s += q(pts, 'st-s-hole');
+      }
+    } else s = slab(x0, x1, 0, Wd, 0, Hd, 'st-s-' + L.key);
+    if (L.key === 'fasada') for (let y = 14; y < Wd; y += 14) s += ln([x1, y, 0], [x1, y, Hd], 'st-s-seam');
+    const a = P((x0 + x1) / 2, 6, Hd).split(',').map(Number);
+    s += `<g class="st-s-mk"><line x1="${a[0]}" y1="${a[1]}" x2="${a[0]}" y2="${a[1] - 34}"/><circle cx="${a[0]}" cy="${a[1] - 46}" r="11"/><text x="${a[0]}" y="${a[1] - 42}">${k + 1}</text></g>`;
+    return `<g class="st-s-l" data-l="${k}">${s}</g>`;
+  });
+  return `<svg class="pv-svg st-svg" viewBox="-236 -298 520 596" role="img" aria-label="Skladba stěny rozložená na šest vrstev">${g.reverse().join('')}</svg>`;
+}
+
+let wuid = 0;
+export function mountStena(root, opts = {}) {
+  const o = { mode: 'auto', lazyMargin: '100%', ...opts };
+  const id = 'st' + (++wuid);
+  root.classList.add('pv', 'st');
+  root.innerHTML = wallMarkup(id, o);
+  const $ = s => root.querySelector(s), $$ = s => [...root.querySelectorAll(s)];
+  const scrolly = $('.st-scrolly'), pin = $('.st-pin'), stage = $('.st-stage'), glBox = $('.pv-gl'), rows = $$('.st-row'), mks = $$('.st-mk');
+  const mqReduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const reduced = o.reducedMotion ?? mqReduce.matches;
+  const isStatic = reduced || o.mode === 'static' || (o.mode === 'auto' && (lowEnd() || !hasWebGL()));
+  root.classList.toggle('pv--static', isStatic);
+  let p = isStatic ? 1 : 0, viewer = null, visible = false, ticking = false, rafU = 0, destroyed = false, hl = -1;
+
+  function measure() {
+    const r = scrolly.getBoundingClientRect(), top = parseFloat(getComputedStyle(pin).top) || 0;
+    const travel = scrolly.offsetHeight - pin.offsetHeight;
+    return travel > 0 ? clamp((top - r.top) / travel, 0, 1) : 1;
+  }
+  function paint() {
+    const act = WALL.reduce((a, _, k) => (wallSep(p, k) > 0.5 ? k : a), -1);
+    rows.forEach((b, k) => { b.classList.toggle('is-on', wallSep(p, k) > 0.5); b.classList.toggle('is-active', k === act); });
+  }
+  function setHl(k) {
+    hl = k;
+    rows.forEach((b, i) => b.classList.toggle('is-hl', i === k));
+    $$('.st-s-l').forEach(g => g.classList.toggle('is-hl', +g.dataset.l === k));
+    root.classList.toggle('st--hl', k >= 0);
+    mks.forEach((b, i) => b.classList.toggle('is-hl', i === k));
+    viewer && viewer.highlight(k);
+  }
+  function update() {
+    rafU = 0; ticking = false; if (destroyed) return;
+    if (!isStatic) p = measure();
+    paint(); viewer && viewer.target(p);
+  }
+  const onScroll = () => { if (!ticking && !destroyed) { ticking = true; rafU = requestAnimationFrame(update); } };
+  const ioVis = new IntersectionObserver(([e]) => {
+    visible = e.isIntersecting; if (destroyed) return;
+    if (visible) { addEventListener('scroll', onScroll, { passive: true }); update(); viewer && viewer.start(); }
+    else { removeEventListener('scroll', onScroll); viewer && viewer.stop(); }
+  });
+  ioVis.observe(scrolly);
+  addEventListener('resize', onScroll, { passive: true });
+  let ioLazy = null;
+  if (!isStatic) {
+    ioLazy = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      ioLazy.disconnect(); ioLazy = null;
+      createWallViewer(glBox, mks).then(v => {
+        if (destroyed) { v.dispose(); return; }
+        viewer = v; v.target(p, true); v.highlight(hl);
+        stage.classList.add('pv-stage--3d'); visible && v.start();
+      }).catch(err => { console.warn('[stena] 3D se nepodařilo spustit, zůstává statická kresba.', err); root.classList.add('pv--static'); });
+    }, { rootMargin: `${o.lazyMargin} 0px` });
+    ioLazy.observe(scrolly);
+  }
+  // Řádek seznamu: posune stránku na okamžik, kdy se vrstva oddělí.
+  function goTo(k) {
+    if (isStatic) return setHl(k);
+    const travel = scrolly.offsetHeight - pin.offsetHeight, top = parseFloat(getComputedStyle(pin).top) || 0;
+    const pk = Math.min(1, 0.04 + k * 0.12 + 0.2);
+    scrollTo({ top: scrollY + scrolly.getBoundingClientRect().top - top + travel * pk, behavior: 'smooth' });
+  }
+  const onClick = e => { const b = e.target.closest('.st-row, .st-mk'); if (b) { setHl(+b.dataset.l); if (b.classList.contains('st-row')) goTo(+b.dataset.l); } };
+  const onOver = e => { const b = e.target.closest('[data-l]'); setHl(b ? +b.dataset.l : -1); };
+  const onLeave = () => setHl(-1);
+  const onFocus = e => { const b = e.target.closest('[data-l]'); if (b) setHl(+b.dataset.l); };
+  root.addEventListener('click', onClick); root.addEventListener('pointerover', onOver); root.addEventListener('pointerleave', onLeave);
+  root.addEventListener('focusin', onFocus); root.addEventListener('focusout', onLeave);
+  paint(); rafU = requestAnimationFrame(update);
+  return {
+    goTo,
+    destroy() {
+      destroyed = true; cancelAnimationFrame(rafU);
+      ioVis.disconnect(); ioLazy && ioLazy.disconnect();
+      removeEventListener('scroll', onScroll); removeEventListener('resize', onScroll);
+      root.removeEventListener('click', onClick); root.removeEventListener('pointerover', onOver); root.removeEventListener('pointerleave', onLeave);
+      root.removeEventListener('focusin', onFocus); root.removeEventListener('focusout', onLeave);
+      viewer && viewer.dispose();
+      root.innerHTML = ''; root.classList.remove('pv', 'st', 'pv--static');
+    },
+  };
+}
+
+async function createWallViewer(box, mks) {
+  const THREE = await import('three');
+  const { RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js');
+  const small = innerWidth < 720;
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, small ? 1.5 : 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  const canvas = renderer.domElement; canvas.className = 'pv-canvas'; canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', '3D model skladby stěny: modřínový obklad, odvětraná mezera s latěmi, PIR deska, ocelové C-profily s minerální vlnou, parobrzda a smrkový interiér.');
+  box.appendChild(canvas);
+  const scene = new THREE.Scene();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.8;
+  scene.add(new THREE.HemisphereLight(0xfff6e8, 0x8a8172, 0.9));
+  const key = new THREE.DirectionalLight(0xfff1dc, 2.0); key.position.set(2.5, 4, 3.5); key.castShadow = true;
+  key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -2, right: 2, top: 2, bottom: -2, near: 0.5, far: 12 });
+  key.shadow.bias = -0.0004; key.shadow.normalBias = 0.01; key.shadow.radius = 4; scene.add(key);
+  const rim = new THREE.DirectionalLight(0xdfe7ff, 0.6); rim.position.set(-3, 2, -3); scene.add(rim);
+  const groundMat = new THREE.ShadowMaterial({ opacity: 0.18 });
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), groundMat); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+  const contactMat = new THREE.MeshBasicMaterial({ map: contactTex(THREE), transparent: true, depthWrite: false, toneMapped: false, color: 0x000000, opacity: 0.3 });
+  const contact = new THREE.Mesh(new THREE.PlaneGeometry(WW + 0.5, 1.6), contactMat); contact.rotation.x = -Math.PI / 2; contact.position.set(0, 0.002, 0.5); scene.add(contact);
+  const camera = new THREE.PerspectiveCamera(28, 1, 0.05, 50);
+
+  // Geometrie: UV v metrech jako u domu.
+  const boxGeo = (w, h, d, x, y, z) => {
+    const g = new THREE.BoxGeometry(w, h, d), uv = g.attributes.uv, sc = [[d, h], [d, h], [w, d], [w, d], [w, h], [w, h]];
+    for (let f = 0; f < 6; f++) for (let i = 0; i < 4; i++) { const k = f * 4 + i; uv.setXY(k, uv.getX(k) * sc[f][0], uv.getY(k) * sc[f][1]); }
+    return g.translate(x, y, z);
+  };
+  const zn = zincTex(THREE), wt = woodTex(THREE);
+  const mat = {
+    wood: new THREE.MeshStandardMaterial({ map: wt.map, bumpMap: wt.bump, bumpScale: 2.2, roughness: 0.8 }),
+    batten: new THREE.MeshStandardMaterial({ color: 0xc9a27a, roughness: 0.85 }),
+    pir: new THREE.MeshStandardMaterial({ color: 0xe9ebe7, metalness: 0.6, roughness: 0.3 }),
+    pirCore: new THREE.MeshStandardMaterial({ color: 0xe9dcb4, roughness: 0.9 }),
+    zinc: new THREE.MeshStandardMaterial({ color: 0xc9cdc7, metalness: 0.55, roughness: 0.5, map: zn.map, roughnessMap: zn.rough, side: THREE.DoubleSide }),
+    wool: new THREE.MeshStandardMaterial({ color: 0xe6d394, roughness: 1, map: woolTex(THREE) }),
+    foil: new THREE.MeshStandardMaterial({ color: 0xb8cbd9, roughness: 0.3, metalness: 0.1, transparent: true, opacity: 0.55, side: THREE.DoubleSide }),
+    ply: new THREE.MeshStandardMaterial({ color: 0xefdfc0, roughness: 0.7 }),
+  };
+  const groups = WALL.map(() => new THREE.Group());
+  const mesh = (k, geo, m) => { const x = new THREE.Mesh(geo, m); x.castShadow = x.receiveShadow = true; groups[k].add(x); return x; };
+  const zc = k => WZ[k] + WALL[k].d / 2;
+  // 1 fasáda: svislý modřínový obklad
+  mesh(0, boxGeo(WW, WH, 0.018, 0, WH / 2, zc(0)), mat.wood);
+  // 2 latě v ose sloupků
+  STUDS.forEach(x => mesh(1, boxGeo(0.05, WH, 0.03, x + 0.0205, WH / 2, zc(1)), mat.batten));
+  // 3 PIR deska: fólie navrch, jádro na hranách
+  mesh(2, boxGeo(WW, WH, 0.03, 0, WH / 2, zc(2)), [mat.pirCore, mat.pirCore, mat.pirCore, mat.pirCore, mat.pir, mat.pir]);
+  // 4 ocelový skelet: C 89 × 41 × 1,2 s olemováním, otvory pro rozvody ve stojině; minerální vlna mezi sloupky
+  const d = 0.089, b = 0.041, lip = 0.012, t = 0.0015, z0 = WZ[3];
+  const web = new THREE.Shape([[0, 0], [d, 0], [d, WH], [0, WH]].map(([x, y]) => new THREE.Vector2(x, y)));
+  for (const yc of [0.2, 0.5, 0.8]) {
+    const hole = new THREE.Path(), rw = 0.019, rh = 0.032, cx = d / 2;
+    hole.moveTo(cx - rw, yc - rh + rw); hole.absarc(cx, yc - rh + rw, rw, Math.PI, 0, false); hole.lineTo(cx + rw, yc + rh - rw); hole.absarc(cx, yc + rh - rw, rw, 0, Math.PI, false); hole.closePath();
+    web.holes.push(hole);
+  }
+  const webGeo = new THREE.ExtrudeGeometry(web, { depth: t, bevelEnabled: false, curveSegments: 10 });
+  webGeo.rotateY(-Math.PI / 2);   // tvar v rovině z–y, tloušťka podél x
+  STUDS.forEach(x => {
+    mesh(3, webGeo.clone().translate(x + t, 0, z0), mat.zinc);
+    for (const zf of [z0 + t / 2, z0 + d - t / 2]) mesh(3, boxGeo(b, WH, t, x + b / 2, WH / 2, zf), mat.zinc);
+    for (const zl of [z0 + lip / 2, z0 + d - lip / 2]) mesh(3, boxGeo(t, WH, lip, x + b - t / 2, WH / 2, zl), mat.zinc);
+  });
+  webGeo.dispose();
+  const batt = (xa, xb, h) => mesh(3, boxGeo(xb - xa - 0.004, h, d - 0.006, (xa + xb) / 2, h / 2, z0 + d / 2), mat.wool);
+  batt(STUDS[0] + 0.0015, STUDS[1], WH); batt(STUDS[1] + 0.0015, STUDS[2], 0.56);   // pravé pole jen zčásti, ať jsou vidět sloupky
+  // 5 parobrzda, 6 interiér (topolová překližka se smrkovou dýhou)
+  mesh(4, boxGeo(WW, WH, 0.0015, 0, WH / 2, zc(4)), mat.foil).castShadow = false;
+  mesh(5, boxGeo(WW, WH, 0.0065, 0, WH / 2, zc(5)), mat.ply);
+  const wall = new THREE.Group(); groups.forEach(g => wall.add(g)); wall.position.z = -0.09; scene.add(wall);
+  const base = groups.map(g => g.position.clone());
+  // Kotvy čísel: pravý horní roh vrstvy (směrem ke kameře).
+  const anchors = groups.map((g, k) => { const a = new THREE.Object3D(); a.position.set(WW / 2 - 0.02, WH + 0.035, zc(k)); g.add(a); return a; });
+  // Zvýraznění: jantarová záře na materiálech vybrané vrstvy (vlastní kopie materiálů pro každou vrstvu).
+  const AMBER = new THREE.Color(0xe8b04b), lmats = groups.map(() => []);
+  groups.forEach((g, k) => { const cache = new Map(); g.traverse(m => { if (!m.isMesh) return; const arr = [].concat(m.material).map(x => { if (!cache.has(x.uuid)) { const c = x.clone(); c.userData.em = c.emissive.clone(); cache.set(x.uuid, c); lmats[k].push(c); } return cache.get(x.uuid); }); m.material = Array.isArray(m.material) ? arr : arr[0]; }); });
+
+  function readTheme() {
+    const cs = getComputedStyle(box.closest('.pv-stage'));
+    const dark = new THREE.Color(cs.getPropertyValue('--surface').trim() || '#F7F3EC').getHSL({}).l < 0.4;
+    groundMat.opacity = dark ? 0.4 : 0.18; contactMat.opacity = dark ? 0.5 : 0.3; renderer.toneMappingExposure = dark ? 0.92 : 1.0; dirty = true;
+  }
+  const mqDark = matchMedia('(prefers-color-scheme: dark)'), mo = new MutationObserver(readTheme);
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] }); mqDark.addEventListener('change', readTheme);
+
+  // Kamera: azimut a výška se s rozkladem pomalu stáčejí na bok, vzdálenost roste s roztažením vrstev.
+  const CAM = { az0: 0.5, az1: 0.45, el0: 0.3, el1: 0.2, d0: 3.4, dk: 1.5, tx: 0.05, ty: 0.47 };
+  let tgt = 0, cur = 0, hl = -1, hlCur = groups.map(() => 0), dirty = true, raf = 0, last = 0, running = false;
+  readTheme();
+  const tmp = new THREE.Vector3();
+  function apply() {
+    const s = WALL.map((_, k) => wallSep(cur, k));
+    groups.forEach((g, k) => { g.position.z = base[k].z + WOFF[k] * s[k]; g.position.x = base[k].x - WOFF[k] * WX * s[k]; });
+    const spread = WSPREAD * ease(clamp(cur / 0.8, 0, 1) * 0.76 + 0.12);
+    const az = CAM.az0 + CAM.az1 * ease(clamp(cur, 0, 1) * 0.76 + 0.12), el = CAM.el0 + CAM.el1 * cur;
+    const w = box.clientWidth || 1, h = box.clientHeight || 1, aspect = w / h;
+    camera.aspect = aspect;
+    const dist = (CAM.d0 + spread * CAM.dk) * Math.pow(Math.max(1, 1.25 / aspect), 0.7);
+    const tx = CAM.tx - spread * WX * 0.5, ty = CAM.ty, tz = spread * 0.5;
+    camera.position.set(tx + dist * Math.cos(el) * Math.sin(az), ty + dist * Math.sin(el), tz + dist * Math.cos(el) * Math.cos(az));
+    camera.lookAt(tx, ty, tz); camera.updateProjectionMatrix(); camera.updateMatrixWorld(); wall.updateMatrixWorld(true);
+    groups.forEach((g, k) => { for (const m of lmats[k]) { m.emissive.copy(m.userData.em).lerp(AMBER, hlCur[k] * 0.6); m.emissiveIntensity = hlCur[k] > 0.01 ? 0.5 : 1; } });
+    mks.forEach((b, k) => {
+      anchors[k].getWorldPosition(tmp).project(camera);
+      const vis = clamp((s[k] - 0.35) / 0.4, 0, 1);
+      b.style.transform = `translate(${((tmp.x + 1) / 2 * w).toFixed(1)}px, ${((1 - tmp.y) / 2 * h).toFixed(1)}px) translate(-50%, -50%)`;
+      b.style.opacity = vis.toFixed(3); b.style.visibility = vis > 0.02 ? 'visible' : 'hidden';
+      b.tabIndex = vis > 0.5 ? 0 : -1; b.setAttribute('aria-hidden', vis > 0.5 ? 'false' : 'true');
+    });
+  }
+  function frame(t) {
+    raf = requestAnimationFrame(frame);
+    const dt = Math.min(0.1, last ? (t - last) / 1000 : 0.016); last = t;
+    const k = 1 - Math.exp(-dt * 5);
+    let moving = false;
+    if (Math.abs(tgt - cur) > 1e-4) { cur += (tgt - cur) * k; moving = true; } else cur = tgt;
+    hlCur = hlCur.map((v, i) => { const g = i === hl ? 1 : 0; if (Math.abs(g - v) > 1e-3) { moving = true; return v + (g - v) * k * 1.6; } return g; });
+    if (moving || dirty) { apply(); renderer.render(scene, camera); dirty = false; }
+  }
+  const draw = () => { apply(); renderer.render(scene, camera); };
+  const ro = new ResizeObserver(() => { const w = box.clientWidth, h = box.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); dirty = true; if (!running) draw(); });
+  ro.observe(box);
+  box.__pv = {
+    renderer, scene, camera, cam: CAM,
+    show(p) { tgt = cur = p; draw(); return this.info(); },
+    info() { const r = renderer.info.render; return { calls: r.calls, triangles: r.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures }; },
+  };
+  return {
+    target(p, instant) { tgt = p; if (instant) cur = p; dirty = true; if (!running) draw(); },
+    highlight(k) { hl = k; dirty = true; if (!running) { hlCur = hlCur.map((_, i) => (i === k ? 1 : 0)); draw(); } },
+    start() { if (running) return; running = true; last = 0; raf = requestAnimationFrame(frame); },
+    stop() { running = false; cancelAnimationFrame(raf); },
+    dispose() {
+      this.stop(); ro.disconnect(); mo.disconnect(); mqDark.removeEventListener('change', readTheme); delete box.__pv;
+      scene.traverse(m => { if (m.geometry) m.geometry.dispose(); [].concat(m.material || []).forEach(x => { for (const q in x) if (x[q] && x[q].isTexture) x[q].dispose(); x.dispose(); }); });
+      pmrem.dispose(); renderer.dispose(); renderer.forceContextLoss(); canvas.remove();
+    },
+  };
+}
+// Minerální vlna: jemná vláknitá struktura.
+function woolTex(THREE) {
+  const rnd = rng(23);
+  return canvasTex(THREE, 256, (g, S) => {
+    g.fillStyle = '#efe2b8'; g.fillRect(0, 0, S, S);
+    for (let i = 0; i < 1400; i++) { const x = rnd() * S, y = rnd() * S, l = 6 + rnd() * 18, a = rnd() * Math.PI; g.strokeStyle = `rgba(${rnd() < 0.5 ? '160,128,60' : '255,250,230'},${0.12 + rnd() * 0.18})`; g.lineWidth = 0.6 + rnd(); g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l * 0.4); g.stroke(); }
+  }, 1 / 0.3, 1 / 0.3);
 }
