@@ -35,9 +35,9 @@
 .pv > .pv-head, .pv > .pv-tow, .pv > .pv-specs { box-sizing: content-box; padding-inline: max(var(--pv-gl), calc((100% - var(--container, 1240px)) / 2)); }
 .pv > .pv-head { max-width: 820px; }
 .pv > .pv-tow, .pv > .pv-specs { max-width: var(--container, 1240px); }
-@media (max-width: 720px) { .pv { --pv-bar: 76px; } }   /* lišta s tlačítky dole na mobilu */
+@media (max-width: 720px) { .pv { --pv-bar: calc(76px + env(safe-area-inset-bottom, 0px)); } }   /* lišta s tlačítky dole na mobilu (na iPhonu je vyšší o pruh pro gesto) */
 .pv--compact { --pv-travel: 210svh; }
-.st { --pv-travel: 150svh; }
+.st { --pv-travel: 420svh; }   /* 6 vrstev po 0,14 délky: ~0,6 výšky obrazovky na vrstvu (~1 tah prstem, 5 kroků kolečka) */
 
 .pv-scrolly { position: relative; height: calc(100svh - var(--pv-top) - var(--pv-bar) - 8px + var(--pv-travel)); }
 .pv-pin { position: sticky; top: var(--pv-top); height: calc(100svh - var(--pv-top) - var(--pv-bar) - 8px); }
@@ -87,9 +87,36 @@
 /* tečky kapitol (v řádku titulku) */
 .pv-dots { display: flex; gap: 0; }
 .pv-dot { width: 26px; height: 28px; display: grid; place-items: center; border-radius: 8px; }
-.pv-dot span { width: 7px; height: 7px; border-radius: 999px; background: var(--pv-line-strong); opacity: .55; transition: width var(--pv-base) var(--pv-ease), background var(--pv-base), opacity var(--pv-base); }
+.pv-dot span { width: 7px; height: 7px; border-radius: 999px; background: var(--pv-line-strong); opacity: .55; transition: transform var(--pv-base) var(--pv-ease), background var(--pv-base), opacity var(--pv-base); }   /* transform místo šířky: bez posunů rozvržení */
 .pv-dot:hover span { opacity: 1; }
-.pv-dot[aria-current] span { width: 20px; background: var(--pv-ink); opacity: 1; }
+.pv-dot[aria-current] span { transform: scaleX(2.857); background: var(--pv-ink); opacity: 1; }
+
+/* Přeskočit prohlídku: vpravo nahoře ve scéně (první prvek scény pro klávesnici), na mobilu zkrácené „Přeskočit“ */
+.pv { --pv-skip-w: 112px; }
+@media (min-width: 600px) { .pv { --pv-skip-w: 196px; } }
+.pv .pv-skip { position: absolute; right: var(--pv-m); top: 6px; z-index: 6; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px 0 16px; border: 1px solid var(--pv-line-strong); border-radius: 999px; background: color-mix(in srgb, var(--pv-raised) 92%, transparent); color: var(--pv-ink); font: 600 13px/16px var(--font-text, Manrope, system-ui, sans-serif); letter-spacing: .01em; white-space: nowrap; cursor: pointer; box-shadow: 0 2px 10px rgba(30, 33, 29, .08); transition: background var(--pv-base), border-color var(--pv-base); }
+.pv .pv-skip:hover { background: var(--pv-raised); border-color: var(--pv-ink); }
+.pv-skip:focus-visible { outline: 2px solid var(--pv-focus); outline-offset: 2px; }
+.pv-skip-i { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.pv-skip-s { display: none; }
+@media (max-width: 599px) { .pv-skip-l { display: none; } .pv-skip-s { display: inline; } .pv .pv-skip { padding: 0 12px 0 14px; } }
+/* číslo kapitoly nahoře (na mobilu vedle tlačítka), tečky vždy na vlastním řádku (neposouvají se podle délky
+   názvu kapitoly, žádný posun rozvržení); na nejužších displejích užší tečky, aby se 8 teček vešlo vedle tlačítka */
+.pv-tb-top { display: grid; justify-items: start; gap: 4px 14px; }
+@media (max-width: 959px) {
+  .pv:not(.pv--static) .pv-hud { max-width: calc(100% - var(--pv-skip-w) - 8px); }
+}
+@media (max-width: 380px) { .pv-dot { width: 24px; } }
+@media (min-width: 960px) { .pv .pv-skip { top: 10px; } }
+.pv-skip-target:focus { outline: none; }
+/* Nápověda v první kapitole: klidná, po prvním posunu v sekci natrvalo zmizí */
+.pv-hint { position: absolute; left: 50%; bottom: calc(var(--pv-card-h) + 46px); z-index: 4; display: inline-flex; align-items: center; gap: 6px; transform: translateX(-50%); padding: 5px 12px 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--pv-raised) 88%, transparent); color: var(--pv-ink); font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: .02em; pointer-events: none; white-space: nowrap; transition: opacity 500ms var(--pv-ease), visibility 0s 500ms; }
+.pv-hint-i { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; animation: pv-hint-bob 1.8s var(--pv-ease) infinite; }
+@keyframes pv-hint-bob { 0%, 100% { transform: translateY(-2px); opacity: .55; } 50% { transform: translateY(3px); opacity: 1; } }
+.pv-hint.is-gone { opacity: 0; visibility: hidden; }
+@media (min-width: 960px) { .pv-hint { bottom: 24px; } }
+.pv--static .pv-skip, .pv--static .pv-hint, .pv--reduced .pv-hint { display: none; }
+@media (prefers-reduced-motion: reduce) { .pv-hint-i { animation: none; } }
 
 /* čísla dílů jako na výkresu */
 .pv-num { flex: none; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--pv-ink); font-size: 11px; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; background: var(--pv-surface); color: var(--pv-ink); }
@@ -136,13 +163,20 @@
 .pv-card-facts dd { font-size: 15px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .st-note-in { display: none; }
 @media (max-width: 959px) { .pv-dl { display: none; } .pv-tag { top: auto; bottom: calc(var(--pv-card-h) + 15px); } }
+/* poslední kapitola: šest čísel se do 152 px nevejde (na 360–430 px potřeba 160–216 px, spodní řádek byl useknutý).
+   Samostatná karta (.pv-card--final) má výšku podle obsahu a je pořád rozvržená, jen skrytá: při přechodu se jen
+   prolnou (žádný posun rozvržení). Štítek „ilustrační model“, který by překryla, se na tu chvíli schová. */
+.pv-card--final { height: auto; min-height: var(--pv-card-h); max-height: calc(100% - 64px); visibility: hidden; opacity: 0; transition: opacity 180ms var(--pv-ease), visibility 0s 180ms; }
+.pv-stage.is-final .pv-card--final { visibility: visible; opacity: 1; transition: opacity 360ms var(--pv-ease) 120ms, visibility 0s; }
+.pv-stage.is-final .pv-card:not(.pv-card--final) { visibility: hidden; opacity: 0; transition: opacity 180ms var(--pv-ease), visibility 0s 180ms; }
+@media (max-width: 959px) { .pv-stage.is-final .pv-tag { opacity: 0; } }
 
 /* desktop: okraje pro popisky, titulek s nadpisem, bez karty */
 @media (min-width: 960px) {
   .pv { --pv-m: 24px; --pv-lw: 196px; --pv-gap: 28px; --pv-il: calc(var(--pv-m) + var(--pv-lw) + var(--pv-gap)); --pv-ir: var(--pv-il); --pv-it: 28px; --pv-ib: 96px; }
   .pv-tb { right: auto; width: calc(var(--pv-lw) + var(--pv-gap)); top: 18px; }
   .pv-tb-stack { display: block; margin-top: 18px; }
-  .pv-tag { top: 20px; }
+  .pv-tag { top: 66px; }   /* pod tlačítkem Přeskočit */
   .pv-card { display: none; }
   .pv-factsbar { display: grid; }
   .st-note-in { display: block; position: absolute; left: var(--pv-m); bottom: 18px; z-index: 4; font-size: 12px; line-height: 16px; color: var(--pv-muted); max-width: var(--pv-lw); }
@@ -299,6 +333,13 @@
 .dz-rooms { position: absolute; inset: 0; pointer-events: none !important; }
 .dz-room { position: absolute; left: 0; top: 0; white-space: nowrap; font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: .02em; color: var(--pv-ink); background: color-mix(in srgb, var(--pv-raised) 92%, transparent); border: 1px solid color-mix(in srgb, var(--pv-line-strong) 60%, transparent); padding: 3px 10px; border-radius: 999px; box-shadow: 0 2px 10px rgba(30, 33, 29, .1); opacity: 0; visibility: hidden; will-change: transform; }
 .dz-cta { display: none; }
+/* mobil a úzký tablet: stejná dvě tlačítka jako na desktopu, v kartě poslední kapitoly pod čísly */
+@media (max-width: 959px) {
+  .dz:not(.pv--static) .dz-cta { display: flex; position: absolute; left: 28px; right: 28px; bottom: 26px; z-index: 5; gap: 10px; opacity: 0; visibility: hidden; transition: opacity 180ms, visibility 0s 180ms; }
+  .dz:not(.pv--static) .dz-cta.is-on { opacity: 1; visibility: visible; transition: opacity 360ms var(--pv-ease) 200ms, visibility 0s; }
+  .dz-cta .btn { flex: 1 1 0; min-width: 0; min-height: 44px; justify-content: center; padding: 8px 10px; font-size: 14px; line-height: 16px; text-align: center; white-space: normal; }
+  .dz .pv-card--final { padding-bottom: 82px; }
+}
 .dz-cta-list { margin-top: 16px !important; display: flex; flex-wrap: wrap; gap: 10px; }
 @media (min-width: 960px) {
   .dz-cta { position: absolute; left: var(--pv-m); bottom: 116px; z-index: 4; width: var(--pv-lw); display: flex; flex-direction: column; align-items: flex-start; gap: 10px; opacity: 0; visibility: hidden; transition: opacity 260ms, visibility 0s 260ms; }

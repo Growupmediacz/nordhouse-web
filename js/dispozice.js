@@ -10,10 +10,10 @@
 // Volby (vše nepovinné):
 //   variant   's' | 'm' | 'l' (výchozí 'm')
 //   chapters  výběr kapitol podle klíče, např. ['ext', 'plan', 'obytna', 'loft', 'end'] (úvodní stránka)
-//   travel    délka scrollu přes sekci (CSS délka), výchozí 40svh na každý přechod mezi kapitolami
+//   travel    délka scrollu přes sekci (CSS délka), výchozí 65svh na každý přechod mezi kapitolami (~1 tah prstem)
 //   head      { eyebrow, title, lead } přepíše hlavičku, false ji skryje
 //   facts     { net, people, sleep, height, len } čísla domu do poslední kapitoly (z index.html, MODELS a REAL)
-//   cta       [{ label, href, primary }] tlačítka v poslední kapitole (desktop; na mobilu je lišta webu)
+//   cta       [{ label, href, primary }] tlačítka v poslední kapitole (desktop vlevo, mobil pod čísly v kartě)
 //   mode      'auto' | 'webgl' | 'static', lazyMargin, farMargin, reducedMotion jako u mountPodvozek
 //
 // Rozměry a vybavení: projekt/dum-*-v2/params.py (přepsané sem, web složku projekt/ nenačítá), kontrola proti
@@ -21,7 +21,7 @@
 // líce levé stěny, z nad čistou podlahou, vše v mm. three.js: X = x − L/2, Y = 0,73 + z, Z = y − 1,25 (levá stěna −Z).
 import {
   buildProcedural, dimsOf, annotator, cardCtl, scrollProgress, scrollToProgress, applyEmbed, hasWebGL, lowEnd,
-  clamp, ease, pad, first, fmt, contactTex, canvasTex, rng, woodTex, gateKick, gateEntry, gateDrop, lifecycle,
+  clamp, ease, pad, first, fmt, contactTex, canvasTex, rng, woodTex, gateKick, gateEntry, gateDrop, lifecycle, stepHyst, stageExtras, finalCard,
 } from './podvozek.js';
 
 /* ------------------------------------------------------------------ data */
@@ -74,6 +74,7 @@ const LOW = 0.9, MID = 2.45;
 function chaptersFor(v, D, P, o) {
   const L = D.L * 1000, net = o.facts?.net, inner = `${fmt(P.inner[0] / 1000, 2)} × ${fmt(P.inner[1] / 1000, 2)} m`;
   const ext = { key: 'ext', short: 'Zvenku', title: `Dům ${D.key} na pozemku`, text: 'Takhle dům stojí na pozemku. Posouvejte stránkou, střecha se zvedne a uvidíte dovnitř.',
+    textStatic: 'Dům stojí na silničním podvozku. Půdorys nahoře ukazuje, co je uvnitř.',
     cam: { at: [L / 2 + 350, 1250, 1050], r: (D.total + 0.6) / 2, az: v === 'l' ? -0.78 : -2.33, el: 0.14, maz: v === 'l' ? -1.15 : -1.95, mel: 0.2 }, cut: {}, roof: { p: 0, n: 0 }, loft: v === 'm' ? 0 : 0 };
   const planBase = { cam: { at: [L / 2, 1250, 300], r: D.L / 2 + 0.55, az: 0.3, el: 0.98, maz: 0.95, mel: 1.1 }, cut: { zp: LOW, g: MID }, roof: { p: 1, n: 1 }, loft: 1, tags: 1, dims: 1 };
   const plan = { key: 'plan', short: 'Půdorys', title: 'Celý dům shora', ...planBase };
@@ -212,6 +213,7 @@ function saunaChapters(v, D, Q) {
   const L = Q.L, CUT = Q.CEIL / 1000, inner = `${fmt(Q.inner[0] / 1000, 2)} × ${fmt(Q.inner[1] / 1000, 2)} m`;
   const pt = (n, name, text, at) => ({ n, name, text, at });
   const ext = { key: 'ext', short: 'Zvenku', title: `${Q.name} na pozemku`, text: Q.trailer ? 'Takhle sauna stojí na podvozku. Posouvejte stránkou, střecha se zvedne a uvidíte dovnitř.' : 'Takhle sauna stojí na zahradě. Posouvejte stránkou, střecha se zvedne a uvidíte dovnitř.',
+    textStatic: Q.trailer ? 'Sauna stojí na silničním podvozku. Půdorys nahoře ukazuje, co je uvnitř.' : 'Sauna stojí na zahradě. Půdorys nahoře ukazuje, co je uvnitř.',
     cam: { at: [L / 2 + (Q.trailer ? 450 : 0), Q.W / 2, 1100], r: Math.max((D.total + 0.8) / 2, 2.7), az: -2.3, el: 0.16, maz: -1.95, mel: 0.2 }, cut: {}, roof: { p: 0, n: 0 }, loft: 0 };
   const planBase = { cam: { at: [L / 2, Q.W / 2, 300], r: Math.max(D.L / 2 + 0.75, 2.35), az: 0.3, el: 0.98, maz: 0.8, mel: 1.1 }, cut: { zp: LOW, g: CUT }, roof: { p: 1, n: 1 }, loft: 0, tags: 1, dims: 1 };
   const end = { key: 'end', short: 'Shrnutí', ...planBase, cam: { ...planBase.cam, az: 0.55, el: 0.86, maz: 0.9, mel: 0.95 }, tags: 0, dims: 0, final: 1 };
@@ -423,7 +425,7 @@ export function mountDispozice(root, opts = {}) {
   const mk = markup(id, D, P, CH, o), PTS = mk.pts;
   root.innerHTML = mk.html;
   applyEmbed(root, { compact: true, towing: false, specs: false });
-  root.style.setProperty("--pv-travel", o.travel || `${(N - 1) * 40}svh`);
+  root.style.setProperty("--pv-travel", o.travel || `${(N - 1) * 65}svh`);
 
   const $ = s => root.querySelector(s), $$ = s => [...root.querySelectorAll(s)];
   const scrolly = $('.pv-scrolly'), pin = $('.pv-pin'), stage = $('.pv-stage'), glBox = $('.pv-gl');
@@ -434,6 +436,14 @@ export function mountDispozice(root, opts = {}) {
   const isStatic = reduced || o.mode === 'static' || (o.mode === 'auto' && (lowEnd() || !hasWebGL()));
   root.classList.toggle('pv--static', isStatic);
   root.classList.toggle('pv--reduced', reduced);
+  const extras = stageExtras({ stage, scrolly, pin, reduced });
+  const fc = CH.find(c => c.final);
+  if (fc) finalCard(stage, `<p class="pv-card-k">${pad(N)} · ${fc.short}</p><p class="pv-card-h">${fc.title}</p><dl class="pv-card-facts">${o.FACTS.map(([a2, b]) => `<div><dt>${a2}</dt><dd>${b}</dd></div>`).join('')}</dl>`);
+  // statická verze: texty bez slibu pohybu (animovaná verze je beze změny)
+  if (isStatic) {
+    if (o.head?.leadStatic) { const l = root.querySelector('.pv-lead'); if (l) l.textContent = o.head.leadStatic; }
+    chapters.forEach((el, i) => { const t = CH[i].textStatic, q = el.querySelector('.pv-ch-text'); if (t && q) q.textContent = t; });
+  }
 
   let p = 0, active = -1, part = null, auto = null, visible = false, ticking = false, viewer = null, destroyed = false, proj = null;
   const tbBottom = () => { const t = tbis[active]; return (t && t.classList.contains('is-on') ? t : tbTop).getBoundingClientRect().bottom; };
@@ -458,8 +468,8 @@ export function mountDispozice(root, opts = {}) {
     const a = pd ? pd.id : null;
     if (a !== auto) { auto = a; hs.forEach(b => b.classList.toggle('is-cur', b.dataset.part === a)); }
     const k = `<p class="pv-card-k">${pad(active + 1)} · ${c.short}</p>`;
-    if (c.final) card.set('f', `${k}<p class="pv-card-h">${c.title}</p><dl class="pv-card-facts">${o.FACTS.map(([a2, b]) => `<div><dt>${a2}</dt><dd>${b}</dd></div>`).join('')}</dl>`);
-    else if (pd) card.set(pd.id, `${k}<p class="pv-card-h"><span class="pv-num">${pd.n}</span>${pd.name}</p><p class="pv-card-p">${pd.text}</p>`);
+    if (c.final) return;   // poslední kapitola: samostatná karta s čísly a tlačítky (finalCard)
+    if (pd) card.set(pd.id, `${k}<p class="pv-card-h"><span class="pv-num">${pd.n}</span>${pd.name}</p><p class="pv-card-p">${pd.text}</p>`);
     else card.set('c' + active, `${k}<p class="pv-card-h">${c.title}</p><p class="pv-card-p">${first(c.text)}</p>`);
   }
   function setActive(i) {
@@ -468,7 +478,7 @@ export function mountDispozice(root, opts = {}) {
     chapters.forEach((c, k) => c.classList.toggle('is-active', k === i));
     dots.forEach((d, k) => k === i ? d.setAttribute('aria-current', 'step') : d.removeAttribute('aria-current'));
     stage.dataset.step = i;
-    stage.classList.toggle('dz-final', !!CH[i].final);
+    stage.classList.toggle('dz-final', !!CH[i].final); stage.classList.toggle('is-final', !!CH[i].final);
     hudNo.textContent = pad(i + 1); hudName.textContent = CH[i].short;
     tbis.forEach((t, k) => t.classList.toggle('is-on', k === i));
     hs.forEach(b => { const on = +b.dataset.ch === i && !isStatic; b.tabIndex = on ? 0 : -1; b.setAttribute('aria-hidden', on ? 'false' : 'true'); });
@@ -492,8 +502,8 @@ export function mountDispozice(root, opts = {}) {
   function update() {
     rafU = 0; ticking = false;
     if (destroyed) return;
-    if (!isStatic) p = scrollProgress(scrolly, pin) * (N - 1);
-    setActive(isStatic ? Math.max(active, 1) : Math.round(p));
+    if (!isStatic) { const r = scrollProgress(scrolly, pin); p = r * (N - 1); extras.progress(r); }
+    setActive(isStatic ? Math.max(active, 1) : stepHyst(p, active, N));
     viewer && viewer.target(p, false);
     if (ann.cardMode() && !isStatic) cardContent();
   }
@@ -550,7 +560,7 @@ export function mountDispozice(root, opts = {}) {
     goTo,
     destroy() {
       destroyed = true;
-      cancelAnimationFrame(rafU); card.clear();
+      cancelAnimationFrame(rafU); card.clear(); extras.destroy();
       ioVis.disconnect(); gateDrop(gate); life && life.destroy();
       removeEventListener('scroll', onScroll); removeEventListener('resize', onResize);
       root.removeEventListener('click', onDot); root.removeEventListener('keydown', onDotKey);

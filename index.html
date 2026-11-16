@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Nordhouse</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231E211D'/%3E%3Cg transform='translate(19.2 0) scale(1.6)' fill='none' stroke='%23F2ECE1' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M0 10V30M0 18A8 8 0 0 1 16 18V30'/%3E%3C/g%3E%3C/svg%3E">
+<script>/* úvodní fotka se načítá hned (jinak ji prohlížeč najde až po spuštění skriptu stránky); jen na úvodu, podle šířky jako <picture> */
+(function () { var h = location.hash.slice(1); if (h && h !== 'uvod') return; var l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.href = matchMedia('(max-width: 720px)').matches ? 'img/hero-uvod-v.webp' : 'img/hero-uvod.webp'; l.setAttribute('fetchpriority', 'high'); document.head.appendChild(l); })();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&family=Manrope:wght@400;500;600;700&display=swap">
@@ -53,6 +55,8 @@ html { scroll-behavior: smooth; }
 body { background: var(--surface); color: var(--ink); font-family: var(--font-text); font-size: 16px; line-height: 26px; -webkit-font-smoothing: antialiased; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--forest-950); }
 img, video { max-width: 100%; display: block; }
+/* než skript vykreslí stránku, je #app prázdný: rezervovaná výška drží patičku pod okrajem okna (jinak skočí dolů, CLS) */
+#app:empty { min-height: 100vh; min-height: 100svh; }
 a { color: inherit; }
 button, input, select, textarea { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
@@ -131,15 +135,21 @@ p { margin: 0; }
 .hero { position: relative; min-height: min(92vh, 860px); display: grid; align-items: end; color: var(--linen-25); background: var(--forest-950); overflow: hidden; }
 .hero-media { position: absolute; inset: 0; }
 .hero-media img, .hero-media video { width: 100%; height: 100%; object-fit: cover; }
+.hero-media picture { display: block; width: 100%; height: 100%; }
 .hero-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(21,24,20,.45) 0%, rgba(21,24,20,0) 28%, rgba(21,24,20,0) 45%, rgba(21,24,20,.78) 100%); }
 .hero-content { position: relative; padding-block: calc(var(--header-h) + 48px) 72px; }
 .hero .lead { color: rgba(242,236,225,.86); margin-top: 20px; }
 .hero .btn-row { margin-top: 32px; }
 .hero .eyebrow { color: var(--amber-200); }
-.vis-tag { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: 16px; z-index: 2; font-size: 11px; line-height: 16px; letter-spacing: .08em; text-transform: uppercase; color: rgba(242,236,225,.78); background: rgba(21,24,20,.42); padding: 4px 10px; border-radius: var(--radius-pill); backdrop-filter: blur(6px); }
+.vis-tag { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: 16px; z-index: 2; font-size: 11px; line-height: 16px; letter-spacing: .08em; text-transform: uppercase; color: #F2ECE1; background: rgba(21,24,20,.66); padding: 4px 10px; border-radius: var(--radius-pill); backdrop-filter: blur(6px); }
 .hero-img .hero-media img { object-position: var(--pos); }
 @media (max-width: 720px) { .hero-img .hero-media img { object-position: var(--pos-m); } .hero-v3.hero-img .hero-media::after { background: linear-gradient(180deg, rgba(14,20,30,.45) 0%, rgba(14,20,30,.1) 30%, rgba(14,20,30,.55) 60%, rgba(14,20,30,.85) 100%); } }
-@media (min-width: 721px) { .hero-v3.hero-img .hero-media::after { background: linear-gradient(90deg, rgba(14,20,30,.78) 0%, rgba(14,20,30,.5) 38%, rgba(14,20,30,.08) 66%, rgba(14,20,30,0) 80%), linear-gradient(180deg, rgba(14,20,30,.5) 0%, rgba(14,20,30,0) 20%, rgba(14,20,30,0) 72%, rgba(14,20,30,.45) 100%); } }
+@media (min-width: 721px) { .hero-v3.hero-img .hero-media::after { background: linear-gradient(90deg, rgba(14,20,30,.78) 0%, rgba(14,20,30,.5) 38%, rgba(14,20,30,.08) 66%, rgba(14,20,30,0) 80%), linear-gradient(180deg, rgba(14,20,30,.62) 0%, rgba(14,20,30,.28) 12%, rgba(14,20,30,0) 24%, rgba(14,20,30,0) 72%, rgba(14,20,30,.45) 100%); } }
+/* tablet na výšku: text hero zabírá skoro celou šířku, vodorovný přechod nestačí (kontrast pod 4,5 : 1), tmavší plocha a stín písma jako na mobilu */
+@media (min-width: 721px) and (max-width: 960px) {
+  .hero-v3 .hero-media::after, .hero-v3.hero-img .hero-media::after { background: linear-gradient(90deg, rgba(14,20,30,.8) 0%, rgba(14,20,30,.66) 55%, rgba(14,20,30,.3) 85%, rgba(14,20,30,.15) 100%), linear-gradient(180deg, rgba(14,20,30,.6) 0%, rgba(14,20,30,.1) 22%, rgba(14,20,30,.1) 72%, rgba(14,20,30,.5) 100%); }
+  .hero-v3 .hero-title, .hero-v3 .hero-sub, .hero-v3 .hero-eyebrow, .hero-v3 .detail-hero-price { text-shadow: 0 1px 14px rgba(0,0,0,.5); }
+}
 .hero-img .hero-title { max-width: 11em; }
 .hero-img .hero-sub { max-width: 620px; }
 .hero-tags { position: static !important; margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
@@ -380,6 +390,16 @@ textarea.input { min-height: 96px; resize: vertical; }
 
 /* table */
 .table-wrap { overflow-x: auto; border-radius: var(--radius-md); background: var(--surface-raised); box-shadow: var(--shadow-card); }
+/* tabulka širší než displej: stín u okraje, kde pokračuje (mizí na konci), a řádek s nápovědou nad ní */
+.table-wrap.is-scroll { background:
+  linear-gradient(to right, var(--surface-raised) 40%, color-mix(in srgb, var(--surface-raised) 0%, transparent)) left center / 48px 100% no-repeat local,
+  linear-gradient(to left, var(--surface-raised) 40%, color-mix(in srgb, var(--surface-raised) 0%, transparent)) right center / 48px 100% no-repeat local,
+  linear-gradient(to right, rgba(21,24,20,.18), rgba(21,24,20,0)) left center / 20px 100% no-repeat scroll,
+  linear-gradient(to left, rgba(21,24,20,.18), rgba(21,24,20,0)) right center / 20px 100% no-repeat scroll,
+  var(--surface-raised); }
+.table-hint { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+.table-hint[hidden] { display: none; }
+.table-hint svg { width: 18px; height: 18px; flex: none; }
 table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-variant-numeric: tabular-nums; }
 .cmp th, .cmp td { text-align: left; padding: 16px 20px; border-bottom: 1px solid var(--line); font-size: 15px; }
 .cmp thead th { font-family: var(--font-display); font-weight: 500; font-size: 19px; }
@@ -418,7 +438,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 .gallery figure { position: relative; border-radius: var(--radius-md); overflow: hidden; }
 .gallery figure:first-child { grid-row: span 2; }
 .gallery img { width: 100%; height: 100%; object-fit: cover; }
-.gallery .vis-tag { right: 10px; bottom: 10px; }
+.gallery .vis-tag { right: 10px; top: 10px; bottom: auto; }   /* nahoře: dole vlevo je popisek fotky, v úzkých dlaždicích se překrývaly */
 .gallery.gx { grid-template-columns: repeat(3, 1fr); }
 .gallery.gx figure:first-child { grid-row: auto; }
 .gallery figcaption { position: absolute; left: 12px; bottom: 12px; z-index: 1; padding: 4px 10px; border-radius: 999px; background: rgba(30, 33, 29, .62); color: #F7F3EC; font-size: 13px; line-height: 18px; font-weight: 600; }
@@ -450,7 +470,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 @media (max-width: 720px) { .specs { grid-template-columns: 1fr 1fr; } }
 .detail-hero-price { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; margin-top: 24px; }
 .detail-hero-price .price { font-size: 40px; line-height: 44px; color: var(--linen-25); }
-.detail-hero-price span { color: var(--stone-300); font-size: 14px; }
+.detail-hero-price span { color: rgba(242,236,225,.86); font-size: 14px; }
 
 /* configurator */
 .cfg { display: grid; grid-template-columns: 1fr 400px; gap: 40px; align-items: start; }
@@ -496,6 +516,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 .legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--ink-muted); margin-top: 16px; }
 .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; background: var(--surface-raised); box-shadow: inset 0 0 0 1px var(--line); }
 .legend i.s { background: var(--forest-900); }
+.book-sum .sum-lines div, .book-sum .sum-total span { color: var(--ink-muted); }   /* světlý panel: stone-300 mělo na bílé jen 2,1 : 1 */
 .book-sum { position: sticky; top: calc(var(--header-h) + 24px + env(safe-area-inset-top, 0px)); }
 
 /* timeline stay */
@@ -532,7 +553,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-varia
 @media (max-width: 720px) {
   .sticky-cta { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; gap: 10px; padding: 12px var(--gutter-r) calc(12px + env(safe-area-inset-bottom, 0px)) var(--gutter-l); background: var(--surface); box-shadow: 0 -1px 0 var(--line), var(--shadow-float); }
   .sticky-cta .btn { flex: 1; justify-content: center; padding: 13px 12px; }
-  body { padding-bottom: 76px; }
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
   /* konfigurátor: Zpět · cena a krok · Pokračovat */
   .sticky-cta.cfg-mode { align-items: center; }
   .sticky-cta .sc-back { flex: 0 0 auto; padding-inline: 16px; }
@@ -789,7 +810,7 @@ const BAR_DUM = [B3('elektrina', 'Elektřina', 'Přípojka 230/400 V jako u chat
 const BAR_SAUNA = [B3('topeni', 'Kamna', 'Na dřevo v ceně. Nebo elektrická 9 kW, pokud máte na pozemku přípojku.'), B3('voda', 'Bez přípojek', 'Sauna na dřevo nepotřebuje elektřinu ani vodu. Vodu na kameny přinesete v kbelíku.'), B3('doprava', 'Usazení', 'Na podvozku nebo na patkách, za pár hodin. Do 100 km doprava zdarma.')];
 function heroImg({ img, alt, pos = '50% 50%', posM, eyebrow = '', top = '', title, sub = '', after = '', btns = [], bar = [], cta = null, label = 'Rychlé informace' }) {
   return `<section class="hero hero-v3 hero-img" style="--pos:${pos};--pos-m:${posM || pos}">
-  <div class="hero-media"><img src="${IMG(img)}" alt="${alt}"></div>
+  <div class="hero-media"><img src="${IMG(img)}" alt="${alt}" fetchpriority="high"></div>
   <div class="wrap hero-content"><div class="hero-copy">${top}${eyebrow ? `<p class="eyebrow hero-eyebrow">${eyebrow}</p>` : ''}<h1 class="hero-title">${title}</h1>
     ${sub ? `<p class="hero-sub">${sub}</p>` : ''}${after}
     ${btns.length ? `<div class="btn-row">${btns.map((b, i) => `<a class="btn btn-xl ${i ? 'btn-outline-cream' : 'btn-cream'}" href="${b[1]}">${b[0]}${i ? '' : arrow}</a>`).join('')}</div>` : ''}</div></div>
@@ -808,7 +829,7 @@ function chapter({ eyebrow, title, text, media, poster, flip = false, facts = ''
 const PAGES = {};
 PAGES['uvod'] = () => `
 <section class="hero hero-v3">
-  <div class="hero-media"><img class="hero-video-desktop" src="${IMG('hero-uvod')}" alt="Dům L se solárními panely na podvozku u jezera za soumraku, okna svítí do tmy"><img class="hero-video-mobile" src="${IMG('hero-uvod-v')}" alt="" aria-hidden="true"></div>
+  <div class="hero-media"><picture><source media="(max-width: 720px)" srcset="${IMG('hero-uvod-v')}"><img src="${IMG('hero-uvod')}" alt="Dům L se solárními panely na podvozku u jezera za soumraku, okna svítí do tmy" fetchpriority="high"></picture></div>
   <div class="wrap hero-content"><div class="hero-copy"><p class="eyebrow hero-eyebrow">Tiny house na kolech</p><h1 class="hero-title">Místo, kde se zastavíte.</h1>
     <p class="hero-sub">Dům na kolech, který přijede hotový. Ocelový skelet a modřínová fasáda. Bez betonových základů.</p>
     <div class="btn-row"><a class="btn btn-xl btn-cream" href="#konfigurator">Navrhnout svůj dům${arrow}</a><a class="btn btn-xl btn-outline-cream" href="#domy">Modely od 790 000 Kč</a></div></div></div>
@@ -829,7 +850,7 @@ ${dispoziceSection(MODELS['dum-m'], { home: true })}
   <p class="small muted" style="margin-top:20px">Chcete domy pronajímat? <a class="link" href="#invest">Verze Invest pro glamping ${arrow}</a></p>
 </div></section>
 ${stayTeaser()}
-<section id="konstrukce" aria-label="Konstrukce domu"><div data-pv="m" data-pv-opts="${attrJson({ compact: true, head: { eyebrow: 'Konstrukce', lead: 'Dole silniční přívěs do 3 500 kg, na něm lehký ocelový skelet a navrch dřevo. Posouvejte stránkou a dům se rozloží na jednotlivé vrstvy.', cta: { label: 'Na čem dům stojí', href: '#podvozek', className: 'btn btn-secondary' } } })}"></div></section>
+<section id="konstrukce" aria-label="Konstrukce domu"><div data-pv="m" data-pv-opts="${attrJson({ compact: true, head: { eyebrow: 'Konstrukce', lead: 'Dole silniční přívěs do 3 500 kg, na něm lehký ocelový skelet a navrch dřevo. Posouvejte stránkou a dům se rozloží na jednotlivé vrstvy.', leadStatic: 'Dole silniční přívěs do 3 500 kg, na něm lehký ocelový skelet a navrch dřevo. Níže je dům rozložený na jednotlivé vrstvy.', cta: { label: 'Na čem dům stojí', href: '#podvozek', className: 'btn btn-secondary' } } })}"></div></section>
 ${wallSection({ title: 'Lehký na cestu, pevný na místě.', lead: 'Ocelový skelet se nekroutí ani nesesychá, takže dům drží tvar i po převozu. Je lehký, a proto celý dům utáhne auto s řidičákem B+E. Dřevo zůstává tam, kde ho vidíte a kde se ho dotknete.' })}
 ${chapter({ eyebrow: 'Sauny', title: 'Sauna, která ladí s vaším domem.', text: 'Ze stejného modřínu jako dům, s kamny na dřevo. Sauna na podvozku od 349 000 Kč, zahradní sauna od 249 000 Kč a kádě od 39 000 Kč. Při objednávce s domem sleva 40 000 Kč.', poster: 'dum-l/foto/prirodni-0010', alt: 'Dům L a sauna na podvozku propojené chodníkem', facts: `<div class="btn-row" style="margin-top:32px">${btnP('Prohlédnout sauny', '#sauny')}${btnG('Sada dům + sauna', '#sada-dum-sauna')}</div>` })}
 ${processSection()}
@@ -921,7 +942,8 @@ const thOf = r => r.chassis[1][1].match(/TH\d+/)[0];
 function konstrukceSection(m) {
   const r = REAL[m.real];
   const opts = { compact: true,
-    head: { eyebrow: 'Konstrukce', title: `${m.name} vrstvu po vrstvě`, lead: `${m.name} stojí na silničním přívěsu Vlemmix ${thOf(r)} do 3 500 kg. Na něm je lehký ocelový skelet a navrch dřevo. Při posouvání stránky se dům rozloží na jednotlivé vrstvy.` },
+    head: { eyebrow: 'Konstrukce', title: `${m.name} vrstvu po vrstvě`, lead: `${m.name} stojí na silničním přívěsu Vlemmix ${thOf(r)} do 3 500 kg. Na něm je lehký ocelový skelet a navrch dřevo. Při posouvání stránky se dům rozloží na jednotlivé vrstvy.`,
+      leadStatic: `${m.name} stojí na silničním přívěsu Vlemmix ${thOf(r)} do 3 500 kg. Na něm je lehký ocelový skelet a navrch dřevo. Níže je dům rozložený na jednotlivé vrstvy.` },
     facts: [['Délka domu', r.dims[0][1]], ['Celkem s ojí', r.dims[1][1]], ['Šířka', r.dims[2][1]], ['Výška', r.dims[3][1]], ['Užitná plocha', m2(m.net)], ['Na silnici', 'do 3 500 kg · B+E']] };
   return `<section id="konstrukce" aria-label="Konstrukce ${m.name.replace('Dům', 'Domu')}"><div data-pv="${m.key.slice(4)}" data-pv-opts="${attrJson(opts)}"></div></section>`;
 }
@@ -932,10 +954,11 @@ function dispoziceSection(m, { home = false } = {}) {
     facts: { net: m2(m.net), people: m.people, sleep: m.loft, height: r.dims[4][1], len: r.dims[0][1] },
     head: home
       ? { eyebrow: 'Uvnitř', title: `Co je uvnitř ${gen}`, lead: 'Obytná část s oknem ve štítu, kuchyň, koupelna a spací loft. Stěny, podlaha i střecha jsou zateplené, okna mají izolační trojsklo a topí tepelné čerpadlo.' }
-      : { eyebrow: 'Dispozice', title: `Co je uvnitř ${gen}`, lead: 'Posouvejte stránkou: střecha se zvedne a projdete dům místnost po místnosti. Rozměry odpovídají výkresům, vzhled vybavení je ilustrační.' },
+      : { eyebrow: 'Dispozice', title: `Co je uvnitř ${gen}`, lead: 'Posouvejte stránkou: střecha se zvedne a projdete dům místnost po místnosti. Rozměry odpovídají výkresům, vzhled vybavení je ilustrační.',
+        leadStatic: 'Projděte si dům místnost po místnosti. Rozměry odpovídají výkresům, vzhled vybavení je ilustrační.' },
     cta: home ? [{ label: `Prohlédnout ${m.name}`, href: '#' + m.key, primary: true }, { label: 'Srovnat modely', href: '#domy' }]
       : [{ label: 'Konfigurovat', href: '#konfigurator-' + m.key, primary: true }, { label: 'Poslat poptávku', href: '#poptavka' }],
-    ...(home ? { chapters: ['ext', 'plan', 'obytna', 'loft', 'end'], travel: '130svh' } : {}),
+    ...(home ? { chapters: ['ext', 'plan', 'obytna', 'loft', 'end'], travel: '260svh' } : {}),
   };
   return `<section id="dispozice" aria-label="Dispozice ${gen}"><div data-dz="${m.key.slice(4)}" data-pv-opts="${attrJson(opts)}"></div></section>`;
 }
@@ -1338,17 +1361,19 @@ function saunaDispozice(p, { overview = false } = {}) {
   if (!SDZ[p.key]) return '';
   const opts = { factsList: SDZ[p.key],
     head: overview ? { eyebrow: 'Uvnitř', title: 'Co je uvnitř sauny na podvozku', lead: 'Předsíň na převlečení, saunovací místnost s lavicemi ve dvou úrovních a kamna na dřevo s komínem.' }
-      : { eyebrow: 'Dispozice', title: `Co je uvnitř: ${p.name.toLowerCase()}`, lead: 'Posouvejte stránkou: střecha se zvedne a projdete saunu krok po kroku. Rozměry odpovídají výkresům, vzhled vybavení je ilustrační.' },
+      : { eyebrow: 'Dispozice', title: `Co je uvnitř: ${p.name.toLowerCase()}`, lead: 'Posouvejte stránkou: střecha se zvedne a projdete saunu krok po kroku. Rozměry odpovídají výkresům, vzhled vybavení je ilustrační.',
+        leadStatic: 'Projděte si saunu krok po kroku. Rozměry odpovídají výkresům, vzhled vybavení je ilustrační.' },
     cta: overview ? [{ label: 'Prohlédnout saunu', href: '#' + p.key, primary: true }, { label: 'Sada dům + sauna', href: '#sada-dum-sauna' }]
       : [{ label: 'Sestavit saunu', href: '#sestava', primary: true }, { label: 'Poslat poptávku', href: '#poptavka' }],
-    ...(overview ? { chapters: ['ext', 'plan', 'sauna', 'end'], travel: '120svh' } : {}) };
+    ...(overview ? { chapters: ['ext', 'plan', 'sauna', 'end'], travel: '195svh' } : {}) };
   return `<section id="dispozice" aria-label="Dispozice: ${p.name}"><div data-dz="${p.key}" data-pv-opts="${attrJson(opts)}"></div></section>`;
 }
 // Konstrukce sauny na podvozku (js/podvozek.js, variant 'sauna'): přívěs → ocelový skelet → plášť. Čísla z params.py
 // (projekt/sauna-podvozek-v2): délka s ojí 5,1 m (spojka 5 100 mm), šířka přes střechu 2,52 m; hmotnost z tabulky podvozků.
 function saunaKonstrukce() {
   const opts = { compact: true, variant: 'sauna',
-    head: { eyebrow: 'Konstrukce', title: 'Sauna vrstvu po vrstvě', lead: 'Sauna stojí na silničním přívěsu Vlemmix TH360. Na něm je lehký ocelový skelet a navrch dřevo. Při posouvání stránky se rozloží na jednotlivé vrstvy.' },
+    head: { eyebrow: 'Konstrukce', title: 'Sauna vrstvu po vrstvě', lead: 'Sauna stojí na silničním přívěsu Vlemmix TH360. Na něm je lehký ocelový skelet a navrch dřevo. Při posouvání stránky se rozloží na jednotlivé vrstvy.',
+      leadStatic: 'Sauna stojí na silničním přívěsu Vlemmix TH360. Na něm je lehký ocelový skelet a navrch dřevo. Níže je sauna rozložená na jednotlivé vrstvy.' },
     facts: [['Délka sauny', '3,6 m'], ['Celkem s ojí', '5,1 m'], ['Šířka přes střechu', '2,52 m'], ['Výška s komínem', '3,74 m'], ['Celková hmotnost', 'cca 2 360 kg*'], ['Přívěs', 'Vlemmix TH360']],
     factsNote: '* Předběžný výpočet z modelu, bez vody. Čísla potvrdíme vážením prvních kusů.' };
   return `<section id="konstrukce" aria-label="Konstrukce sauny na podvozku"><div data-pv="sauna" data-pv-opts="${attrJson(opts)}"></div></section>`;
@@ -1465,7 +1490,7 @@ function route() {
   document.title = 'Nordhouse';
   const sn = h === 'sauny' || !!SAUNY[h] || h === 'sada-dum-sauna';
   document.getElementById('stickyCta').classList.remove('cfg-mode'); document.getElementById('stickyCta').innerHTML = sn ? `<a class="btn btn-secondary" href="#sada-dum-sauna">Sada s domem</a><a class="btn btn-primary" href="${h === 'sauny' ? '#sauny-modely' : '#sauny'}">Vybrat saunu</a>` : `<a class="btn btn-secondary" href="#zkusebni-noc">Přespat na zkoušku</a><a class="btn btn-primary" href="#konfigurator">Navrhnout dům</a>`;
-  initCalc(app); initBooking(); initCfg(param); initInvest(); initScfg(); initForms(); initReveal(); initPodvozek();
+  initCalc(app); initBooking(); initCfg(param); initInvest(); initScfg(); initForms(); initReveal(); initTables(); initPodvozek();
   if (anchor) document.getElementById(anchor)?.scrollIntoView(); else window.scrollTo(0, 0);
   onScroll();
 }
@@ -1479,6 +1504,16 @@ function initInvest() {
   document.querySelectorAll('#inv-n [data-n]').forEach(b => b.addEventListener('click', () => { n = +b.dataset.n; document.querySelectorAll('#inv-n [data-n]').forEach(x => x.setAttribute('aria-pressed', x === b)); upd(); }));
   p.addEventListener('input', upd); o.addEventListener('input', upd); upd();
 }
+// Srovnávací tabulky: když se na displej nevejdou, nápověda nad tabulkou a stín u okraje (posun do strany).
+function initTables() {
+  app.querySelectorAll('.table-wrap').forEach(w => {
+    let h = w.previousElementSibling;
+    if (!h || !h.classList.contains('table-hint')) { h = document.createElement('p'); h.className = 'table-hint'; h.innerHTML = `Tabulka pokračuje do strany, posuňte ji ${arrow}`; w.before(h); }
+    const over = w.scrollWidth > w.clientWidth + 1;
+    w.classList.toggle('is-scroll', over); h.hidden = !over;
+  });
+}
+addEventListener('resize', () => initTables(), { passive: true });
 function initForms() {
   app.querySelectorAll('form[data-form]').forEach(f => f.addEventListener('submit', e => { e.preventDefault();
     if (f.classList.contains('btn-row')) { f.innerHTML = `<p class="lead" style="color:var(--linen-25)">Díky, ozveme se, jakmile otevřeme objednávky saun.</p>`; return; }

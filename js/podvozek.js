@@ -438,6 +438,43 @@ function lifecycle(el, { near, far, create, ready, drop, fail }) {
   return { destroy() { dead = true; ioNear.disconnect(); ioFar.disconnect(); if (viewer) { const v = viewer; viewer = null; drop(v); v.dispose(); } } };
 }
 
+/* ----------------------------- společné ovládání scény: přeskočení, nápověda „Posouvejte“, hystereze kapitol */
+
+// Hystereze: aktuální kapitola zůstává, dokud se poloha nevzdálí o víc než půl kapitoly + h. Když se scroll zastaví
+// přesně na hranici, karta a popisky tak nepřeblikávají mezi dvěma kapitolami.
+function stepHyst(p, cur, N, h = 0.08) {
+  const r = clamp(Math.round(p), 0, N - 1);
+  return cur >= 0 && cur < N && Math.abs(p - cur) < 0.5 + h ? cur : r;
+}
+const SVG_DOWN = '<svg class="pv-skip-i" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v10M3.5 8.5 8 13l4.5-4.5"/></svg>';
+// Tlačítko „Přeskočit prohlídku“ (první prvek scény pro klávesnici) skočí těsně za připnutou část: na úvod další sekce,
+// fokus jde na první obsah za scénou. Nápověda „Posouvejte“ je vidět jen v první kapitole a po prvním posunu uvnitř
+// sekce natrvalo zmizí. Ve statické verzi (bez WebGL, slabé zařízení, omezený pohyb) se nezobrazuje ani jedno.
+function stageExtras({ stage, scrolly, pin, reduced }) {
+  stage.insertAdjacentHTML('afterbegin', `<button type="button" class="pv-skip" aria-label="Přeskočit prohlídku"><span class="pv-skip-l">Přeskočit prohlídku</span><span class="pv-skip-s" aria-hidden="true">Přeskočit</span>${SVG_DOWN}</button>`);
+  stage.insertAdjacentHTML('beforeend', '<p class="pv-hint" aria-hidden="true"><svg class="pv-hint-i" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4"/></svg>Posouvejte</p>');
+  const skip = stage.querySelector('.pv-skip'), hint = stage.querySelector('.pv-hint');
+  let gone = false;
+  const onSkip = () => {
+    const top = parseFloat(getComputedStyle(pin).top) || 0;
+    scrollTo({ top: Math.round(scrollY + scrolly.getBoundingClientRect().bottom - top), behavior: reduced ? 'instant' : 'smooth' });
+    let el = scrolly; while (el && !el.nextElementSibling) el = el.parentElement;
+    const next = el && el.nextElementSibling;
+    if (next) { if (!next.hasAttribute('tabindex')) next.setAttribute('tabindex', '-1'); next.classList.add('pv-skip-target'); next.focus({ preventScroll: true }); }
+  };
+  skip.addEventListener('click', onSkip);
+  return {
+    progress(r) { if (!gone && r > 0.02) { gone = true; hint.classList.add('is-gone'); } },
+    destroy() { skip.removeEventListener('click', onSkip); },
+  };
+}
+
+// Karta poslední kapitoly (mobil): čísla, u dispozice i tlačítka pod nimi. Je to samostatný prvek, který je pořád
+// rozvržený a jen se zviditelní, takže vyšší karta v poslední kapitole nezpůsobí posun rozvržení (CLS).
+function finalCard(stage, html) {
+  stage.insertAdjacentHTML('beforeend', `<div class="pv-card pv-card--final" aria-hidden="true"><div class="pv-card-in">${html}</div></div>`);
+}
+
 /* ------------------------------------------------------------------ mount */
 
 let uid = 0;
@@ -461,6 +498,9 @@ export function mountPodvozek(root, opts = {}) {
   const isStatic = reduced || o.mode === 'static' || (o.mode === 'auto' && (lowEnd() || !hasWebGL()));
   root.classList.toggle('pv--static', isStatic);
   root.classList.toggle('pv--reduced', reduced);
+  const extras = stageExtras({ stage, scrolly, pin, reduced });
+  finalCard(stage, `<p class="pv-card-k">${pad(N)} · ${CH[N - 1].short}</p><p class="pv-card-h">${CH[N - 1].title}</p><dl class="pv-card-facts">${FACTS.map(([a2, b]) => `<div><dt>${a2}</dt><dd>${b}</dd></div>`).join('')}</dl>`);
+  if (isStatic && o.head?.leadStatic) { const l = root.querySelector('.pv-lead'); if (l) l.textContent = o.head.leadStatic; }   // bez pohybu pravdivý text
 
   let frameImg = null;
   if (o.frames) { $('.pv-art').innerHTML = `<img class="pv-frame" alt="" decoding="async">`; frameImg = $('.pv-frame'); }
@@ -489,8 +529,8 @@ export function mountPodvozek(root, opts = {}) {
     const a = pd ? pd.id : null;
     if (a !== auto) { auto = a; hs.forEach(b => b.classList.toggle('is-cur', b.dataset.part === a)); if (!part && viewer) viewer.part(a); }
     const k = `<p class="pv-card-k">${pad(active + 1)} · ${c.short}</p>`;
-    if (active === N - 1) card.set('f', `${k}<p class="pv-card-h">${c.title}</p><dl class="pv-card-facts">${FACTS.map(([a2, b]) => `<div><dt>${a2}</dt><dd>${b}</dd></div>`).join('')}</dl>`);
-    else if (pd) card.set(pd.id, `${k}<p class="pv-card-h"><span class="pv-num">${pd.n}</span>${pd.name}</p><p class="pv-card-p">${first(pd.text)}</p>`);
+    if (active === N - 1) return;   // poslední kapitola: samostatná karta s čísly (finalCard), tahle se jen skryje
+    if (pd) card.set(pd.id, `${k}<p class="pv-card-h"><span class="pv-num">${pd.n}</span>${pd.name}</p><p class="pv-card-p">${first(pd.text)}</p>`);
     else card.set('c' + active, `${k}<p class="pv-card-h">${c.title}</p><p class="pv-card-p">${first(c.text)}</p>`);
   }
 
@@ -499,7 +539,7 @@ export function mountPodvozek(root, opts = {}) {
     active = i;
     chapters.forEach((c, k) => c.classList.toggle('is-active', k === i));
     dots.forEach((d, k) => k === i ? d.setAttribute('aria-current', 'step') : d.removeAttribute('aria-current'));
-    stage.dataset.step = i;
+    stage.dataset.step = i; stage.classList.toggle('is-final', i === N - 1);
     hudNo.textContent = pad(i + 1); hudName.textContent = CH[i].short;
     tbis.forEach((t, k) => t.classList.toggle('is-on', k === i));
     hs.forEach(b => { const on = +b.dataset.ch === i && !isStatic; b.tabIndex = on ? 0 : -1; b.setAttribute('aria-hidden', on ? 'false' : 'true'); });
@@ -523,8 +563,8 @@ export function mountPodvozek(root, opts = {}) {
   function update() {
     rafU = 0; ticking = false;
     if (destroyed) return;
-    if (!isStatic) p = scrollProgress(scrolly, pin) * (N - 1);
-    setActive(isStatic ? Math.max(active, 1) : Math.round(p));
+    if (!isStatic) { const r = scrollProgress(scrolly, pin); p = r * (N - 1); extras.progress(r); }
+    setActive(isStatic ? Math.max(active, 1) : stepHyst(p, active, N));
     if (viewer) viewer.target(p, false);
     if (frameImg && o.frameCount > N) { const k = Math.round(p / (N - 1) * (o.frameCount - 1)), src = frameSrc(k); if (!frameImg.src.endsWith(src)) frameImg.src = src; }
     if (ann.cardMode() && !isStatic) cardContent();
@@ -597,7 +637,7 @@ export function mountPodvozek(root, opts = {}) {
     goTo,
     destroy() {
       destroyed = true;
-      cancelAnimationFrame(rafU); rafU = 0; card.clear();
+      cancelAnimationFrame(rafU); rafU = 0; card.clear(); extras.destroy();
       ioVis.disconnect(); gateDrop(gate); life && life.destroy();
       removeEventListener('scroll', onScroll); removeEventListener('resize', onResize);
       root.removeEventListener('click', onDot); root.removeEventListener('keydown', onDotKey);
@@ -1648,7 +1688,9 @@ const WOFF = WALL.map((_, k) => WGAP.slice(k).reduce((a, v) => a + v, 0));
 const STUDS = [-0.62, -0.02, 0.58];                                 // líc pásnice sloupků (x), osová vzdálenost 600 mm
 // Poloha vrstev v tloušťce: interiér vzadu (z = 0), fasáda vpředu.
 const WZ = (() => { const z = []; let at = 0; for (let k = WN - 1; k >= 0; k--) { z[k] = at; at += WALL[k].d; } return z; })();
-const wallSep = (p, k) => ease(clamp((p - 0.04 - k * 0.12) / 0.26, 0, 1) * 0.76 + 0.12);   // 0 → 1 oddělení vrstvy k
+// Krok mezi vrstvami (podíl délky scrollu): 0,14, poslední vrstva se oddělí právě na konci sekce (dřív 0,12 a 10 % prázdného konce).
+const WSTEP = 0.14;
+const wallSep = (p, k) => ease(clamp((p - 0.04 - k * WSTEP) / 0.26, 0, 1) * 0.76 + 0.12);   // 0 → 1 oddělení vrstvy k
 
 function wallMarkup(id, o) {
   const h = o.head === false ? '' : `<div class="pv-head"><p class="pv-eyebrow">${o.head?.eyebrow ?? 'Plášť'}</p><h2 class="pv-h">${o.head?.title ?? 'Z čeho je stěna'}</h2><p class="pv-lead">${o.head?.lead ?? ''}</p></div>`;
@@ -1725,6 +1767,7 @@ export function mountStena(root, opts = {}) {
   const reduced = o.reducedMotion ?? mqReduce.matches;
   const isStatic = reduced || o.mode === 'static' || (o.mode === 'auto' && (lowEnd() || !hasWebGL()));
   root.classList.toggle('pv--static', isStatic);
+  const extras = stageExtras({ stage, scrolly, pin, reduced });
   let p = isStatic ? 1 : 0, act = -2, viewer = null, visible = false, ticking = false, rafU = 0, destroyed = false, hl = -1, proj = null;
   const tbBottom = () => { const t = tbis[act + 1]; return (t && t.classList.contains('is-on') ? t : tbTop).getBoundingClientRect().bottom; };
   const ann = annotator(stage, glBox, $('.pv-leaders'), tbBottom, () => tag.getBoundingClientRect().bottom);
@@ -1739,7 +1782,10 @@ export function mountStena(root, opts = {}) {
     ann.place(items, { balance: false, reserve: 28 });
   }
   function paint() {
-    const a = WALL.reduce((r, _, k) => (wallSep(p, k) > 0.5 ? k : r), -1);
+    // vrstva k je „aktuální“ od poloviny svého oddělení (p = 0,17 + k · WSTEP); hystereze ±0,08 kroku proti přeblikávání
+    const x = (p - 0.17) / WSTEP;
+    let a = clamp(Math.floor(x), -1, WN - 1);
+    if (act > -2 && a !== act && x > act - 0.08 && x < act + 1.08) a = act;
     if (a === act) return;
     act = a;
     hudNo.textContent = pad(a + 1);
@@ -1761,7 +1807,7 @@ export function mountStena(root, opts = {}) {
   }
   function update() {
     rafU = 0; ticking = false; if (destroyed) return;
-    if (!isStatic) p = scrollProgress(scrolly, pin);
+    if (!isStatic) { p = scrollProgress(scrolly, pin); extras.progress(p); }
     paint(); viewer && viewer.target(p);
   }
   const onScroll = () => { gateKick(); if (!ticking && !destroyed) { ticking = true; rafU = requestAnimationFrame(update); } };
@@ -1785,7 +1831,7 @@ export function mountStena(root, opts = {}) {
       fail: err => { console.warn('[stena] 3D se nepodařilo spustit, zůstává statická kresba.', err); root.classList.add('pv--static'); },
     });
   }
-  function goTo(k) { if (isStatic) return setHl(k); scrollToProgress(scrolly, pin, Math.min(1, 0.04 + k * 0.12 + 0.2), !reduced); }
+  function goTo(k) { if (isStatic) return setHl(k); scrollToProgress(scrolly, pin, Math.min(1, 0.04 + k * WSTEP + 0.2), !reduced); }
   const onClick = e => { const b = e.target.closest('.st-mk'); if (b) setHl(hl === +b.dataset.l ? -1 : +b.dataset.l); };
   const onOver = e => { const b = e.target.closest('.st-mk, .st-s-l'); if (b) setHl(+b.dataset.l); };
   const onOut = e => { if (e.target.closest('.st-mk, .st-s-l')) setHl(-1); };
@@ -1796,7 +1842,7 @@ export function mountStena(root, opts = {}) {
   return {
     goTo,
     destroy() {
-      destroyed = true; cancelAnimationFrame(rafU); card.clear();
+      destroyed = true; cancelAnimationFrame(rafU); card.clear(); extras.destroy();
       ioVis.disconnect(); gateDrop(gate); life && life.destroy();
       removeEventListener('scroll', onScroll); removeEventListener('resize', onResize);
       root.removeEventListener('click', onClick); root.removeEventListener('pointerover', onOver); root.removeEventListener('pointerout', onOut);
@@ -1957,6 +2003,7 @@ async function createWallViewer(box, mks, onProject) {
 export {
   buildProcedural, dimsOf, VARIANTS, annotator, cardCtl, scrollProgress, scrollToProgress, applyEmbed, hasWebGL, lowEnd,
   clamp, ease, pad, first, fmt, contactTex, canvasTex, rng, woodTex, gateKick, gateEntry, gateDrop, lifecycle,
+  stepHyst, stageExtras, finalCard,
 };
 
 // Minerální vlna: jemná vláknitá struktura.
