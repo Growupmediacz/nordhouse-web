@@ -440,10 +440,11 @@ export function mountDispozice(root, opts = {}) {
   const fc = CH.find(c => c.final);
   if (fc) finalCard(stage, `<p class="pv-card-k">${pad(N)} · ${fc.short}</p><p class="pv-card-h">${fc.title}</p><dl class="pv-card-facts">${o.FACTS.map(([a2, b]) => `<div><dt>${a2}</dt><dd>${b}</dd></div>`).join('')}</dl>`);
   // statická verze: texty bez slibu pohybu (animovaná verze je beze změny)
-  if (isStatic) {
+  const staticCopy = () => {
     if (o.head?.leadStatic) { const l = root.querySelector('.pv-lead'); if (l) l.textContent = o.head.leadStatic; }
     chapters.forEach((el, i) => { const t = CH[i].textStatic, q = el.querySelector('.pv-ch-text'); if (t && q) q.textContent = t; });
-  }
+  };
+  if (isStatic) staticCopy();
 
   let p = 0, active = -1, part = null, auto = null, visible = false, ticking = false, viewer = null, destroyed = false, proj = null;
   const tbBottom = () => { const t = tbis[active]; return (t && t.classList.contains('is-on') ? t : tbTop).getBoundingClientRect().bottom; };
@@ -467,11 +468,14 @@ export function mountDispozice(root, opts = {}) {
     if (!pd && ps.length && viewer) { const fr = clamp(p - active + 0.5, 0, 1); if (fr >= 0.3 && fr <= 0.7) pd = ps[clamp(Math.floor((fr - 0.3) / 0.4 * ps.length), 0, ps.length - 1)]; }
     const a = pd ? pd.id : null;
     if (a !== auto) { auto = a; hs.forEach(b => b.classList.toggle('is-cur', b.dataset.part === a)); }
-    const k = `<p class="pv-card-k">${pad(active + 1)} · ${c.short}</p>`;
     if (c.final) return;   // poslední kapitola: samostatná karta s čísly a tlačítky (finalCard)
-    if (pd) card.set(pd.id, `${k}<p class="pv-card-h"><span class="pv-num">${pd.n}</span>${pd.name}</p><p class="pv-card-p">${pd.text}</p>`);
-    else card.set('c' + active, `${k}<p class="pv-card-h">${c.title}</p><p class="pv-card-p">${first(c.text)}</p>`);
+    if (pd) card.set(pd.id, cardPart(active, pd));
+    else card.set('c' + active, cardCh(active));
   }
+  const cardK = i => `<p class="pv-card-k">${pad(i + 1)} · ${CH[i].short}</p>`;
+  const cardCh = i => `${cardK(i)}<p class="pv-card-h">${CH[i].title}</p><p class="pv-card-p">${first(CH[i].text)}</p>`;
+  const cardPart = (i, pd) => `${cardK(i)}<p class="pv-card-h"><span class="pv-num">${pd.n}</span>${pd.name}</p><p class="pv-card-p">${pd.text}</p>`;
+  card.fit([...CH.map((c, i) => c.final ? null : cardCh(i)).filter(Boolean), ...PTS.filter(x => CH[x.ch] && !CH[x.ch].final).map(x => cardPart(x.ch, x))]);
   function setActive(i) {
     if (i === active) return;
     active = i;
@@ -527,7 +531,7 @@ export function mountDispozice(root, opts = {}) {
       create: () => createViewer(glBox, D, P, CH, KEYS, PTS, pr => { proj = pr; layout(); }),
       ready: vw => { viewer = gate.viewer = vw; vw.label(label(active)); vw.target(p, true); stage.classList.add('pv-stage--3d'); gateKick(); },
       drop: () => { viewer = gate.viewer = null; proj = null; stage.classList.remove('pv-stage--3d'); layout(); },
-      fail: err => { console.warn('[dispozice] 3D se nepodařilo spustit, zůstává půdorys.', err); root.classList.add('pv--static'); },
+      fail: err => { console.warn('[dispozice] 3D se nepodařilo spustit, zůstává půdorys.', err); root.classList.add('pv--static'); staticCopy(); },
     });
   }
 

@@ -376,7 +376,7 @@ function annotator(stage, gl, svg, topLeft, topRight) {
 // Karta dole (mobil): obsah se mění s krátkým prolnutím. Dokud 3D scéna neběží (plakát s kresbou, skrytá karta prohlížeče),
 // mění se hned, bez časovače: text karty pak vždy odpovídá kapitole, i když se animace nebo časovače zastaví.
 function cardCtl(el) {
-  const inner = el && el.querySelector('.pv-card-in'), stage = el && el.closest('.pv-stage'); let key = null, t = 0;
+  const inner = el && el.querySelector('.pv-card-in'), stage = el && el.closest('.pv-stage'); let key = null, t = 0, rt = 0, measure = null, onResize = null;
   return {
     set(k, html) {
       if (!inner || k === key) return;
@@ -385,7 +385,23 @@ function cardCtl(el) {
       if (instant) { inner.innerHTML = html; inner.classList.remove('is-out'); return; }
       inner.classList.add('is-out'); t = setTimeout(() => { inner.innerHTML = html; inner.classList.remove('is-out'); }, 180);
     },
-    clear() { clearTimeout(t); },
+    // Výška karty podle nejdelšího obsahu (na úzkém telefonu se delší text jinak usekl). Karta je vidět jen pod 960 px.
+    fit(htmls) {
+      const root = el && el.closest('.pv'); if (!root || !inner) return;
+      measure = () => {
+        if (!el.isConnected) return;
+        if (!el.offsetParent) { root.style.removeProperty('--pv-card-h'); return; }
+        const m = document.createElement('div'); m.style.cssText = 'position:absolute;left:16px;right:16px;top:0;visibility:hidden;pointer-events:none';
+        el.appendChild(m); let h = 0;
+        for (const x of htmls) { m.innerHTML = x; h = Math.max(h, m.offsetHeight); }
+        m.remove();
+        root.style.setProperty('--pv-card-h', clamp(Math.ceil(h) + 28, 152, 240) + 'px');
+      };
+      const later = () => { clearTimeout(rt); rt = setTimeout(measure, 150); };
+      measure(); addEventListener('resize', later); onResize = later;
+      document.fonts?.ready?.then(() => measure && measure());
+    },
+    clear() { clearTimeout(t); clearTimeout(rt); if (onResize) removeEventListener('resize', onResize); measure = onResize = null; },
   };
 }
 function scrollProgress(scrolly, pin) {
@@ -500,7 +516,8 @@ export function mountPodvozek(root, opts = {}) {
   root.classList.toggle('pv--reduced', reduced);
   const extras = stageExtras({ stage, scrolly, pin, reduced });
   finalCard(stage, `<p class="pv-card-k">${pad(N)} · ${CH[N - 1].short}</p><p class="pv-card-h">${CH[N - 1].title}</p><dl class="pv-card-facts">${FACTS.map(([a2, b]) => `<div><dt>${a2}</dt><dd>${b}</dd></div>`).join('')}</dl>`);
-  if (isStatic && o.head?.leadStatic) { const l = root.querySelector('.pv-lead'); if (l) l.textContent = o.head.leadStatic; }   // bez pohybu pravdivý text
+  const staticCopy = () => { const l = root.querySelector('.pv-lead'); if (l && o.head?.leadStatic) l.textContent = o.head.leadStatic; };   // bez pohybu pravdivý text
+  if (isStatic) staticCopy();
 
   let frameImg = null;
   if (o.frames) { $('.pv-art').innerHTML = `<img class="pv-frame" alt="" decoding="async">`; frameImg = $('.pv-frame'); }
@@ -528,11 +545,14 @@ export function mountPodvozek(root, opts = {}) {
     if (!pd && ps.length && viewer) { const f = clamp(p - active + 0.5, 0, 1); if (f >= 0.3 && f <= 0.68) pd = ps[clamp(Math.floor((f - 0.3) / 0.38 * ps.length), 0, ps.length - 1)]; }   // díly jen dokud jsou jejich body vidět
     const a = pd ? pd.id : null;
     if (a !== auto) { auto = a; hs.forEach(b => b.classList.toggle('is-cur', b.dataset.part === a)); if (!part && viewer) viewer.part(a); }
-    const k = `<p class="pv-card-k">${pad(active + 1)} · ${c.short}</p>`;
     if (active === N - 1) return;   // poslední kapitola: samostatná karta s čísly (finalCard), tahle se jen skryje
-    if (pd) card.set(pd.id, `${k}<p class="pv-card-h"><span class="pv-num">${pd.n}</span>${pd.name}</p><p class="pv-card-p">${first(pd.text)}</p>`);
-    else card.set('c' + active, `${k}<p class="pv-card-h">${c.title}</p><p class="pv-card-p">${first(c.text)}</p>`);
+    if (pd) card.set(pd.id, cardPart(active, pd));
+    else card.set('c' + active, cardCh(active));
   }
+  const cardK = i => `<p class="pv-card-k">${pad(i + 1)} · ${CH[i].short}</p>`;
+  const cardCh = i => `${cardK(i)}<p class="pv-card-h">${CH[i].title}</p><p class="pv-card-p">${first(CH[i].text)}</p>`;
+  const cardPart = (i, pd) => `${cardK(i)}<p class="pv-card-h"><span class="pv-num">${pd.n}</span>${pd.name}</p><p class="pv-card-p">${first(pd.text)}</p>`;
+  card.fit([...CH.slice(0, N - 1).map((_, i) => cardCh(i)), ...PARTS.filter(x => x.ch < N - 1).map(x => cardPart(x.ch, x))]);
 
   function setActive(i) {
     if (i === active) return;
@@ -600,7 +620,7 @@ export function mountPodvozek(root, opts = {}) {
         gateKick();
       },
       drop: () => { viewer = gate.viewer = null; proj = null; stage.classList.remove('pv-stage--3d'); layout(); },
-      fail: err => { console.warn('[podvozek] 3D se nepodařilo spustit, zůstává statická kresba.', err); root.classList.add('pv--static'); },
+      fail: err => { console.warn('[podvozek] 3D se nepodařilo spustit, zůstává statická kresba.', err); root.classList.add('pv--static'); staticCopy(); },
     });
   }
 
@@ -1793,10 +1813,11 @@ export function mountStena(root, opts = {}) {
     $$('.st-list li').forEach((li, k) => li.classList.toggle('is-on', k <= a));
     mks.forEach((b, i) => b.classList.toggle('is-cur', i === a));
     $$('.st-s-l').forEach(g => g.classList.toggle('is-cur', +g.dataset.l === a));   // statická kresba: aktuální vrstva
-    const L = WALL[a];
-    card.set('l' + a, L ? `<p class="pv-card-k">${pad(a + 1)} / ${pad(WN)} · ${L.t}</p><p class="pv-card-h"><span class="pv-num">${a + 1}</span>${L.name}</p><p class="pv-card-p">${L.text}</p>`
-      : `<p class="pv-card-k">Zvenku dovnitř</p><p class="pv-card-h">Stěna v celku</p><p class="pv-card-p">Posouvejte stránkou a vrstvy se oddělí jedna po druhé.</p>`);
+    card.set('l' + a, cardL(a));
   }
+  const cardL = a => { const L = WALL[a]; return L ? `<p class="pv-card-k">${pad(a + 1)} / ${pad(WN)} · ${L.t}</p><p class="pv-card-h"><span class="pv-num">${a + 1}</span>${L.name}</p><p class="pv-card-p">${L.text}</p>`
+      : `<p class="pv-card-k">Zvenku dovnitř</p><p class="pv-card-h">Stěna v celku</p><p class="pv-card-p">Posouvejte stránkou a vrstvy se oddělí jedna po druhé.</p>`; };
+  card.fit([cardL(-1), ...WALL.map((_, i) => cardL(i))]);
   function setHl(k) {
     hl = k;
     $$('.st-s-l').forEach(g => g.classList.toggle('is-hl', +g.dataset.l === k));
