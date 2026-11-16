@@ -14,6 +14,8 @@
 //   frameCount   počet snímků (výchozí 5), {n} se doplní nulami na 3 místa (001, 002 …).
 //   mode         'auto' | 'webgl' | 'static'. auto = static na slabých zařízeních a bez WebGL.
 //   lazyMargin   jak daleko před sekcí se má začít načítat three.js (výchozí '120%').
+//   farMargin    jak daleko od obrazovky se scéna uvolní (dispose, výchozí '250%'); při návratu se postaví znovu.
+//                Na stránce kreslí vždy jen jedna 3D scéna (ta, která zabírá nejvíc obrazovky).
 //   reducedMotion true/false přebije prefers-reduced-motion (pro testování), výchozí podle systému.
 //   compact      true = vložení do jiné stránky (detail domu, úvod): kratší odsazení a kapitoly,
 //                bez karet „Kdo ho utáhne“ a bez pruhu parametrů. Výchozí false (stránka #podvozek).
@@ -190,14 +192,14 @@ function markup(id, D, PARTS, o) {
 }
 
 /* ---------------------------------------------- statická kresba (SVG bokorys) */
-// Pohled na levou stěnu (+Z), oj vpravo. Měřítko 78 px/m, zem y=505. Barvy z tokenů přes CSS.
+// Pohled na pravou stěnu (+Z), oj vpravo, jako výkres „pohled – pravá boční stěna“. Měřítko 78 px/m, zem y=505.
 function drawing(D, PARTS) {
   const S = 78, H = D.H, X = m => +(64 + (m + H + 0.75) * S).toFixed(1), Y = m => +(505 - m * S).toFixed(1);
   const T = dimText(D);
   const r = (x0, y0, x1, y1, cls = '', part = '') => `<rect x="${X(x0)}" y="${Y(y1)}" width="${(X(x1) - X(x0)).toFixed(1)}" height="${(Y(y0) - Y(y1)).toFixed(1)}"${cls ? ` class="${cls}"` : ''}${part ? ` data-part="${part}"` : ''}/>`;
   const l = (x0, y0, x1, y1, cls = '') => `<line x1="${X(x0)}" y1="${Y(y0)}" x2="${X(x1)}" y2="${Y(y1)}"${cls ? ` class="${cls}"` : ''}/>`;
   const eave = D.yUnder(1.25), ridgeU = D.yUnder(0), wallTop = D.yUnder(1.171), f = D.ffl;
-  const holes = D.open.L.map(([a, b, lo, hi]) => [a / 1000 - H, b / 1000 - H, f + lo / 1000, f + hi / 1000]);
+  const holes = D.open.R.map(([a, b, lo, hi]) => [a / 1000 - H, b / 1000 - H, f + lo / 1000, f + hi / 1000]);
   const studsX = []; for (let x = 0; x <= H - 0.1; x += 0.6) { studsX.push(x); if (x) studsX.push(-x); } studsX.push(-H + 0.12, H - 0.12);
   const stud = x => {
     let segs = [[0.71, wallTop]];
@@ -341,6 +343,46 @@ function scrollToProgress(scrolly, pin, r, smooth) {
   scrollTo({ top: scrollY + scrolly.getBoundingClientRect().top - top + travel * r + 2, behavior: smooth ? 'smooth' : 'auto' });
 }
 
+/* ---------------------------------- společné pro všechny 3D sekce: jedna scéna najednou, uvolnění daleko od obrazovky */
+
+// Kreslí vždy jen ta 3D scéna, jejíž připnutá plocha zabírá na obrazovce nejvíc místa (na stránce jich může být víc:
+// dispozice, konstrukce, stěna). Ostatní stojí a na scroll nereagují vykreslením (viewer.gate(false)).
+const GATE = new Set(); let gateRaf = 0;
+function gateRun() {
+  gateRaf = 0; let best = null, bv = 0;
+  for (const g of GATE) {
+    if (!g.viewer || !g.visible) continue;
+    const r = g.box.getBoundingClientRect(), v = Math.min(innerHeight, r.bottom) - Math.max(0, r.top);
+    if (v > bv) { bv = v; best = g; }
+  }
+  for (const g of GATE) if (g.viewer) g.viewer.gate(g === best);
+}
+function gateKick() { if (!gateRaf) gateRaf = requestAnimationFrame(gateRun); }
+function gateEntry(box) { const g = { box, viewer: null, visible: false }; GATE.add(g); return g; }
+function gateDrop(g) { GATE.delete(g); gateKick(); }
+
+// Životní cyklus scény: vytvoří se, když se sekce přiblíží (near), a zahodí (dispose, uvolní WebGL kontext a paměť),
+// když je daleko (far). Při návratu se postaví znovu.
+function lifecycle(el, { near, far, create, ready, drop, fail }) {
+  let viewer = null, busy = false, dead = false, inNear = false;
+  const make = () => {
+    if (viewer || busy || dead) return;
+    busy = true;
+    create().then(v => {
+      busy = false;
+      if (dead) { v.dispose(); return; }
+      viewer = v; ready(v);
+    }).catch(err => { busy = false; fail(err); });
+  };
+  const ioNear = new IntersectionObserver(([e]) => { inNear = e.isIntersecting; if (inNear) make(); }, { rootMargin: `${near} 0px` });
+  const ioFar = new IntersectionObserver(([e]) => {
+    if (e.isIntersecting || !viewer) return;
+    const v = viewer; viewer = null; drop(v); v.dispose();
+  }, { rootMargin: `${far} 0px` });
+  ioNear.observe(el); ioFar.observe(el);
+  return { destroy() { dead = true; ioNear.disconnect(); ioFar.disconnect(); if (viewer) { const v = viewer; viewer = null; drop(v); v.dispose(); } } };
+}
+
 /* ------------------------------------------------------------------ mount */
 
 let uid = 0;
@@ -431,37 +473,39 @@ export function mountPodvozek(root, opts = {}) {
     if (frameImg && o.frameCount > N) { const k = Math.round(p / (N - 1) * (o.frameCount - 1)), src = frameSrc(k); if (!frameImg.src.endsWith(src)) frameImg.src = src; }
     if (ann.cardMode() && !isStatic) cardContent();
   }
-  const onScroll = () => { if (!ticking && !destroyed) { ticking = true; rafU = requestAnimationFrame(update); } };
+  const onScroll = () => { gateKick(); if (!ticking && !destroyed) { ticking = true; rafU = requestAnimationFrame(update); } };
   const onResize = () => { ann.reset(); onScroll(); layout(); };
 
-  // Viditelnost: posluchač scrollu a render smyčka běží jen když je sekce na obrazovce.
+  // Viditelnost: posluchač scrollu běží jen když je sekce na obrazovce, kreslí jen jedna scéna na stránce (gate).
+  const gate = gateEntry(pin);
   const ioVis = new IntersectionObserver(([e]) => {
-    visible = e.isIntersecting;
+    visible = gate.visible = e.isIntersecting;
     if (destroyed) return;
-    if (visible) { addEventListener('scroll', onScroll, { passive: true }); update(); viewer && viewer.start(); }
-    else { removeEventListener('scroll', onScroll); viewer && viewer.stop(); }
+    if (visible) { addEventListener('scroll', onScroll, { passive: true }); update(); }
+    else { removeEventListener('scroll', onScroll); viewer && viewer.gate(false); }
+    gateKick();
   });
   ioVis.observe(scrolly);
   addEventListener('resize', onResize, { passive: true });
 
-  // Líné spuštění WebGL kousek před sekcí.
-  let ioLazy = null;
+  // Líné spuštění WebGL kousek před sekcí, uvolnění daleko za ní.
+  let life = null;
   if (!isStatic) {
     o.onProject = pr => { proj = pr; layout(); };
-    ioLazy = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return;
-      ioLazy.disconnect(); ioLazy = null;
-      createViewer(glBox, o, D, PARTS).then(v => {
-        if (destroyed) { v.dispose(); return; }
-        viewer = v;
+    life = lifecycle(scrolly, {
+      near: o.lazyMargin, far: o.farMargin || '250%',
+      create: () => createViewer(glBox, o, D, PARTS),
+      ready: v => {
+        viewer = gate.viewer = v;
         v.label(`3D model Domu ${D.key} na podvozku. Kapitola ${active + 1}: ${CH[active].title}.`);
         v.target(p, true);
         (part || auto) && v.part(part || auto);
         stage.classList.add('pv-stage--3d');
-        visible && v.start();
-      }).catch(err => { console.warn('[podvozek] 3D se nepodařilo spustit, zůstává statická kresba.', err); root.classList.add('pv--static'); });
-    }, { rootMargin: `${o.lazyMargin} 0px` });
-    ioLazy.observe(scrolly);
+        gateKick();
+      },
+      drop: () => { viewer = gate.viewer = null; proj = null; stage.classList.remove('pv-stage--3d'); layout(); },
+      fail: err => { console.warn('[podvozek] 3D se nepodařilo spustit, zůstává statická kresba.', err); root.classList.add('pv--static'); },
+    });
   }
 
   // Tečky kapitol: posunou stránku na danou kapitolu (model se srovná sám).
@@ -496,12 +540,11 @@ export function mountPodvozek(root, opts = {}) {
     destroy() {
       destroyed = true;
       cancelAnimationFrame(rafU); rafU = 0; card.clear();
-      ioVis.disconnect(); ioLazy && ioLazy.disconnect();
+      ioVis.disconnect(); gateDrop(gate); life && life.destroy();
       removeEventListener('scroll', onScroll); removeEventListener('resize', onResize);
       root.removeEventListener('click', onDot); root.removeEventListener('keydown', onDotKey);
       root.removeEventListener('click', onPart); root.removeEventListener('focusin', onFocus); root.removeEventListener('keydown', onKey);
       root.removeEventListener('pointerover', onOver);
-      viewer && viewer.dispose();
       root.innerHTML = ''; root.classList.remove('pv', 'pv--static', 'pv--reduced', 'pv--compact');
     },
   };
@@ -617,7 +660,7 @@ async function createViewer(box, o, D, PARTS) {
   const line = (a, b) => { V(...a); V(...b); };
   const tick = (p, d) => { const s = 0.09; line([p[0] - s * d[0], p[1] - s * d[1], p[2] - s * d[2]], [p[0] + s * d[0], p[1] + s * d[1], p[2] + s * d[2]]); };
   const g0 = 0.005, zL = 1.85, zT = 2.45, xW = -H - 0.75;
-  // délka domu a celková délka s ojí podél levého boku
+  // délka domu a celková délka s ojí podél pravého boku (+Z, strana kamery)
   line([-H, g0, 1.33], [-H, g0, zT + 0.12]); line([H, g0, 1.33], [H, g0, zL + 0.12]); line([D.hitch, g0, 0.1], [D.hitch, g0, zT + 0.12]);
   line([-H, g0, zL], [H, g0, zL]); tick([-H, g0, zL], [0.7, 0, 0.7]); tick([H, g0, zL], [0.7, 0, 0.7]);
   line([-H, g0, zT], [D.hitch, g0, zT]); tick([-H, g0, zT], [0.7, 0, 0.7]); tick([D.hitch, g0, zT], [0.7, 0, 0.7]);
@@ -665,7 +708,7 @@ async function createViewer(box, o, D, PARTS) {
   mqDark.addEventListener('change', readTheme);
 
   // Stav: cur se tlumeně blíží tgt (klidný, plynulý pohyb i při trhaném scrollu).
-  let tgt = stateAt(0), cur = tgt.slice(), dirty = true, activePart = null, raf = 0, last = 0, running = false;
+  let tgt = stateAt(0), cur = tgt.slice(), dirty = true, activePart = null, raf = 0, last = 0, running = false, held = false;
   readTheme();
 
   const sDist = D.total / 8.7, sX = D.L / 7.2;
@@ -749,7 +792,7 @@ async function createViewer(box, o, D, PARTS) {
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     dirty = true;
-    if (!running) { applyState(); renderer.render(scene, camera); }
+    if (!running && !held) { applyState(); renderer.render(scene, camera); }
   });
   ro.observe(box);
 
@@ -767,17 +810,18 @@ async function createViewer(box, o, D, PARTS) {
       tgt = stateAt(p); tgtP = p;
       if (instant) { cur = tgt.slice(); curP = p; }
       dirty = true;
-      if (!running) { applyState(); renderer.render(scene, camera); }
+      if (!running && !held) { applyState(); renderer.render(scene, camera); }
     },
-    part(pid) { activePart = pid; dirty = true; if (!running) { applyState(); renderer.render(scene, camera); } },
+    part(pid) { activePart = pid; dirty = true; if (!running && !held) { applyState(); renderer.render(scene, camera); } },
     label(t) { canvas.setAttribute('aria-label', t); },
     start() { if (running) return; running = true; last = 0; raf = requestAnimationFrame(frame); },
     stop() { running = false; cancelAnimationFrame(raf); },
+    gate(on) { held = !on; on ? this.start() : this.stop(); },
     dispose() {
       this.stop(); ro.disconnect(); mo.disconnect(); mqDark.removeEventListener('change', readTheme);
       delete box.__pv;
       scene.traverse(m => { if (m.geometry) m.geometry.dispose(); const ms = m.material ? [].concat(m.material) : []; ms.forEach(x => { for (const k in x) if (x[k] && x[k].isTexture) x[k].dispose(); x.dispose(); }); });
-      pmrem.dispose(); renderer.dispose(); canvas.remove();
+      pmrem.dispose(); renderer.dispose(); renderer.forceContextLoss(); canvas.remove();
     },
   };
 }
@@ -1041,20 +1085,21 @@ function buildProcedural(THREE, D) {
     }
   };
   const mmL = ([x0, x1, lo, hi]) => [x0 / 1000 - H, x1 / 1000 - H, F + lo / 1000, F + hi / 1000];
-  const mmG = ([y0, y1, lo, hi]) => [y0 / 1000 - 1.25, y1 / 1000 - 1.25, F + lo / 1000, F + hi / 1000];
+  // Štíty mají souřadnici u = −Z, proto u = 1,25 − y (levá stěna params y = 0 leží na −Z).
+  const mmG = ([y0, y1, lo, hi]) => [1.25 - y1 / 1000, 1.25 - y0 / 1000, F + lo / 1000, F + hi / 1000];
   const flat = () => wallTop;
   const raked = u => D.yUnder(Math.abs(u) + 0.0445) + 0.005;
-  frameWall({ n: new V3(0, 0, 1), a: new V3(1, 0, 0), off: zSt, u0: -H + 0.079, u1: H - 0.079, top: flat, holes: D.open.L.map(mmL), straps: true });
-  frameWall({ n: new V3(0, 0, -1), a: new V3(1, 0, 0), off: zSt, u0: -H + 0.079, u1: H - 0.079, top: flat, holes: D.open.R.map(mmL), straps: true });
+  frameWall({ n: new V3(0, 0, 1), a: new V3(1, 0, 0), off: zSt, u0: -H + 0.079, u1: H - 0.079, top: flat, holes: D.open.R.map(mmL), straps: true });
+  frameWall({ n: new V3(0, 0, -1), a: new V3(1, 0, 0), off: zSt, u0: -H + 0.079, u1: H - 0.079, top: flat, holes: D.open.L.map(mmL), straps: true });
   frameWall({ n: new V3(1, 0, 0), a: new V3(0, 0, -1), off: xSt, u0: -uIn, u1: uIn, top: raked, raked: true, holes: D.open.B.map(mmG) });
   // štít A: prosklená stěna = sloupky v místě příček zasklení, paždík, dveřní otvor
   {
-    const g = D.gableA, vT = F + g.transom / 1000, cuts = g.cuts.map(c => c / 1000 - 1.25);
+    const g = D.gableA, vT = F + g.transom / 1000, cuts = g.cuts.map(c => 1.25 - c / 1000);
     const n = new V3(-1, 0, 0), a = new V3(0, 0, -1), P = (u, y) => new V3().addScaledVector(n, xSt).addScaledVector(a, u).setY(y);
     mem('c89', 'sloupky', P(-uIn, vb + 0.0205), P(uIn, vb + 0.0205), n);
     mem('c89', 'sloupky', P(-uIn, raked(uIn) - 0.0205), P(0, raked(0) - 0.0205), n); mem('c89', 'sloupky', P(0, raked(0) - 0.0205), P(uIn, raked(uIn) - 0.0205), n);
     for (const u of [-uIn + 0.0205, uIn - 0.0205]) mem('c89', 'sloupky', P(u, vb + 0.041), P(u, raked(u) - 0.041), n);
-    const posts = [...cuts]; if (g.door) posts.push(g.door[0] / 1000 - 1.25 - 0.02, g.door[1] / 1000 - 1.25 + 0.02);
+    const posts = [...cuts]; if (g.door) posts.push(1.25 - g.door[1] / 1000 - 0.02, 1.25 - g.door[0] / 1000 + 0.02);
     for (const u of posts) mem('c89', 'sloupky', P(u, vb + 0.041), P(u, vT - 0.041), n);
     mem('c89', 'sloupky', P(-uIn + 0.041, vT - 0.0205), P(uIn - 0.041, vT - 0.0205), n);
     mem('c89', 'sloupky', P(-uIn + 0.041, vT + 0.0205), P(uIn - 0.041, vT + 0.0205), n);
@@ -1088,7 +1133,7 @@ function buildProcedural(THREE, D) {
   // příčka ložnice (jen Dům L)
   if (D.partition) {
     const [px, [d0, d1, dh]] = D.partition;
-    frameWall({ n: new V3(1, 0, 0), a: new V3(0, 0, -1), off: px / 1000 - H, u0: -uIn, u1: uIn, top: raked, raked: true, holes: [[d0 / 1000 - 1.25, d1 / 1000 - 1.25, F, F + dh / 1000]] });
+    frameWall({ n: new V3(1, 0, 0), a: new V3(0, 0, -1), off: px / 1000 - H, u0: -uIn, u1: uIn, top: raked, raked: true, holes: [[1.25 - d1 / 1000, 1.25 - d0 / 1000, F, F + dh / 1000]] });
   }
   // instancování
   const cBase = { c89: new THREE.ExtrudeGeometry(cShape(THREE, C89.d, C89.b, C89.lip, C89.t), { depth: 1, bevelEnabled: false }), c120: new THREE.ExtrudeGeometry(cShape(THREE, C120.d, C120.b, C120.lip, C120.t), { depth: 1, bevelEnabled: false }), strap: new THREE.BoxGeometry(1, 1, 1).translate(0, 0, 0.5) };
@@ -1109,9 +1154,10 @@ function buildProcedural(THREE, D) {
   const iz = [grp(SH, 'izolace_predni', [0, 0, 0.6]), grp(SH, 'izolace_zadni', [0, 0, -0.6]), grp(SH, 'izolace_stit_b', [0.6, 0, 0]), grp(SH, 'izolace_stit_a', [-0.6, 0, 0])];
   const eave = D.eave;
   // Plocha stěny: u podél stěny, y výška, w ven od líce obkladu. axis 'x' = podélná stěna.
+  // ZP = podélná stěna na +Z (pravá stěna, params y = 2500), ZN = na −Z (levá stěna, params y = 0), jako výkresy.
   const faces = {
-    L: { axis: 'x', P: (u, y, w) => new V3(u, y, 1.25 + w) },
-    R: { axis: 'x', P: (u, y, w) => new V3(u, y, -1.25 - w) },
+    ZP: { axis: 'x', P: (u, y, w) => new V3(u, y, 1.25 + w) },
+    ZN: { axis: 'x', P: (u, y, w) => new V3(u, y, -1.25 - w) },
     B: { axis: 'z', P: (u, y, w) => new V3(H + w, y, -u) },
     A: { axis: 'z', P: (u, y, w) => new V3(-H - w, y, -u) },
   };
@@ -1138,8 +1184,8 @@ function buildProcedural(THREE, D) {
     if (door) wb(g, steel, f, (a + b) / 2 - 0.09, (a + b) / 2 - 0.075, F + 0.85, F + 1.25, 0.01, 0.03);
   };
   // podélné stěny: obklad s otvory, okna, rohové lišty, izolace pod obkladem
-  for (const [side, g, ig, sgn] of [['L', front, iz[0], 1], ['R', back, iz[1], -1]]) {
-    const f = faces[side], holes = D.open[side].map(mmL);
+  for (const [side, g, ig, sgn] of [['R', front, iz[0], 1], ['L', back, iz[1], -1]]) {
+    const f = faces[sgn > 0 ? 'ZP' : 'ZN'], holes = D.open[side].map(mmL);
     const geo = slab(withHoles(outline(-H, H, 0.6, () => eave), holes), 0.018);
     add(g, wood, sgn > 0 ? geo.translate(0, 0, 1.232) : geo.translate(0, 0, -1.25));
     holes.forEach(h => opening(g, f, h, h[2] < F + 0.05));
@@ -1167,7 +1213,7 @@ function buildProcedural(THREE, D) {
     for (const s of [1, -1]) add(gA, frameMat, beam(f.P(s * e, gableTop(e) - fw / 2, -0.035), f.P(0, gableTop(0) - fw / 2, -0.035), 0.09, fw, [1, 0, 0]));
     wb(gA, frameMat, f, -e, e, vT - 0.04, vT + 0.04, -0.08, 0.01);
     wb(gA, frameMat, f, -0.03, 0.03, vT, gableTop(0) - fw, -0.07, 0.0);
-    const cuts = g.cuts.map(c => c / 1000 - 1.25), door = g.door ? [g.door[0] / 1000 - 1.25, g.door[1] / 1000 - 1.25] : null;
+    const cuts = g.cuts.map(c => 1.25 - c / 1000), door = g.door ? [1.25 - g.door[1] / 1000, 1.25 - g.door[0] / 1000] : null;
     const divs = [-e + fw, ...cuts, ...(door || []), e - fw].sort((a, b) => a - b);
     for (const c of cuts) wb(gA, frameMat, f, c - 0.03, c + 0.03, F + 0.09, vT, -0.07, 0.0);
     for (let i = 0; i < divs.length - 1; i++) {
@@ -1178,7 +1224,7 @@ function buildProcedural(THREE, D) {
         wb(gA, frameMat, f, a + 0.03, b - 0.03, F + 0.09, F + 0.2, -0.06, -0.01);
         wb(gA, frameMat, f, a + 0.03, a + 0.1, F + 0.2, vT - 0.11, -0.06, -0.01); wb(gA, frameMat, f, b - 0.1, b - 0.03, F + 0.2, vT - 0.11, -0.06, -0.01);
         wb(gA, glass, f, a + 0.1, b - 0.1, F + 0.2, vT - 0.11, -0.04, -0.03);
-        wb(gA, steel, f, b - 0.17, b - 0.15, F + 0.8, F + 1.3, -0.01, 0.025);
+        wb(gA, steel, f, a + 0.15, a + 0.17, F + 0.8, F + 1.3, -0.01, 0.025);
         continue;
       }
       wb(gA, glass, f, a + (i ? 0.03 : 0), b - (i < divs.length - 2 ? 0.03 : 0), F + 0.09, vT - 0.04, -0.045, -0.035);
@@ -1201,23 +1247,24 @@ function buildProcedural(THREE, D) {
     const gy = D.yTop(1.275) - 0.16;
     add(g, frameMat, slab(gs, RL).rotateY(Math.PI / 2).translate(-RL / 2, gy, s * 1.34));
     add(g, frameMat, beam([-RL / 2, D.yTop(1.275) - 0.13, s * 1.285], [RL / 2, D.yTop(1.275) - 0.13, s * 1.285], 0.008, 0.06, [0, 0, 1]));
-    if (s > 0 && D.skylight) {
-      const [x0, x1, y0, y1] = D.skylight, sx = (x0 + x1) / 2000 - H, sz = 1.25 - (y0 + y1) / 2000, c = new V3(sx, D.yTop(sz), sz);
-      const o2 = (geo, off) => geo.applyMatrix4(new M4().makeRotationX(D.p).setPosition(c.clone().addScaledVector(n, off)));
+    const sky = D.skylight, skz = sky ? (sky[2] + sky[3]) / 2000 - 1.25 : 0;   // střešní okno na straně své stěny (params y)
+    if (sky && Math.sign(skz) === s) {
+      const [x0, x1, y0, y1] = sky, sx = (x0 + x1) / 2000 - H, c = new V3(sx, D.yTop(Math.abs(skz)), skz);
+      const o2 = (geo, off) => geo.applyMatrix4(new M4().makeRotationX(s * D.p).setPosition(c.clone().addScaledVector(n, off)));
       add(g, frameMat, o2(boxGeo((x1 - x0) / 1000, 0.07, (y1 - y0) / 1000 / D.c), 0.03));
       add(g, glass, o2(boxGeo((x1 - x0) / 1000 - 0.1, 0.072, (y1 - y0) / 1000 / D.c - 0.1), 0.035));
     }
   }
   for (const s of [1, -1]) add(ridgeG, frameMat, beam([-RL / 2, D.yTop(0.08) + 0.018, s * 0.08], [RL / 2, D.yTop(0.08) + 0.018, s * 0.08], 0.17, 0.012, [0, D.c, s * Math.sin(D.p)]));
   add(ridgeG, frameMat, rod([-RL / 2, D.yTop(0) + 0.03, 0], [RL / 2, D.yTop(0) + 0.03, 0], 0.022, 12));
-  // svod na zadním rohu levé stěny
+  // svod na zadním rohu levé stěny (−Z)
   {
     const x = -H + 0.22, gy = D.yTop(1.275) - 0.16;
-    add(front, frameMat, rod([x, gy - 0.02, 1.34], [x, gy - 0.16, 1.34], 0.035, 12));
-    add(front, frameMat, rod([x, gy - 0.16, 1.34], [x, gy - 0.32, 1.305], 0.035, 12));
-    add(front, frameMat, rod([x, gy - 0.32, 1.305], [x, 0.78, 1.305], 0.035, 12));
-    add(front, frameMat, rod([x, 0.78, 1.305], [x, 0.68, 1.36], 0.035, 12));
-    for (const y of [1.3, 2.3]) if (y < gy - 0.4) add(front, frameMat, box(0.03, 0.03, 0.06, x, y, 1.275));
+    add(back, frameMat, rod([x, gy - 0.02, -1.34], [x, gy - 0.16, -1.34], 0.035, 12));
+    add(back, frameMat, rod([x, gy - 0.16, -1.34], [x, gy - 0.32, -1.305], 0.035, 12));
+    add(back, frameMat, rod([x, gy - 0.32, -1.305], [x, 0.78, -1.305], 0.035, 12));
+    add(back, frameMat, rod([x, 0.78, -1.305], [x, 0.68, -1.36], 0.035, 12));
+    for (const y of [1.3, 2.3]) if (y < gy - 0.4) add(back, frameMat, box(0.03, 0.03, 0.06, x, y, -1.275));
   }
 
   flush();
@@ -1455,27 +1502,26 @@ export function mountStena(root, opts = {}) {
     if (!isStatic) p = scrollProgress(scrolly, pin);
     paint(); viewer && viewer.target(p);
   }
-  const onScroll = () => { if (!ticking && !destroyed) { ticking = true; rafU = requestAnimationFrame(update); } };
+  const onScroll = () => { gateKick(); if (!ticking && !destroyed) { ticking = true; rafU = requestAnimationFrame(update); } };
   const onResize = () => { ann.reset(); onScroll(); layout(); };
+  const gate = gateEntry(pin);
   const ioVis = new IntersectionObserver(([e]) => {
-    visible = e.isIntersecting; if (destroyed) return;
-    if (visible) { addEventListener('scroll', onScroll, { passive: true }); update(); viewer && viewer.start(); }
-    else { removeEventListener('scroll', onScroll); viewer && viewer.stop(); }
+    visible = gate.visible = e.isIntersecting; if (destroyed) return;
+    if (visible) { addEventListener('scroll', onScroll, { passive: true }); update(); }
+    else { removeEventListener('scroll', onScroll); viewer && viewer.gate(false); }
+    gateKick();
   });
   ioVis.observe(scrolly);
   addEventListener('resize', onResize, { passive: true });
-  let ioLazy = null;
+  let life = null;
   if (!isStatic) {
-    ioLazy = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return;
-      ioLazy.disconnect(); ioLazy = null;
-      createWallViewer(glBox, mks, pr => { proj = pr; layout(); }).then(v => {
-        if (destroyed) { v.dispose(); return; }
-        viewer = v; v.target(p, true); v.highlight(hl);
-        stage.classList.add('pv-stage--3d'); visible && v.start();
-      }).catch(err => { console.warn('[stena] 3D se nepodařilo spustit, zůstává statická kresba.', err); root.classList.add('pv--static'); });
-    }, { rootMargin: `${o.lazyMargin} 0px` });
-    ioLazy.observe(scrolly);
+    life = lifecycle(scrolly, {
+      near: o.lazyMargin, far: o.farMargin || '250%',
+      create: () => createWallViewer(glBox, mks, pr => { proj = pr; layout(); }),
+      ready: v => { viewer = gate.viewer = v; v.target(p, true); v.highlight(hl); stage.classList.add('pv-stage--3d'); gateKick(); },
+      drop: () => { viewer = gate.viewer = null; proj = null; stage.classList.remove('pv-stage--3d'); layout(); },
+      fail: err => { console.warn('[stena] 3D se nepodařilo spustit, zůstává statická kresba.', err); root.classList.add('pv--static'); },
+    });
   }
   function goTo(k) { if (isStatic) return setHl(k); scrollToProgress(scrolly, pin, Math.min(1, 0.04 + k * 0.12 + 0.2), !reduced); }
   const onClick = e => { const b = e.target.closest('.st-mk'); if (b) setHl(hl === +b.dataset.l ? -1 : +b.dataset.l); };
@@ -1489,11 +1535,10 @@ export function mountStena(root, opts = {}) {
     goTo,
     destroy() {
       destroyed = true; cancelAnimationFrame(rafU); card.clear();
-      ioVis.disconnect(); ioLazy && ioLazy.disconnect();
+      ioVis.disconnect(); gateDrop(gate); life && life.destroy();
       removeEventListener('scroll', onScroll); removeEventListener('resize', onResize);
       root.removeEventListener('click', onClick); root.removeEventListener('pointerover', onOver); root.removeEventListener('pointerout', onOut);
       root.removeEventListener('focusin', onFocus); root.removeEventListener('focusout', onOut);
-      viewer && viewer.dispose();
       root.innerHTML = ''; root.classList.remove('pv', 'st', 'pv--static');
     },
   };
@@ -1589,7 +1634,7 @@ async function createWallViewer(box, mks, onProject) {
 
   // Kamera: azimut a výška se s rozkladem pomalu stáčejí na bok, vzdálenost roste s roztažením vrstev.
   const CAM = { az0: 0.5, az1: 0.45, el0: 0.3, el1: 0.2, d0: 3.0, dk: 1.35, tx: 0.05, ty: 0.47 };
-  let tgt = 0, cur = 0, hl = -1, hlCur = groups.map(() => 0), dirty = true, raf = 0, last = 0, running = false;
+  let tgt = 0, cur = 0, hl = -1, hlCur = groups.map(() => 0), dirty = true, raf = 0, last = 0, running = false, held = false;
   readTheme();
   const tmp = new THREE.Vector3();
   function apply() {
@@ -1626,7 +1671,7 @@ async function createWallViewer(box, mks, onProject) {
     if (moving || dirty) { apply(); renderer.render(scene, camera); dirty = false; }
   }
   const draw = () => { apply(); renderer.render(scene, camera); };
-  const ro = new ResizeObserver(() => { const w = box.clientWidth, h = box.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); dirty = true; if (!running) draw(); });
+  const ro = new ResizeObserver(() => { const w = box.clientWidth, h = box.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); dirty = true; if (!running && !held) draw(); });
   ro.observe(box);
   box.__pv = {
     renderer, scene, camera, cam: CAM,
@@ -1634,10 +1679,11 @@ async function createWallViewer(box, mks, onProject) {
     info() { const r = renderer.info.render; return { calls: r.calls, triangles: r.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures }; },
   };
   return {
-    target(p, instant) { tgt = p; if (instant) cur = p; dirty = true; if (!running) draw(); },
-    highlight(k) { hl = k; dirty = true; if (!running) { hlCur = hlCur.map((_, i) => (i === k ? 1 : 0)); draw(); } },
+    target(p, instant) { tgt = p; if (instant) cur = p; dirty = true; if (!running && !held) draw(); },
+    highlight(k) { hl = k; dirty = true; if (!running && !held) { hlCur = hlCur.map((_, i) => (i === k ? 1 : 0)); draw(); } },
     start() { if (running) return; running = true; last = 0; raf = requestAnimationFrame(frame); },
     stop() { running = false; cancelAnimationFrame(raf); },
+    gate(on) { held = !on; on ? this.start() : this.stop(); },
     dispose() {
       this.stop(); ro.disconnect(); mo.disconnect(); mqDark.removeEventListener('change', readTheme); delete box.__pv;
       scene.traverse(m => { if (m.geometry) m.geometry.dispose(); [].concat(m.material || []).forEach(x => { for (const q in x) if (x[q] && x[q].isTexture) x[q].dispose(); x.dispose(); }); });
@@ -1645,6 +1691,12 @@ async function createWallViewer(box, mks, onProject) {
     },
   };
 }
+// Sdílené části pro js/dispozice.js a referenční snímky (projekt/v2/ref). three.js se načítá jen uvnitř viewerů.
+export {
+  buildProcedural, dimsOf, VARIANTS, annotator, cardCtl, scrollProgress, scrollToProgress, applyEmbed, hasWebGL, lowEnd,
+  clamp, ease, pad, first, fmt, contactTex, canvasTex, rng, woodTex, gateKick, gateEntry, gateDrop, lifecycle,
+};
+
 // Minerální vlna: jemná vláknitá struktura.
 function woolTex(THREE) {
   const rnd = rng(23);

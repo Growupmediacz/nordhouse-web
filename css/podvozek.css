@@ -43,11 +43,23 @@
 .pv-pin { position: sticky; top: var(--pv-top); height: calc(100svh - var(--pv-top) - var(--pv-bar) - 8px); }
 .pv-stage {
   position: absolute; inset: 0; overflow: hidden; isolation: isolate; background-color: var(--pv-sunken);
-  background-image: linear-gradient(to right, color-mix(in srgb, var(--pv-line) 60%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--pv-line) 60%, transparent) 1px, transparent 1px);
-  background-size: 32px 32px; background-position: center;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pv-stage { --pv-line: color-mix(in srgb, var(--line, #353B32) 55%, transparent); } }
 :root[data-theme="dark"] .pv-stage { --pv-line: color-mix(in srgb, var(--line, #353B32) 55%, transparent); }
+/* Pozadí scény: stejná dřevěná kresba (vrstevnice / letokruhy) jako v patičce webu, img/vrstevnice-svetle.svg.
+   Soubor má světlé tahy s průhledností 18 %, proto se používá jako maska a barva tahů jde z motivu: ve světlém
+   tmavší dřevo, v tmavém světlé tahy jako v patičce. Ve sloupcích s titulkem a popisky je kresba slabší. */
+.pv-stage { background-image: none; --pv-grain: var(--pv-wood-ink); --pv-grain-op: .85; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pv-stage { --pv-grain: #F2ECE1; --pv-grain-op: .62; } }
+:root[data-theme="dark"] .pv-stage { --pv-grain: #F2ECE1; --pv-grain-op: .62; }
+.pv-stage::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; background: var(--pv-grain); opacity: var(--pv-grain-op);
+  --pv-calm: rgb(0 0 0 / .38);
+  -webkit-mask-image: url("../img/vrstevnice-svetle.svg"), linear-gradient(to right, var(--pv-calm) calc(var(--pv-il) - 24px), #000 calc(var(--pv-il) + 72px), #000 calc(100% - var(--pv-ir) - 72px), var(--pv-calm) calc(100% - var(--pv-ir) + 24px));
+  -webkit-mask-size: cover, 100% 100%; -webkit-mask-position: center; -webkit-mask-repeat: no-repeat; -webkit-mask-composite: source-in;
+  mask-image: url("../img/vrstevnice-svetle.svg"), linear-gradient(to right, var(--pv-calm) calc(var(--pv-il) - 24px), #000 calc(var(--pv-il) + 72px), #000 calc(100% - var(--pv-ir) - 72px), var(--pv-calm) calc(100% - var(--pv-ir) + 24px));
+  mask-size: cover, 100% 100%; mask-position: center; mask-repeat: no-repeat; mask-composite: intersect;
+}
 /* plátno, kresba a body sdílejí jeden výřez scény (mezi okraji s popisky), aby se model nikdy nedostal pod text */
 .pv-art, .pv-gl, .pv-overlay { position: absolute; left: var(--pv-il); right: var(--pv-ir); top: var(--pv-it); bottom: var(--pv-ib); }
 .pv-art { display: grid; place-items: center; transition: opacity var(--pv-slow) var(--pv-ease); }
@@ -281,3 +293,31 @@
 .st .st-svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
 .st-mk span { width: 26px; height: 26px; font-size: 12px; }
 .pv-art > .pv-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* Dispozice (js/dispozice.js): stejná scéna jako dům na podvozku, navíc popisky místností, tlačítka v poslední
+   kapitole (desktop) a statický půdorys */
+.dz-rooms { position: absolute; inset: 0; pointer-events: none !important; }
+.dz-room { position: absolute; left: 0; top: 0; white-space: nowrap; font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: .02em; color: var(--pv-ink); background: color-mix(in srgb, var(--pv-raised) 92%, transparent); border: 1px solid color-mix(in srgb, var(--pv-line-strong) 60%, transparent); padding: 3px 10px; border-radius: 999px; box-shadow: 0 2px 10px rgba(30, 33, 29, .1); opacity: 0; visibility: hidden; will-change: transform; }
+.dz-cta { display: none; }
+.dz-cta-list { margin-top: 16px !important; display: flex; flex-wrap: wrap; gap: 10px; }
+@media (min-width: 960px) {
+  .dz-cta { position: absolute; left: var(--pv-m); bottom: 116px; z-index: 4; width: var(--pv-lw); display: flex; flex-direction: column; align-items: flex-start; gap: 10px; opacity: 0; visibility: hidden; transition: opacity 260ms, visibility 0s 260ms; }
+  .dz-cta.is-on { opacity: 1; visibility: visible; transition: opacity 520ms var(--pv-ease) 300ms, visibility 0s; }
+}
+.dz-svg .dz-p-floor { fill: color-mix(in srgb, var(--pv-wood) 28%, var(--pv-raised)); stroke: none; }
+.dz-svg .dz-p-wall { fill: var(--pv-ink); stroke: none; }
+.dz-svg .dz-p-glass { fill: color-mix(in srgb, #9FB8C0 55%, var(--pv-raised)); stroke-width: .8; }
+.dz-svg .dz-p-door { fill: var(--pv-raised); stroke-width: .8; stroke-dasharray: 3 3; }
+.dz-svg .dz-p-f { fill: var(--pv-raised); stroke-width: .9; }
+.dz-svg .dz-p-l { fill: none; stroke-width: .7; }
+.dz-svg .dz-p-loft { fill: none; stroke: var(--pv-wood-ink); stroke-width: 1.4; stroke-dasharray: 6 4; }
+.dz-svg .dz-p-t { font: 600 120px var(--font-text, Manrope, sans-serif); fill: var(--pv-muted); text-anchor: middle; }
+.dz-svg .dz-z { fill: transparent; stroke: none; transition: fill var(--pv-base) var(--pv-ease); }
+.dz-svg .dz-z.is-on { fill: color-mix(in srgb, var(--pv-accent) 30%, transparent); }
+.dz-svg .pv-s-mk text { font-size: 120px; }
+.dz .pv-s-mk.is-on { opacity: 1; }
+.dz.pv--static .pv-stage { aspect-ratio: 2.3 / 1; }
+/* plátno dispozice: detailní záběry přesahují výřez, okraje se proto měkce ztratí do pozadí místo ostrého střihu */
+.dz .pv-gl { -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent), linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent); -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent), linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent); mask-composite: intersect; }
+.dz-svg .dz-p-stove { fill: color-mix(in srgb, var(--pv-ink) 75%, transparent); stroke-width: .9; }
+.dz-svg .dz-p-guard { fill: none; stroke: var(--pv-wood-ink); stroke-width: 1.4; stroke-dasharray: 5 4; }
