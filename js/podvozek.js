@@ -66,6 +66,9 @@ const dimText = D => ({ length: `${fmt(D.L)} m`, total: `${fmt(D.total)} m`, wid
 function partsFor(D) {
   const H = D.H;
   return [
+    { id: 'v-prives', ch: 1, n: 1, layer: 'L_prives', at: [-H + 1.1, 0.5, 1.22], name: 'Přívěs', text: 'Nese celý dům. Nápravy jsou schované pod plošinou.' },
+    { id: 'v-skelet', ch: 1, n: 2, layer: 'L_skelet', at: [H - 0.5, 1.15, 1.2], name: 'Ocelový skelet', text: 'Drží tvar domu. Nekroutí se ani nesesychá.' },
+    { id: 'v-plast', ch: 1, n: 3, layer: 'L_plast', at: [-H + 0.6, D.eave + 0.2, 1.3], name: 'Dřevěný plášť', text: 'Chrání před počasím a izoluje.' },
     { id: 'podlaha', ch: 2, n: 1, layer: 'L_skelet', at: [H - 0.9, 0.68, 1.2], name: 'Podlahový rám', text: 'C profily po 40 cm leží na příčnících přívěsu, zespodu je chrání plech.' },
     { id: 'sloupky', ch: 2, n: 2, layer: 'L_skelet', at: [-H + 2.2, 1.75, 1.15], name: 'Sloupky stěn', text: 'Svislé profily v rozteči 60 cm, u oken zdvojené s překladem. Mezi nimi je místo pro izolaci a rozvody.' },
     { id: 'krokve', ch: 2, n: 3, layer: 'L_skelet', at: [0.3, D.ridge - 0.62, 0.62], name: 'Krokve a hřeben', text: `Sedlová střecha se sklonem ${D.pitch}°, sníh i voda z ní rychle sjedou.` },
@@ -117,28 +120,26 @@ const ICONS = {
 };
 const icon = k => `<svg class="pv-ico" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>`;
 
-function markup(id, D, PARTS) {
-  const T = dimText(D);
-  const legend = ch => {
-    const ps = PARTS.filter(p => p.ch === ch);
-    if (!ps.length) return '';
-    return `<ol class="pv-legend">${ps.map(p => `<li><button type="button" class="pv-legend-btn" data-part="${p.id}" aria-pressed="false"><span class="pv-num" aria-hidden="true">${p.n}</span><span><b>${p.name}</b><span class="pv-legend-text">${p.text}</span></span></button></li>`).join('')}</ol>`;
-  };
-  const dims = `<dl class="pv-dimlist">
-    <div><dt>Délka domu</dt><dd>${T.length}</dd></div><div><dt>Celkem s ojí</dt><dd>${T.total}</dd></div>
-    <div><dt>Šířka přes střechu</dt><dd>${T.width}</dd></div><div><dt>Výška</dt><dd>${T.height}</dd></div>
-    <div><dt>Podlaha nad terénem</dt><dd>73 cm</dd></div><div><dt>Celková hmotnost</dt><dd>${T.weight}</dd></div></dl>`;
+const first = t => t.split(/(?<=\.)\s/)[0];
+const factsOf = (D, o) => { const T = dimText(D); return o.facts || [['Délka domu', T.length], ['Celkem s ojí', T.total], ['Šířka přes střechu', T.width], ['Výška', T.height], ['Podlaha nad terénem', '73 cm'], ['Celková hmotnost', T.weight]]; };
+
+// Celostránková scéna: připnutá plocha přes celou šířku, v ní model, číslované body s popisky na odkazových čarách
+// (desktop) nebo jedna karta dole (mobil), titulek kapitoly v rohu. Texty kapitol jsou i jako běžné HTML pod scénou
+// (vizuálně skryté, při statické verzi viditelné jako seznam).
+function markup(id, D, PARTS, o) {
+  const facts = factsOf(D, o);
+  const legend = ch => { const ps = PARTS.filter(p => p.ch === ch); return ps.length ? `<ol class="pv-legend">${ps.map(p => `<li><span class="pv-num" aria-hidden="true">${p.n}</span><span><b>${p.name}</b> <span class="pv-legend-text">${p.text}</span></span></li>`).join('')}</ol>` : ''; };
   const chapters = CH.map((c, i) => `
     <article class="pv-ch" data-i="${i}" id="${id}-ch${i + 1}" aria-labelledby="${id}-cht${i + 1}">
-      <div class="pv-ch-in">
-        <p class="pv-ch-no"><span>${pad(i + 1)}</span>${c.short}</p>
-        <h3 class="pv-ch-title" id="${id}-cht${i + 1}">${c.title}</h3>
-        <p class="pv-ch-text">${c.text}</p>
-        ${legend(i)}${i === 4 ? dims : ''}
-      </div>
+      <p class="pv-ch-no"><span>${pad(i + 1)}</span>${c.short}</p>
+      <h3 class="pv-ch-title" id="${id}-cht${i + 1}">${c.title}</h3>
+      <p class="pv-ch-text">${c.text}</p>
+      ${legend(i)}${i === N - 1 ? `<dl class="pv-dimlist">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>${o.factsNote ? `<p class="pv-facts-note">${o.factsNote}</p>` : ''}` : ''}
     </article>`).join('');
   const dots = CH.map((c, i) => `<button type="button" class="pv-dot" data-i="${i}" aria-label="Kapitola ${i + 1}: ${c.short}" aria-controls="${id}-ch${i + 1}"><span aria-hidden="true"></span></button>`).join('');
-  const hotspots = PARTS.map(p => `<button type="button" class="pv-hs" data-part="${p.id}" data-ch="${p.ch}" aria-pressed="false" tabindex="-1" aria-hidden="true" aria-label="${p.n}: ${p.name}"><span>${p.n}</span></button>`).join('');
+  const hotspots = PARTS.map(p => `<button type="button" class="pv-hs" data-part="${p.id}" data-ch="${p.ch}" aria-pressed="false" tabindex="-1" aria-hidden="true" aria-label="${p.n}: ${p.name}. ${p.text}"><span>${p.n}</span></button>`).join('');
+  const labels = PARTS.map(p => `<div class="pv-lb" data-part="${p.id}"><span class="pv-num">${p.n}</span><span class="pv-lb-t"><b>${p.name}</b><span>${first(p.text)}</span></span></div>`).join('');
+  const tbs = CH.map((c, i) => `<div class="pv-tbi" data-i="${i}"><p class="pv-tb-h">${c.title}</p><p class="pv-tb-p">${first(c.text)}</p></div>`).join('');
   const variants = [['S', 6.0], ['M', 7.2], ['L', 7.8]];
   return `
 <div class="pv-head">
@@ -147,16 +148,22 @@ function markup(id, D, PARTS) {
   <p class="pv-lead">Pod každým Nordhousem je silniční přívěs, na něm lehký ocelový skelet a teprve navrch dřevo. Projděte si dům od kol až po hřeben střechy.</p>
 </div>
 <div class="pv-scrolly">
-  <div class="pv-stage-wrap">
+  <div class="pv-pin">
     <div class="pv-stage" data-step="0">
       <div class="pv-art">${drawing(D, PARTS)}</div>
       <div class="pv-gl" aria-hidden="true"></div>
       <div class="pv-overlay">${hotspots}<div class="pv-dimlabels" aria-hidden="true"></div></div>
-      <div class="pv-hud" aria-hidden="true"><span class="pv-hud-no">01</span><span class="pv-hud-of">/ ${pad(N)}</span><span class="pv-hud-name">${CH[0].short}</span></div>
+      <svg class="pv-leaders" aria-hidden="true"></svg>
+      <div class="pv-labels" aria-hidden="true">${labels}</div>
+      <div class="pv-tb">
+        <div class="pv-tb-top"><p class="pv-hud" aria-hidden="true"><span class="pv-hud-no">01</span><span class="pv-hud-of">/ ${pad(N)}</span><span class="pv-hud-name">${CH[0].short}</span></p>
+          <nav class="pv-dots" aria-label="Kapitoly podvozku">${dots}</nav></div>
+        <div class="pv-tb-stack" aria-hidden="true">${tbs}</div>
+      </div>
       <p class="pv-tag">Dům ${D.key} · ilustrační model</p>
-      <div class="pv-callout" role="status" aria-live="polite"></div>
+      <div class="pv-factsbar" aria-hidden="true">${facts.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join('')}${o.factsNote ? `<p>${o.factsNote}</p>` : ''}</div>
+      <div class="pv-card" aria-hidden="true"><div class="pv-card-in"></div></div>
     </div>
-    <nav class="pv-dots" aria-label="Kapitoly podvozku">${dots}</nav>
   </div>
   <div class="pv-chapters">${chapters}</div>
 </div>
@@ -242,7 +249,7 @@ function drawing(D, PARTS) {
 
 /* --------------------------------------------- kompaktní vložení (detail, úvod) */
 
-// Upraví vykreslený markup podle voleb compact / towing / specs / head / facts. Texty jdou přes textContent.
+// Upraví vykreslený markup podle voleb compact / towing / specs / head. Texty jdou přes textContent.
 function applyEmbed(root, o) {
   const compact = !!o.compact;
   root.classList.toggle('pv--compact', compact);
@@ -259,11 +266,79 @@ function applyEmbed(root, o) {
       const w = document.createElement('p'); w.className = 'pv-head-cta'; w.append(a); head.append(w);
     }
   }
-  const dl = root.querySelector('.pv-dimlist');
-  if (o.facts && dl) {
-    dl.replaceChildren(...o.facts.map(([k, v]) => { const d = document.createElement('div'), t = document.createElement('dt'), dd = document.createElement('dd'); t.textContent = k; dd.textContent = v; d.append(t, dd); return d; }));
-    if (o.factsNote) { const n = document.createElement('p'); n.className = 'pv-facts-note'; n.textContent = o.factsNote; dl.after(n); }
-  }
+}
+
+/* ------------------------------------------------- popisky na odkazových čarách (společné pro dům i stěnu) */
+
+// Postup každý snímek: body (promítnuté kotvy) se rozdělí na levý a pravý okraj scény podle polohy (jednou, když se
+// objeví), na každé straně se seřadí podle výšky, popisky se posunou tak, aby se nepřekrývaly a zůstaly v bezpečných
+// okrajích (pod titulkem vlevo, pod štítkem vpravo, nad rezervou dole). Odkazová čára vede od bodu k hraně popisku.
+// Šířka okraje a popisku se čte z CSS (--pv-m, --pv-lw); --pv-lw 0 = režim karty (mobil), popisky se nekreslí.
+function annotator(stage, gl, svg, topLeft, topRight) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const side = new Map(), paths = new Map(), heights = new Map();
+  const cfg = () => { const cs = getComputedStyle(stage); return { m: parseFloat(cs.getPropertyValue('--pv-m')) || 16, lw: parseFloat(cs.getPropertyValue('--pv-lw')) || 0 }; };
+  const path = id => {
+    if (!paths.has(id)) { const p = document.createElementNS(NS, 'path'); p.setAttribute('pathLength', '1'); p.setAttribute('class', 'pv-ln'); svg.appendChild(p); paths.set(id, p); }
+    return paths.get(id);
+  };
+  return {
+    cardMode: () => cfg().lw <= 0,
+    reset() { side.clear(); heights.clear(); },
+    place(items, opt = {}) {
+      const { m, lw } = cfg(), w = stage.clientWidth, h = stage.clientHeight;
+      const live = new Set(items.map(i => i.id));
+      for (const [id, p] of paths) p.classList.toggle('is-on', live.has(id) && lw > 0);
+      if (lw <= 0 || !items.length) return;
+      const fresh = items.filter(i => !side.has(i.id));
+      if (fresh.length) {
+        const cx = gl.offsetLeft + gl.clientWidth / 2;
+        if (fresh.length === items.length && opt.balance !== false) {
+          const L = items.filter(i => i.x < cx), R = items.filter(i => i.x >= cx);
+          while (L.length - R.length > 1) { L.sort((a, b) => b.x - a.x); R.push(L.shift()); }
+          while (R.length - L.length > 1) { R.sort((a, b) => a.x - b.x); L.push(R.shift()); }
+          L.forEach(i => side.set(i.id, 0)); R.forEach(i => side.set(i.id, 1));
+        } else fresh.forEach(i => side.set(i.id, i.side ?? (i.x < cx ? 0 : 1)));
+        items.forEach(i => heights.set(i.id, i.el.offsetHeight));
+      }
+      const sb = stage.getBoundingClientRect();
+      const tops = [topLeft() - sb.top + 20, topRight() - sb.top + 16];
+      const bot = h - m - (opt.reserve || 0);
+      for (const s of [0, 1]) {
+        // pořadí shora dolů: podle výšky, při podobné výšce blíž k okraji = výš (odkazové čáry se pak nekříží)
+        const key = i => i.y + (s ? -0.5 : 0.5) * i.x;
+        const arr = items.filter(i => side.get(i.id) === s).sort((a, b) => key(a) - key(b));
+        const hs = arr.map(i => heights.get(i.id) || i.el.offsetHeight), gap = 14, ys = arr.map(i => i.y - 11);
+        for (let k = 0; k < ys.length; k++) ys[k] = Math.max(ys[k], tops[s], k ? ys[k - 1] + hs[k - 1] + gap : -1e9);
+        for (let k = ys.length - 1; k >= 0; k--) ys[k] = Math.min(ys[k], (k < ys.length - 1 ? ys[k + 1] - gap : bot) - hs[k]);
+        for (let k = 0; k < ys.length; k++) ys[k] = Math.max(ys[k], tops[s], k ? ys[k - 1] + hs[k - 1] + gap : -1e9);
+        arr.forEach((it, k) => {
+          const x = s ? w - m - lw : m, y = ys[k];
+          it.el.dataset.side = s ? 'R' : 'L';
+          it.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+          const ly = y + 11, ex = s ? x - 8 : x + lw + 8, kx = s ? ex - 26 : ex + 26;
+          path(it.id).setAttribute('d', `M${it.x.toFixed(1)} ${it.y.toFixed(1)}L${kx.toFixed(1)} ${ly.toFixed(1)}L${ex.toFixed(1)} ${ly.toFixed(1)}`);
+        });
+      }
+    },
+  };
+}
+// Karta dole (mobil): obsah se mění s krátkým prolnutím.
+function cardCtl(el) {
+  const inner = el && el.querySelector('.pv-card-in'); let key = null, t = 0;
+  return {
+    set(k, html) { if (!inner || k === key) return; const firstSet = key === null; key = k; clearTimeout(t); if (firstSet) { inner.innerHTML = html; return; } inner.classList.add('is-out'); t = setTimeout(() => { inner.innerHTML = html; inner.classList.remove('is-out'); }, 180); },
+    clear() { clearTimeout(t); },
+  };
+}
+function scrollProgress(scrolly, pin) {
+  const travel = scrolly.offsetHeight - pin.offsetHeight; if (travel <= 0) return 0;
+  const top = parseFloat(getComputedStyle(pin).top) || 0;
+  return clamp((top - scrolly.getBoundingClientRect().top) / travel, 0, 1);
+}
+function scrollToProgress(scrolly, pin, r, smooth) {
+  const travel = scrolly.offsetHeight - pin.offsetHeight, top = parseFloat(getComputedStyle(pin).top) || 0;
+  scrollTo({ top: scrollY + scrolly.getBoundingClientRect().top - top + travel * r + 2, behavior: smooth ? 'smooth' : 'auto' });
 }
 
 /* ------------------------------------------------------------------ mount */
@@ -271,44 +346,54 @@ function applyEmbed(root, o) {
 let uid = 0;
 export function mountPodvozek(root, opts = {}) {
   const o = { glb: null, frames: null, frameCount: 5, mode: 'auto', lazyMargin: '120%', variant: 'm', ...opts };
-  const D = dimsOf(o.variant), PARTS = partsFor(D);
+  const D = dimsOf(o.variant), PARTS = partsFor(D), FACTS = factsOf(D, o);
   const id = 'pv' + (++uid);
   root.classList.add('pv');
-  root.innerHTML = markup(id, D, PARTS);
+  root.innerHTML = markup(id, D, PARTS, o);
   applyEmbed(root, o);
 
   const $ = s => root.querySelector(s), $$ = s => [...root.querySelectorAll(s)];
-  const stage = $('.pv-stage'), glBox = $('.pv-gl'), chapters = $$('.pv-ch'), chIn = $$('.pv-ch-in'), dots = $$('.pv-dot');
-  const hs = $$('.pv-hs'), legendBtns = $$('.pv-legend-btn'), callout = $('.pv-callout');
-  const hudNo = $('.pv-hud-no'), hudName = $('.pv-hud-name'), scrolly = $('.pv-scrolly');
-  const mqReduce = matchMedia('(prefers-reduced-motion: reduce)'), mqWide = matchMedia('(min-width: 960px)');
-  let reduced = o.reducedMotion ?? mqReduce.matches;
-  const isStatic = o.mode === 'static' || (o.mode === 'auto' && (lowEnd() || !hasWebGL()));
+  const scrolly = $('.pv-scrolly'), pin = $('.pv-pin'), stage = $('.pv-stage'), glBox = $('.pv-gl');
+  const chapters = $$('.pv-ch'), dots = $$('.pv-dot'), hs = $$('.pv-hs'), tbis = $$('.pv-tbi'), lbs = $$('.pv-lb');
+  const hudNo = $('.pv-hud-no'), hudName = $('.pv-hud-name'), factsbar = $('.pv-factsbar'), tag = $('.pv-tag'), tbTop = $('.pv-tb-top');
+  const card = cardCtl($('.pv-card'));
+  const mqReduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const reduced = o.reducedMotion ?? mqReduce.matches;
+  // Omezený pohyb a slabá zařízení: statická kresba a kapitoly jako běžný seznam pod ní.
+  const isStatic = reduced || o.mode === 'static' || (o.mode === 'auto' && (lowEnd() || !hasWebGL()));
   root.classList.toggle('pv--static', isStatic);
   root.classList.toggle('pv--reduced', reduced);
 
-  // Statická verze s předrenderovanými snímky (Blender) místo SVG.
   let frameImg = null;
-  if (o.frames) {
-    $('.pv-art').innerHTML = `<img class="pv-frame" alt="" decoding="async">`;
-    frameImg = $('.pv-frame');
-  }
+  if (o.frames) { $('.pv-art').innerHTML = `<img class="pv-frame" alt="" decoding="async">`; frameImg = $('.pv-frame'); }
   const frameSrc = k => o.frames.replace('{n}', pad(k + 1, 3));
 
-  let p = 0, active = -1, part = null, visible = false, ticking = false, viewer = null, destroyed = false;
+  let p = 0, active = -1, part = null, auto = null, visible = false, ticking = false, viewer = null, destroyed = false, proj = null;
+  const tbBottom = () => { const t = tbis[active]; return (t && t.classList.contains('is-on') ? t : tbTop).getBoundingClientRect().bottom; };
+  const ann = annotator(stage, glBox, $('.pv-leaders'), tbBottom, () => tag.getBoundingClientRect().bottom);
 
-  function readingLine(vh) {
-    if (mqWide.matches) return vh * 0.5;
-    const sw = $('.pv-stage-wrap'); if (!sw) return vh * 0.5;
-    const b = sw.getBoundingClientRect().bottom;
-    return b + (vh - b) * 0.14;
+  function layout() {
+    const cm = ann.cardMode(), items = [];
+    PARTS.forEach((pd, k) => {
+      const on = !cm && !isStatic && !!proj && pd.ch === active;
+      lbs[k].classList.toggle('is-on', on);
+      if (on && proj[k]) items.push({ id: pd.id, el: lbs[k], x: proj[k][0] + glBox.offsetLeft, y: proj[k][1] + glBox.offsetTop });
+    });
+    ann.place(items, { reserve: active === N - 1 ? factsbar.offsetHeight + 16 : 0 });
+    if (cm && !isStatic) cardContent();
   }
-  function measure() {
-    const vh = innerHeight, line = readingLine(vh), frac = mqWide.matches ? 0.5 : 0;
-    const ref = chIn.map(el => { const r = el.getBoundingClientRect(); return r.top + r.height * frac; });
-    if (line <= ref[0]) return 0;
-    for (let i = 0; i < N - 1; i++) if (line < ref[i + 1]) return i + (line - ref[i]) / (ref[i + 1] - ref[i]);
-    return N - 1;
+  // Karta: titulek kapitoly, pak postupně díly kapitoly podle scrollu (nebo díl vybraný klepnutím), v poslední kapitole čísla.
+  function cardContent() {
+    const c = CH[active]; if (!c) return;
+    const ps = PARTS.filter(x => x.ch === active);
+    let pd = part ? PARTS.find(x => x.id === part) : null;
+    if (!pd && ps.length && viewer) { const f = clamp(p - active + 0.5, 0, 1); if (f >= 0.3 && f <= 0.68) pd = ps[clamp(Math.floor((f - 0.3) / 0.38 * ps.length), 0, ps.length - 1)]; }   // díly jen dokud jsou jejich body vidět
+    const a = pd ? pd.id : null;
+    if (a !== auto) { auto = a; hs.forEach(b => b.classList.toggle('is-cur', b.dataset.part === a)); if (!part && viewer) viewer.part(a); }
+    const k = `<p class="pv-card-k">${pad(active + 1)} · ${c.short}</p>`;
+    if (active === N - 1) card.set('f', `${k}<p class="pv-card-h">${c.title}</p><dl class="pv-card-facts">${FACTS.map(([a2, b]) => `<div><dt>${a2}</dt><dd>${b}</dd></div>`).join('')}</dl>`);
+    else if (pd) card.set(pd.id, `${k}<p class="pv-card-h"><span class="pv-num">${pd.n}</span>${pd.name}</p><p class="pv-card-p">${first(pd.text)}</p>`);
+    else card.set('c' + active, `${k}<p class="pv-card-h">${c.title}</p><p class="pv-card-p">${first(c.text)}</p>`);
   }
 
   function setActive(i) {
@@ -318,36 +403,36 @@ export function mountPodvozek(root, opts = {}) {
     dots.forEach((d, k) => k === i ? d.setAttribute('aria-current', 'step') : d.removeAttribute('aria-current'));
     stage.dataset.step = i;
     hudNo.textContent = pad(i + 1); hudName.textContent = CH[i].short;
-    hs.forEach(b => { const on = +b.dataset.ch === i; b.tabIndex = on ? 0 : -1; b.setAttribute('aria-hidden', on ? 'false' : 'true'); });
+    tbis.forEach((t, k) => t.classList.toggle('is-on', k === i));
+    hs.forEach(b => { const on = +b.dataset.ch === i && !isStatic; b.tabIndex = on ? 0 : -1; b.setAttribute('aria-hidden', on ? 'false' : 'true'); });
+    factsbar.classList.toggle('is-on', i === N - 1);
+    ann.reset();
     if (part && PARTS.find(x => x.id === part).ch !== i) setPart(null);
     if (viewer) viewer.label(`3D model Domu ${D.key} na podvozku. Kapitola ${i + 1}: ${CH[i].title}.`);
     if (frameImg && o.frameCount <= N) frameImg.src = frameSrc(i);
+    layout();
   }
-
   function setPart(pid) {
     part = pid;
-    const pd = PARTS.find(x => x.id === pid);
-    [...hs, ...legendBtns].forEach(b => b.setAttribute('aria-pressed', b.dataset.part === pid ? 'true' : 'false'));
+    hs.forEach(b => b.setAttribute('aria-pressed', b.dataset.part === pid ? 'true' : 'false'));
+    lbs.forEach(l => l.classList.toggle('is-hl', l.dataset.part === pid));
     $$('.pv-svg [data-part]').forEach(g => g.classList.toggle('is-hl', g.dataset.part === pid));
-    callout.innerHTML = pd ? `<span class="pv-num" aria-hidden="true">${pd.n}</span><span><b>${pd.name}</b> ${pd.text}</span>` : '';
-    callout.classList.toggle('is-on', !!pd);
-    viewer && viewer.part(pid);
+    viewer && viewer.part(pid || auto);
+    if (ann.cardMode()) cardContent();
   }
 
   let rafU = 0;
   function update() {
     rafU = 0; ticking = false;
     if (destroyed) return;
-    const raw = measure();
-    p = reduced ? Math.round(raw) : raw;
-    setActive(Math.round(raw));
-    if (viewer) viewer.target(p, reduced);
-    if (frameImg && o.frameCount > N) {
-      const k = Math.round(p / (N - 1) * (o.frameCount - 1));
-      const src = frameSrc(k); if (!frameImg.src.endsWith(src)) frameImg.src = src;
-    }
+    if (!isStatic) p = scrollProgress(scrolly, pin) * (N - 1);
+    setActive(isStatic ? Math.max(active, 1) : Math.round(p));
+    if (viewer) viewer.target(p, false);
+    if (frameImg && o.frameCount > N) { const k = Math.round(p / (N - 1) * (o.frameCount - 1)), src = frameSrc(k); if (!frameImg.src.endsWith(src)) frameImg.src = src; }
+    if (ann.cardMode() && !isStatic) cardContent();
   }
   const onScroll = () => { if (!ticking && !destroyed) { ticking = true; rafU = requestAnimationFrame(update); } };
+  const onResize = () => { ann.reset(); onScroll(); layout(); };
 
   // Viditelnost: posluchač scrollu a render smyčka běží jen když je sekce na obrazovce.
   const ioVis = new IntersectionObserver(([e]) => {
@@ -357,11 +442,12 @@ export function mountPodvozek(root, opts = {}) {
     else { removeEventListener('scroll', onScroll); viewer && viewer.stop(); }
   });
   ioVis.observe(scrolly);
-  addEventListener('resize', onScroll, { passive: true });
+  addEventListener('resize', onResize, { passive: true });
 
   // Líné spuštění WebGL kousek před sekcí.
   let ioLazy = null;
   if (!isStatic) {
+    o.onProject = pr => { proj = pr; layout(); };
     ioLazy = new IntersectionObserver(([e]) => {
       if (!e.isIntersecting) return;
       ioLazy.disconnect(); ioLazy = null;
@@ -370,7 +456,7 @@ export function mountPodvozek(root, opts = {}) {
         viewer = v;
         v.label(`3D model Domu ${D.key} na podvozku. Kapitola ${active + 1}: ${CH[active].title}.`);
         v.target(p, true);
-        part && v.part(part);
+        (part || auto) && v.part(part || auto);
         stage.classList.add('pv-stage--3d');
         visible && v.start();
       }).catch(err => { console.warn('[podvozek] 3D se nepodařilo spustit, zůstává statická kresba.', err); root.classList.add('pv--static'); });
@@ -378,14 +464,12 @@ export function mountPodvozek(root, opts = {}) {
     ioLazy.observe(scrolly);
   }
 
-  // Tečky kapitol: posunou stránku tak, aby kapitola stála na čtecí čáře (model se srovná sám).
+  // Tečky kapitol: posunou stránku na danou kapitolu (model se srovná sám).
   function goTo(i) {
     i = clamp(i, 0, N - 1);
-    const vh = innerHeight, r = chIn[i].getBoundingClientRect();
-    const ref = r.top + (mqWide.matches ? r.height / 2 : 0);
-    const y = scrollY + ref - readingLine(vh) + 2;
-    scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' });
-    if (reduced || !visible) { cancelAnimationFrame(rafU); rafU = requestAnimationFrame(update); }
+    if (isStatic) { chapters[i].scrollIntoView({ behavior: 'auto', block: 'start' }); return; }
+    scrollToProgress(scrolly, pin, i / (N - 1), !reduced);
+    if (!visible) { cancelAnimationFrame(rafU); rafU = requestAnimationFrame(update); }
   }
   const onDot = e => { const b = e.target.closest('.pv-dot'); if (b) goTo(+b.dataset.i); };
   const onDotKey = e => {
@@ -395,33 +479,28 @@ export function mountPodvozek(root, opts = {}) {
     e.preventDefault();
     const n = clamp(+b.dataset.i + k, 0, N - 1); dots[n].focus(); goTo(n);
   };
-  const onPart = e => {
-    const b = e.target.closest('[data-part]'); if (!b || !b.matches('.pv-hs, .pv-legend-btn')) return;
-    const pid = b.dataset.part, pd = PARTS.find(x => x.id === pid);
-    if (pd.ch !== active) goTo(pd.ch);
-    setPart(part === pid ? null : pid);
-  };
+  const onPart = e => { const b = e.target.closest('.pv-hs'); if (b) setPart(part === b.dataset.part ? null : b.dataset.part); };
+  const onFocus = e => { const b = e.target.closest('.pv-hs'); if (b && b.matches(':focus-visible')) setPart(b.dataset.part); };
   const onKey = e => { if (e.key === 'Escape' && part) setPart(null); };
-  root.addEventListener('click', onDot);
-  root.addEventListener('keydown', onDotKey);
-  root.addEventListener('click', onPart);
-  root.addEventListener('keydown', onKey);
-  const onReduce = () => { if (destroyed) return; reduced = o.reducedMotion ?? mqReduce.matches; root.classList.toggle('pv--reduced', reduced); update(); };
-  mqReduce.addEventListener('change', onReduce);
+  // Statická verze: najetí na kapitolu přepne kresbu.
+  const onOver = e => { if (!isStatic) return; const c = e.target.closest('.pv-ch'); if (c) setActive(+c.dataset.i); };
+  root.addEventListener('click', onDot); root.addEventListener('keydown', onDotKey);
+  root.addEventListener('click', onPart); root.addEventListener('focusin', onFocus); root.addEventListener('keydown', onKey);
+  root.addEventListener('pointerover', onOver);
 
-  setActive(0);
+  setActive(isStatic ? 1 : 0);
   rafU = requestAnimationFrame(update);
 
   return {
     goTo,
     destroy() {
       destroyed = true;
-      cancelAnimationFrame(rafU); rafU = 0;
+      cancelAnimationFrame(rafU); rafU = 0; card.clear();
       ioVis.disconnect(); ioLazy && ioLazy.disconnect();
-      removeEventListener('scroll', onScroll); removeEventListener('resize', onScroll);
-      mqReduce.removeEventListener('change', onReduce);
+      removeEventListener('scroll', onScroll); removeEventListener('resize', onResize);
       root.removeEventListener('click', onDot); root.removeEventListener('keydown', onDotKey);
-      root.removeEventListener('click', onPart); root.removeEventListener('keydown', onKey);
+      root.removeEventListener('click', onPart); root.removeEventListener('focusin', onFocus); root.removeEventListener('keydown', onKey);
+      root.removeEventListener('pointerover', onOver);
       viewer && viewer.dispose();
       root.innerHTML = ''; root.classList.remove('pv', 'pv--static', 'pv--reduced', 'pv--compact');
     },
@@ -623,12 +702,13 @@ async function createViewer(box, o, D, PARTS) {
     model.updateMatrixWorld(true);
 
     // Hotspoty a popisky kót v HTML nad plátnem.
-    const pts = [];
+    const pts = [], proj = [];
     hsEls.forEach((b, k) => {
       const pd = PARTS[k];
       const vis = Math.max(0, 1 - Math.abs(curP - pd.ch) * 2.6);
       anchors[k].getWorldPosition(tmp).project(camera);
       const x = (tmp.x + 1) / 2 * w, y = (1 - tmp.y) / 2 * h;
+      proj.push([x, y, vis]);
       b.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%)`;
       b.style.opacity = vis.toFixed(3);
       b.style.visibility = vis > 0.02 ? 'visible' : 'hidden';
@@ -646,6 +726,7 @@ async function createViewer(box, o, D, PARTS) {
       e.style.transform = `translate(${((tmp.x + 1) / 2 * w).toFixed(1)}px, ${((1 - tmp.y) / 2 * h).toFixed(1)}px) translate(-50%, -50%)`;
       e.style.opacity = dims.toFixed(3);
     });
+    o.onProject && o.onProject(proj);   // popisky na odkazových čarách (mountPodvozek)
   }
 
   let curP = 0, tgtP = 0;
@@ -1255,7 +1336,7 @@ const WALL = [
 const WN = WALL.length, WW = 1.25, WH = 1.0, WX = 0.95;            // šířka a výška vzorku; posun do strany na metr posunu do hloubky
 // Mezery mezi vrstvami po rozkladu (m): kolem ocelového skeletu víc místa, aby byl dobře vidět.
 const WGAP = [0.17, 0.17, 0.36, 0.3, 0.13];
-const WOFF = WALL.map((_, k) => WGAP.slice(k).reduce((a, v) => a + v, 0)), WSPREAD = WOFF[0];
+const WOFF = WALL.map((_, k) => WGAP.slice(k).reduce((a, v) => a + v, 0));
 const STUDS = [-0.62, -0.02, 0.58];                                 // líc pásnice sloupků (x), osová vzdálenost 600 mm
 // Poloha vrstev v tloušťce: interiér vzadu (z = 0), fasáda vpředu.
 const WZ = (() => { const z = []; let at = 0; for (let k = WN - 1; k >= 0; k--) { z[k] = at; at += WALL[k].d; } return z; })();
@@ -1263,20 +1344,30 @@ const wallSep = (p, k) => ease(clamp((p - 0.04 - k * 0.12) / 0.26, 0, 1) * 0.76 
 
 function wallMarkup(id, o) {
   const h = o.head === false ? '' : `<div class="pv-head"><p class="pv-eyebrow">${o.head?.eyebrow ?? 'Plášť'}</p><h2 class="pv-h">${o.head?.title ?? 'Z čeho je stěna'}</h2><p class="pv-lead">${o.head?.lead ?? ''}</p></div>`;
-  const rows = WALL.map((L, k) => `<li><button type="button" class="st-row" data-l="${k}"><span class="pv-num" aria-hidden="true">${k + 1}</span><span class="st-row-main"><b>${L.name}</b><span class="st-row-text">${L.text}</span></span><em>${L.t}</em></button></li>`).join('');
-  const mks = WALL.map((L, k) => `<button type="button" class="pv-hs st-mk" data-l="${k}" tabindex="-1" aria-hidden="true" aria-label="${k + 1}: ${L.name}"><span>${k + 1}</span></button>`).join('');
+  const note = o.note ?? 'Tloušťky jsou ilustrační, doplníme z technických listů výroby.';
+  const rows = WALL.map((L, k) => `<li><span class="pv-num" aria-hidden="true">${k + 1}</span><span class="st-row-main"><b>${L.name}</b> <span class="st-row-text">${L.text}</span></span> <em>${L.t}</em></li>`).join('');
+  const mks = WALL.map((L, k) => `<button type="button" class="pv-hs st-mk" data-l="${k}" tabindex="-1" aria-hidden="true" aria-label="${k + 1}: ${L.name}, ${L.t}. ${L.text}"><span>${k + 1}</span></button>`).join('');
+  const lbs = WALL.map((L, k) => `<div class="pv-lb st-lb" data-l="${k}"><span class="pv-num">${k + 1}</span><span class="pv-lb-t"><b>${L.name}</b><span>${L.t}</span></span></div>`).join('');
+  const tbs = [`<div class="pv-tbi" data-i="-1"><p class="pv-tb-h">Stěna v celku</p><p class="pv-tb-p">Posouvejte stránkou a vrstvy se oddělí jedna po druhé, zvenku dovnitř.</p></div>`,
+    ...WALL.map((L, k) => `<div class="pv-tbi" data-i="${k}"><p class="pv-tb-h">${L.name}</p><p class="pv-tb-p">${L.text} <span class="st-t">${L.t}</span></p></div>`)].join('');
   return `${h}
-<div class="st-scrolly">
-  <div class="st-pin">
+<div class="pv-scrolly st-scrolly">
+  <div class="pv-pin">
     <div class="pv-stage st-stage">
       <div class="pv-art">${wallDrawing()}</div>
       <div class="pv-gl" aria-hidden="true"></div>
       <div class="pv-overlay">${mks}</div>
+      <svg class="pv-leaders" aria-hidden="true"></svg>
+      <div class="pv-labels" aria-hidden="true">${lbs}</div>
+      <div class="pv-tb"><div class="pv-tb-top"><p class="pv-hud" aria-hidden="true"><span class="pv-hud-no">00</span><span class="pv-hud-of">/ ${pad(WN)}</span><span class="pv-hud-name">Zvenku dovnitř</span></p></div>
+        <div class="pv-tb-stack" aria-hidden="true">${tbs}</div></div>
       <p class="pv-tag">Vzorek stěny 1,25 × 1 m</p>
+      <p class="st-note-in" aria-hidden="true">${note}</p>
+      <div class="pv-card" aria-hidden="true"><div class="pv-card-in"></div></div>
     </div>
-    <div class="st-side"><ol class="st-list" id="${id}-list" aria-label="Vrstvy stěny zvenku dovnitř">${rows}</ol>
-      <p class="st-note">${o.note ?? 'Tloušťky jsou ilustrační, doplníme z technických listů výroby.'}</p></div>
   </div>
+  <div class="pv-chapters st-list-wrap"><ol class="st-list" id="${id}-list" aria-label="Vrstvy stěny zvenku dovnitř">${rows}</ol>
+    <p class="st-note">${note}</p></div>
 </div>`;
 }
 
@@ -1320,49 +1411,65 @@ export function mountStena(root, opts = {}) {
   root.classList.add('pv', 'st');
   root.innerHTML = wallMarkup(id, o);
   const $ = s => root.querySelector(s), $$ = s => [...root.querySelectorAll(s)];
-  const scrolly = $('.st-scrolly'), pin = $('.st-pin'), stage = $('.st-stage'), glBox = $('.pv-gl'), rows = $$('.st-row'), mks = $$('.st-mk');
+  const scrolly = $('.st-scrolly'), pin = $('.pv-pin'), stage = $('.st-stage'), glBox = $('.pv-gl'), mks = $$('.st-mk'), lbs = $$('.st-lb'), tbis = $$('.pv-tbi');
+  const hudNo = $('.pv-hud-no'), tbTop = $('.pv-tb-top'), tag = $('.pv-tag'), card = cardCtl($('.pv-card'));
   const mqReduce = matchMedia('(prefers-reduced-motion: reduce)');
   const reduced = o.reducedMotion ?? mqReduce.matches;
   const isStatic = reduced || o.mode === 'static' || (o.mode === 'auto' && (lowEnd() || !hasWebGL()));
   root.classList.toggle('pv--static', isStatic);
-  let p = isStatic ? 1 : 0, viewer = null, visible = false, ticking = false, rafU = 0, destroyed = false, hl = -1;
+  let p = isStatic ? 1 : 0, act = -2, viewer = null, visible = false, ticking = false, rafU = 0, destroyed = false, hl = -1, proj = null;
+  const tbBottom = () => { const t = tbis[act + 1]; return (t && t.classList.contains('is-on') ? t : tbTop).getBoundingClientRect().bottom; };
+  const ann = annotator(stage, glBox, $('.pv-leaders'), tbBottom, () => tag.getBoundingClientRect().bottom);
 
-  function measure() {
-    const r = scrolly.getBoundingClientRect(), top = parseFloat(getComputedStyle(pin).top) || 0;
-    const travel = scrolly.offsetHeight - pin.offsetHeight;
-    return travel > 0 ? clamp((top - r.top) / travel, 0, 1) : 1;
+  function layout() {
+    const cm = ann.cardMode(), items = [];
+    WALL.forEach((_, k) => {
+      const on = !cm && !isStatic && !!proj && !!proj[k] && proj[k][2] > 0.5;
+      lbs[k].classList.toggle('is-on', on);
+      if (on) items.push({ id: 'l' + k, el: lbs[k], x: proj[k][0] + glBox.offsetLeft, y: proj[k][1] + glBox.offsetTop, side: k < 3 ? 0 : 1 });   // vnější vrstvy vlevo, vnitřní vpravo
+    });
+    ann.place(items, { balance: false, reserve: 28 });
   }
   function paint() {
-    const act = WALL.reduce((a, _, k) => (wallSep(p, k) > 0.5 ? k : a), -1);
-    rows.forEach((b, k) => { b.classList.toggle('is-on', wallSep(p, k) > 0.5); b.classList.toggle('is-active', k === act); });
+    const a = WALL.reduce((r, _, k) => (wallSep(p, k) > 0.5 ? k : r), -1);
+    if (a === act) return;
+    act = a;
+    hudNo.textContent = pad(a + 1);
+    tbis.forEach((t, i) => t.classList.toggle('is-on', i === a + 1));
+    $$('.st-list li').forEach((li, k) => li.classList.toggle('is-on', k <= a));
+    mks.forEach((b, i) => b.classList.toggle('is-cur', i === a));
+    const L = WALL[a];
+    card.set('l' + a, L ? `<p class="pv-card-k">${pad(a + 1)} / ${pad(WN)} · ${L.t}</p><p class="pv-card-h"><span class="pv-num">${a + 1}</span>${L.name}</p><p class="pv-card-p">${L.text}</p>`
+      : `<p class="pv-card-k">Zvenku dovnitř</p><p class="pv-card-h">Stěna v celku</p><p class="pv-card-p">Posouvejte stránkou a vrstvy se oddělí jedna po druhé.</p>`);
   }
   function setHl(k) {
     hl = k;
-    rows.forEach((b, i) => b.classList.toggle('is-hl', i === k));
     $$('.st-s-l').forEach(g => g.classList.toggle('is-hl', +g.dataset.l === k));
     root.classList.toggle('st--hl', k >= 0);
     mks.forEach((b, i) => b.classList.toggle('is-hl', i === k));
+    lbs.forEach((b, i) => b.classList.toggle('is-hl', i === k));
     viewer && viewer.highlight(k);
   }
   function update() {
     rafU = 0; ticking = false; if (destroyed) return;
-    if (!isStatic) p = measure();
+    if (!isStatic) p = scrollProgress(scrolly, pin);
     paint(); viewer && viewer.target(p);
   }
   const onScroll = () => { if (!ticking && !destroyed) { ticking = true; rafU = requestAnimationFrame(update); } };
+  const onResize = () => { ann.reset(); onScroll(); layout(); };
   const ioVis = new IntersectionObserver(([e]) => {
     visible = e.isIntersecting; if (destroyed) return;
     if (visible) { addEventListener('scroll', onScroll, { passive: true }); update(); viewer && viewer.start(); }
     else { removeEventListener('scroll', onScroll); viewer && viewer.stop(); }
   });
   ioVis.observe(scrolly);
-  addEventListener('resize', onScroll, { passive: true });
+  addEventListener('resize', onResize, { passive: true });
   let ioLazy = null;
   if (!isStatic) {
     ioLazy = new IntersectionObserver(([e]) => {
       if (!e.isIntersecting) return;
       ioLazy.disconnect(); ioLazy = null;
-      createWallViewer(glBox, mks).then(v => {
+      createWallViewer(glBox, mks, pr => { proj = pr; layout(); }).then(v => {
         if (destroyed) { v.dispose(); return; }
         viewer = v; v.target(p, true); v.highlight(hl);
         stage.classList.add('pv-stage--3d'); visible && v.start();
@@ -1370,35 +1477,29 @@ export function mountStena(root, opts = {}) {
     }, { rootMargin: `${o.lazyMargin} 0px` });
     ioLazy.observe(scrolly);
   }
-  // Řádek seznamu: posune stránku na okamžik, kdy se vrstva oddělí.
-  function goTo(k) {
-    if (isStatic) return setHl(k);
-    const travel = scrolly.offsetHeight - pin.offsetHeight, top = parseFloat(getComputedStyle(pin).top) || 0;
-    const pk = Math.min(1, 0.04 + k * 0.12 + 0.2);
-    scrollTo({ top: scrollY + scrolly.getBoundingClientRect().top - top + travel * pk, behavior: 'smooth' });
-  }
-  const onClick = e => { const b = e.target.closest('.st-row, .st-mk'); if (b) { setHl(+b.dataset.l); if (b.classList.contains('st-row')) goTo(+b.dataset.l); } };
-  const onOver = e => { const b = e.target.closest('[data-l]'); setHl(b ? +b.dataset.l : -1); };
-  const onLeave = () => setHl(-1);
-  const onFocus = e => { const b = e.target.closest('[data-l]'); if (b) setHl(+b.dataset.l); };
-  root.addEventListener('click', onClick); root.addEventListener('pointerover', onOver); root.addEventListener('pointerleave', onLeave);
-  root.addEventListener('focusin', onFocus); root.addEventListener('focusout', onLeave);
+  function goTo(k) { if (isStatic) return setHl(k); scrollToProgress(scrolly, pin, Math.min(1, 0.04 + k * 0.12 + 0.2), !reduced); }
+  const onClick = e => { const b = e.target.closest('.st-mk'); if (b) setHl(hl === +b.dataset.l ? -1 : +b.dataset.l); };
+  const onOver = e => { const b = e.target.closest('.st-mk, .st-s-l'); if (b) setHl(+b.dataset.l); };
+  const onOut = e => { if (e.target.closest('.st-mk, .st-s-l')) setHl(-1); };
+  const onFocus = e => { const b = e.target.closest('.st-mk'); if (b) setHl(+b.dataset.l); };
+  root.addEventListener('click', onClick); root.addEventListener('pointerover', onOver); root.addEventListener('pointerout', onOut);
+  root.addEventListener('focusin', onFocus); root.addEventListener('focusout', onOut);
   paint(); rafU = requestAnimationFrame(update);
   return {
     goTo,
     destroy() {
-      destroyed = true; cancelAnimationFrame(rafU);
+      destroyed = true; cancelAnimationFrame(rafU); card.clear();
       ioVis.disconnect(); ioLazy && ioLazy.disconnect();
-      removeEventListener('scroll', onScroll); removeEventListener('resize', onScroll);
-      root.removeEventListener('click', onClick); root.removeEventListener('pointerover', onOver); root.removeEventListener('pointerleave', onLeave);
-      root.removeEventListener('focusin', onFocus); root.removeEventListener('focusout', onLeave);
+      removeEventListener('scroll', onScroll); removeEventListener('resize', onResize);
+      root.removeEventListener('click', onClick); root.removeEventListener('pointerover', onOver); root.removeEventListener('pointerout', onOut);
+      root.removeEventListener('focusin', onFocus); root.removeEventListener('focusout', onOut);
       viewer && viewer.dispose();
       root.innerHTML = ''; root.classList.remove('pv', 'st', 'pv--static');
     },
   };
 }
 
-async function createWallViewer(box, mks) {
+async function createWallViewer(box, mks, onProject) {
   const THREE = await import('three');
   const { RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js');
   const small = innerWidth < 720;
@@ -1487,29 +1588,33 @@ async function createWallViewer(box, mks) {
   mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] }); mqDark.addEventListener('change', readTheme);
 
   // Kamera: azimut a výška se s rozkladem pomalu stáčejí na bok, vzdálenost roste s roztažením vrstev.
-  const CAM = { az0: 0.5, az1: 0.45, el0: 0.3, el1: 0.2, d0: 3.4, dk: 1.5, tx: 0.05, ty: 0.47 };
+  const CAM = { az0: 0.5, az1: 0.45, el0: 0.3, el1: 0.2, d0: 3.0, dk: 1.35, tx: 0.05, ty: 0.47 };
   let tgt = 0, cur = 0, hl = -1, hlCur = groups.map(() => 0), dirty = true, raf = 0, last = 0, running = false;
   readTheme();
   const tmp = new THREE.Vector3();
   function apply() {
     const s = WALL.map((_, k) => wallSep(cur, k));
     groups.forEach((g, k) => { g.position.z = base[k].z + WOFF[k] * s[k]; g.position.x = base[k].x - WOFF[k] * WX * s[k]; });
-    const spread = WSPREAD * ease(clamp(cur / 0.8, 0, 1) * 0.76 + 0.12);
+    const spread = WOFF[0] * s[0];   // skutečné roztažení (fasáda se oddělí první), kamera ho drží celé v záběru
     const az = CAM.az0 + CAM.az1 * ease(clamp(cur, 0, 1) * 0.76 + 0.12), el = CAM.el0 + CAM.el1 * cur;
     const w = box.clientWidth || 1, h = box.clientHeight || 1, aspect = w / h;
     camera.aspect = aspect;
-    const dist = (CAM.d0 + spread * CAM.dk) * Math.pow(Math.max(1, 1.25 / aspect), 0.7);
+    const dist = (CAM.d0 + spread * CAM.dk) * Math.max(1, 1.3 / aspect);
     const tx = CAM.tx - spread * WX * 0.5, ty = CAM.ty, tz = spread * 0.5;
     camera.position.set(tx + dist * Math.cos(el) * Math.sin(az), ty + dist * Math.sin(el), tz + dist * Math.cos(el) * Math.cos(az));
     camera.lookAt(tx, ty, tz); camera.updateProjectionMatrix(); camera.updateMatrixWorld(); wall.updateMatrixWorld(true);
     groups.forEach((g, k) => { for (const m of lmats[k]) { m.emissive.copy(m.userData.em).lerp(AMBER, hlCur[k] * 0.6); m.emissiveIntensity = hlCur[k] > 0.01 ? 0.5 : 1; } });
+    const proj = [];
     mks.forEach((b, k) => {
       anchors[k].getWorldPosition(tmp).project(camera);
-      const vis = clamp((s[k] - 0.35) / 0.4, 0, 1);
+      const sx = (tmp.x + 1) / 2 * w, sy = (1 - tmp.y) / 2 * h, inside = sx > 16 && sx < w - 16 && sy > 16 && sy < h - 16;
+      const vis = inside ? clamp((s[k] - 0.35) / 0.4, 0, 1) : 0;
+      proj.push([(tmp.x + 1) / 2 * w, (1 - tmp.y) / 2 * h, vis]);
       b.style.transform = `translate(${((tmp.x + 1) / 2 * w).toFixed(1)}px, ${((1 - tmp.y) / 2 * h).toFixed(1)}px) translate(-50%, -50%)`;
       b.style.opacity = vis.toFixed(3); b.style.visibility = vis > 0.02 ? 'visible' : 'hidden';
       b.tabIndex = vis > 0.5 ? 0 : -1; b.setAttribute('aria-hidden', vis > 0.5 ? 'false' : 'true');
     });
+    onProject && onProject(proj);
   }
   function frame(t) {
     raf = requestAnimationFrame(frame);
