@@ -1344,6 +1344,15 @@ function saunaDispozice(p, { overview = false } = {}) {
     ...(overview ? { chapters: ['ext', 'plan', 'sauna', 'end'], travel: '120svh' } : {}) };
   return `<section id="dispozice" aria-label="Dispozice: ${p.name}"><div data-dz="${p.key}" data-pv-opts="${attrJson(opts)}"></div></section>`;
 }
+// Konstrukce sauny na podvozku (js/podvozek.js, variant 'sauna'): přívěs → ocelový skelet → plášť. Čísla z params.py
+// (projekt/sauna-podvozek-v2): délka s ojí 5,1 m (spojka 5 100 mm), šířka přes střechu 2,52 m; hmotnost z tabulky podvozků.
+function saunaKonstrukce() {
+  const opts = { compact: true, variant: 'sauna',
+    head: { eyebrow: 'Konstrukce', title: 'Sauna vrstvu po vrstvě', lead: 'Sauna stojí na silničním přívěsu Vlemmix TH360. Na něm je lehký ocelový skelet a navrch dřevo. Při posouvání stránky se rozloží na jednotlivé vrstvy.' },
+    facts: [['Délka sauny', '3,6 m'], ['Celkem s ojí', '5,1 m'], ['Šířka přes střechu', '2,52 m'], ['Výška s komínem', '3,74 m'], ['Celková hmotnost', 'cca 2 360 kg*'], ['Přívěs', 'Vlemmix TH360']],
+    factsNote: '* Předběžný výpočet z modelu, bez vody. Čísla potvrdíme vážením prvních kusů.' };
+  return `<section id="konstrukce" aria-label="Konstrukce sauny na podvozku"><div data-pv="sauna" data-pv-opts="${attrJson(opts)}"></div></section>`;
+}
 function saunaDetail(p) {
   const o = SOPT[p.kind], others = Object.values(SAUNY).filter(x => x.key !== p.key);
   return `
@@ -1353,6 +1362,7 @@ ${heroImg({ img: p.img, alt: p.name, posM: '68% 50%', top: `<div class="tags her
 </div></div></section>
 <section class="section tight"><div class="wrap"><div class="gallery${p.gallery.length === 3 ? ' g3' : ''}">${p.gallery.map((g, i) => `<figure><img src="${IMG(g)}" alt="${p.name}, ukázka ${i + 1}" loading="lazy">${vis}</figure>`).join('')}</div></div></section>
 ${saunaDispozice(p)}
+${p.key === 'sauna-podvozek' ? saunaKonstrukce() : ''}
 <section class="section" style="padding-top:32px"><div class="wrap"><div class="head"><p class="eyebrow">Výbava</p><h2 class="h1">Co je v ceně</h2></div>
   ${saunaFacts(p)}
   <div class="two-col">${p.rooms.filter(r => !SDZ[p.key] || !['Předsíň', 'Saunovací místnost', 'Kamna'].includes(r[0])).map(r => `<div class="panel flat"><h3 class="h3">${r[0]}</h3><p class="muted">${r[1]}</p></div>`).join('')}</div></div></section>

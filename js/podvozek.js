@@ -26,13 +26,23 @@
 //
 // Bez knihoven kromě three.js (načítá se dynamicky až u sekce, slabá zařízení ho nestahují vůbec).
 
-const CH = [
+const CH_HOUSE = [
   { short: 'Celek', title: 'Dům, který má kola', text: 'Každý Nordhouse stojí na silničním přívěsu s celkovou hmotností do 3 500 kg. Na pozemek přijede vcelku a kdykoli se může přestěhovat znovu.' },
   { short: 'Vrstvy', title: 'Tři vrstvy, každá s jedním úkolem', text: 'Přívěs nese, ocelový skelet drží tvar, dřevěný plášť chrání před počasím a izoluje. Každou vrstvu navrhujeme zvlášť, aby dělala jen to, co umí nejlépe.' },
   { short: 'Skelet', title: 'Lehká ocel místo těžkých trámů', text: 'Skelet je z tenkostěnných profilů z pozinkované oceli. Nekroutí se a nesesychá, takže dům drží tvar i po převozu a po letech venku.' },
   { short: 'Přívěs', title: 'Přívěs Vlemmix z Nizozemska', text: 'Podvozek dodává mooh.cz. Rám je žárově zinkovaný, nápravy jsou schované pod plošinou a oj má nájezdovou brzdu jako každý brzděný přívěs.' },
   { short: 'Na cestu', title: 'Složeno, zapřaženo, připraveno', text: 'Opěrné nohy nahoru a dům je přívěs jako každý jiný. Rozměry drží v mezích běžného silničního provozu.' },
 ];
+// Sauna na podvozku (variant: 'sauna'): stejný příběh, fakta z projekt/sauna-podvozek-v2/params.py (BUILDUPS, TRAILER_INFO,
+// CHASSIS_PARTS, ASSUMPTIONS).
+const CH_SAUNA = [
+  { short: 'Celek', title: 'Sauna, která má kola', text: 'Sauna stojí na silničním přívěsu Vlemmix TH360. Přijede hotová a kdykoli ji můžete převézt jinam.' },
+  { short: 'Vrstvy', title: 'Tři vrstvy jako u domu', text: 'Přívěs nese, ocelový skelet drží tvar, dřevěný plášť chrání před počasím. Za palubkami je navíc hliníková parozábrana s přelepenými spoji.' },
+  { short: 'Skelet', title: 'Ocelový skelet s pultovou střechou', text: 'Sloupky stěn jsou C profily 89 mm po 60 cm, krokve C profily 120 mm, podlahové trámky C profily 75 mm po 40 cm. Mezi nimi je minerální vata.' },
+  { short: 'Přívěs', title: 'Přívěs Vlemmix TH360', text: 'Plošina 3,6 × 2,44 m, dvě brzděné nápravy Knott, oj s nájezdovou brzdou a opěrné kolečko.' },
+  { short: 'Na cestu', title: 'Zapřaženo i s komínem', text: 'Komín se na převoz nezkracuje. Šířka i výška se vejdou do limitů silničního provozu.' },
+];
+const CH = CH_HOUSE;
 
 // Schválené rozměry (projekt/dum-*-v2/params.py). Otvory v mm jako v params: stěna L/R [x0, x1, parapet, nadpraží] od štítu A,
 // štít B [y0, y1, parapet, nadpraží] od levé stěny. Výšky otvorů nad čistou podlahou.
@@ -49,6 +59,7 @@ const VARIANTS = {
 };
 // Společné: šířka 2,5 m (2,55 m přes střechu), plošina 0,62 m, čistá podlaha 0,73 m, hřeben 3,99 m, rozvor 0,8 m, kola 195/50 R13, oj 1,5 m.
 function dimsOf(v) {
+  if (String(v).toLowerCase() === 'sauna') return saunaDimsPv();
   const V = VARIANTS[String(v || 'm').toLowerCase()] || VARIANTS.m;
   const p = V.pitch * Math.PI / 180, t = Math.tan(p), c = Math.cos(p);
   const D = { ...V, W: 2.5, RW: 2.55, deck: 0.62, ffl: 0.73, ridge: 3.99, p, t, c, roofT: 0.24 / c };
@@ -61,12 +72,48 @@ function dimsOf(v) {
   D.total = V.L + 1.5;
   return D;
 }
+// Sauna na podvozku v2 (params.py): 3 600 × 2 400, stěna 170, podlaha 120 na plošině 620, strop 2 100, střecha 200 se sklonem 2°
+// (pultová, výš u čela A se vstupem), přesah 250 u čela A a 60 jinde, nápravy 1 300 / 2 100 od čela A, spojka 5 100, komín
+// d 150 v [1 630, 425] 600 nad krytinou. Okna R [450–1050, 1000–1600], L [2000–3300, 1250–1850], dveře v čele A [850–1550, h 1950].
+function saunaDimsPv() {
+  const base = dimsOf('s');
+  const L = 3.6, W = 2.4, H = L / 2, F = 0.74, tan = Math.tan(2 * Math.PI / 180);
+  const roofTop = x => F + 2.1 + 0.2 + 0.165 - (x + H) * tan;      // horní líc krytiny (jako ref.js / pohled-levy)
+  const D = { ...base, key: 'SAUNA', sauna: true, L, W, H, RW: W + 0.12, ffl: F, pitch: 2, tan, roofTop, under: x => roofTop(x) - 0.2,
+    eaveA: 0.25, eaveB: 0.06, tw: 0.17, ceil: F + 2.1, flue: [1.63 - H, 0.425 - W / 2, 0.075, 0.6],
+    open: { L: [[2000, 3300, 1250, 1850]], R: [[450, 1050, 1000, 1600]], B: [] }, gableA: { cuts: [], door: [850, 1550, 1950], transom: 2000 },
+    loft: null, partition: null, skylight: null, axleX: -H + 1.7, hitch: H + 1.5, total: L + 1.5,
+    tagName: 'Sauna na podvozku · ilustrační model', name3d: 'Sauny na podvozku' };
+  D.ridge = roofTop(D.flue[0]) + D.flue[3];                          // nejvyšší bod: komín
+  D.eave = roofTop(H);
+  return D;
+}
 const fmt = (n, d = 1) => n.toFixed(d).replace('.', ',');
-const dimText = D => ({ length: `${fmt(D.L)} m`, total: `${fmt(D.total)} m`, width: '2,55 m', height: '3,99 m', weight: 'do 3 500 kg' });
+const dimText = D => D.sauna
+  ? { length: `${fmt(D.L)} m`, total: `${fmt(D.total)} m`, width: `${fmt(D.RW, 2)} m`, height: '3,74 m', weight: 'cca 2 360 kg' }
+  : { length: `${fmt(D.L)} m`, total: `${fmt(D.total)} m`, width: '2,55 m', height: '3,99 m', weight: 'do 3 500 kg' };
 
 // Díly s čísly jako na výkresu. ch = index kapitoly, at(D) = kotva v souřadnicích vrstvy (m).
 function partsFor(D) {
   const H = D.H;
+  if (D.sauna) {
+    const [fx, fz] = D.flue, zi = D.W / 2 - D.tw;
+    return [
+      { id: 'v-prives', ch: 1, n: 1, layer: 'L_prives', at: [-H + 0.5, 0.5, 1.22], name: 'Přívěs', text: 'Vlemmix TH360, nese celou saunu.' },
+      { id: 'v-skelet', ch: 1, n: 2, layer: 'L_skelet', at: [H - 0.35, 1.45, 1.11], name: 'Ocelový skelet', text: 'Drží tvar. Nekroutí se ani nesesychá.' },
+      { id: 'v-plast', ch: 1, n: 3, layer: 'L_plast', at: [-H + 0.35, D.roofTop(-H) - 0.45, 1.22], name: 'Dřevěný plášť', text: 'Modřínový obklad zvenku, palubky uvnitř.' },
+      { id: 'v-folie', ch: 1, n: 4, layer: 'L_plast', at: [0.55, 1.75, zi + 0.01], name: 'Hliníková parozábrana', text: 'Jen u sauny, spoje jsou přelepené.' },
+      { id: 'podlaha', ch: 2, n: 1, layer: 'L_skelet', at: [H - 0.45, 0.66, 1.12], name: 'Podlahový rám', text: 'C profily 75 mm po 40 cm, zespodu hliníkový plech.' },
+      { id: 'sloupky', ch: 2, n: 2, layer: 'L_skelet', at: [-H + 1.42, 1.55, 1.11], name: 'Sloupky stěn', text: 'C profily 89 mm po 60 cm, mezi nimi minerální vata.' },
+      { id: 'krokve', ch: 2, n: 3, layer: 'L_skelet', at: [H - 0.3, D.roofTop(H - 0.3) - 0.12, 0.555], name: 'Krokve', text: 'C profily 120 mm, střecha se sklonem 2°.' },
+      { id: 'prostup', ch: 2, n: 4, layer: 'L_skelet', at: [fx, D.roofTop(fx) - 0.12, fz], name: 'Prostup komína', text: 'Izolovaný komín prochází střechou.' },
+      { id: 'ram', ch: 3, n: 1, layer: 'L_prives', at: [H - 0.6, 0.58, 1.22], name: 'Rám přívěsu', text: 'Plošina 3,6 × 2,44 m.' },
+      { id: 'napravy', ch: 3, n: 2, layer: 'L_prives', at: [D.axleX + 0.4, 0.26, 1.1], name: 'Nápravy Knott', text: 'Dvě brzděné nápravy pod plošinou.' },
+      { id: 'oj', ch: 3, n: 3, layer: 'L_prives', at: [H + 1.32, 0.6, 0], name: 'Oj s nájezdovou brzdou', text: 'Spojka na běžnou kouli.' },
+      { id: 'kolecko', ch: 3, n: 4, layer: 'L_prives', at: [H + 0.95, 0.12, 0.22], name: 'Opěrné kolečko', text: 'Na ruční posun a připojení k autu.' },
+      { id: 'nohy', ch: 3, n: 5, layer: 'L_prives', at: [-H + 0.3, 0.2, 0.75], name: 'Opěrné nohy', text: 'Čtyři kličkové nohy na přání.' },
+    ];
+  }
   return [
     { id: 'v-prives', ch: 1, n: 1, layer: 'L_prives', at: [-H + 1.1, 0.5, 1.22], name: 'Přívěs', text: 'Nese celý dům. Nápravy jsou schované pod plošinou.' },
     { id: 'v-skelet', ch: 1, n: 2, layer: 'L_skelet', at: [H - 0.5, 1.15, 1.2], name: 'Ocelový skelet', text: 'Drží tvar domu. Nekroutí se ani nesesychá.' },
@@ -129,6 +176,7 @@ const factsOf = (D, o) => { const T = dimText(D); return o.facts || [['Délka do
 // (desktop) nebo jedna karta dole (mobil), titulek kapitoly v rohu. Texty kapitol jsou i jako běžné HTML pod scénou
 // (vizuálně skryté, při statické verzi viditelné jako seznam).
 function markup(id, D, PARTS, o) {
+  const CH = D.sauna ? CH_SAUNA : CH_HOUSE;
   const facts = factsOf(D, o);
   const legend = ch => { const ps = PARTS.filter(p => p.ch === ch); return ps.length ? `<ol class="pv-legend">${ps.map(p => `<li><span class="pv-num" aria-hidden="true">${p.n}</span><span><b>${p.name}</b> <span class="pv-legend-text">${p.text}</span></span></li>`).join('')}</ol>` : ''; };
   const chapters = CH.map((c, i) => `
@@ -152,7 +200,7 @@ function markup(id, D, PARTS, o) {
 <div class="pv-scrolly">
   <div class="pv-pin">
     <div class="pv-stage" data-step="0">
-      <div class="pv-art">${drawing(D, PARTS)}</div>
+      <div class="pv-art">${D.sauna ? saunaDrawing(D, PARTS) : drawing(D, PARTS)}</div>
       <div class="pv-gl" aria-hidden="true"></div>
       <div class="pv-overlay">${hotspots}<div class="pv-dimlabels" aria-hidden="true"></div></div>
       <svg class="pv-leaders" aria-hidden="true"></svg>
@@ -162,7 +210,7 @@ function markup(id, D, PARTS, o) {
           <nav class="pv-dots" aria-label="Kapitoly podvozku">${dots}</nav></div>
         <div class="pv-tb-stack" aria-hidden="true">${tbs}</div>
       </div>
-      <p class="pv-tag">Dům ${D.key} · ilustrační model</p>
+      <p class="pv-tag">${D.tagName || `Dům ${D.key} · ilustrační model`}</p>
       <div class="pv-factsbar" aria-hidden="true">${facts.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join('')}${o.factsNote ? `<p>${o.factsNote}</p>` : ''}</div>
       <div class="pv-card" aria-hidden="true"><div class="pv-card-in"></div></div>
     </div>
@@ -325,11 +373,18 @@ function annotator(stage, gl, svg, topLeft, topRight) {
     },
   };
 }
-// Karta dole (mobil): obsah se mění s krátkým prolnutím.
+// Karta dole (mobil): obsah se mění s krátkým prolnutím. Dokud 3D scéna neběží (plakát s kresbou, skrytá karta prohlížeče),
+// mění se hned, bez časovače: text karty pak vždy odpovídá kapitole, i když se animace nebo časovače zastaví.
 function cardCtl(el) {
-  const inner = el && el.querySelector('.pv-card-in'); let key = null, t = 0;
+  const inner = el && el.querySelector('.pv-card-in'), stage = el && el.closest('.pv-stage'); let key = null, t = 0;
   return {
-    set(k, html) { if (!inner || k === key) return; const firstSet = key === null; key = k; clearTimeout(t); if (firstSet) { inner.innerHTML = html; return; } inner.classList.add('is-out'); t = setTimeout(() => { inner.innerHTML = html; inner.classList.remove('is-out'); }, 180); },
+    set(k, html) {
+      if (!inner || k === key) return;
+      const instant = key === null || document.hidden || !(stage && stage.classList.contains('pv-stage--3d'));
+      key = k; clearTimeout(t);
+      if (instant) { inner.innerHTML = html; inner.classList.remove('is-out'); return; }
+      inner.classList.add('is-out'); t = setTimeout(() => { inner.innerHTML = html; inner.classList.remove('is-out'); }, 180);
+    },
     clear() { clearTimeout(t); },
   };
 }
@@ -388,7 +443,8 @@ function lifecycle(el, { near, far, create, ready, drop, fail }) {
 let uid = 0;
 export function mountPodvozek(root, opts = {}) {
   const o = { glb: null, frames: null, frameCount: 5, mode: 'auto', lazyMargin: '120%', variant: 'm', ...opts };
-  const D = dimsOf(o.variant), PARTS = partsFor(D), FACTS = factsOf(D, o);
+  const D = dimsOf(o.variant), PARTS = partsFor(D), FACTS = factsOf(D, o), CH = D.sauna ? CH_SAUNA : CH_HOUSE;
+  const what = D.sauna ? 'Sauna na podvozku' : `Dům ${D.key} na podvozku`;
   const id = 'pv' + (++uid);
   root.classList.add('pv');
   root.innerHTML = markup(id, D, PARTS, o);
@@ -450,7 +506,7 @@ export function mountPodvozek(root, opts = {}) {
     factsbar.classList.toggle('is-on', i === N - 1);
     ann.reset();
     if (part && PARTS.find(x => x.id === part).ch !== i) setPart(null);
-    if (viewer) viewer.label(`3D model Domu ${D.key} na podvozku. Kapitola ${i + 1}: ${CH[i].title}.`);
+    if (viewer) viewer.label(`3D model: ${what}. Kapitola ${i + 1}: ${CH[i].title}.`);
     if (frameImg && o.frameCount <= N) frameImg.src = frameSrc(i);
     layout();
   }
@@ -497,7 +553,7 @@ export function mountPodvozek(root, opts = {}) {
       create: () => createViewer(glBox, o, D, PARTS),
       ready: v => {
         viewer = gate.viewer = v;
-        v.label(`3D model Domu ${D.key} na podvozku. Kapitola ${active + 1}: ${CH[active].title}.`);
+        v.label(`3D model: ${what}. Kapitola ${active + 1}: ${CH[active].title}.`);
         v.target(p, true);
         (part || auto) && v.part(part || auto);
         stage.classList.add('pv-stage--3d');
@@ -534,6 +590,8 @@ export function mountPodvozek(root, opts = {}) {
 
   setActive(isStatic ? 1 : 0);
   rafU = requestAnimationFrame(update);
+  // Ladění (testy rozvržení): root.__dz.go(p) nastaví kapitolu p synchronně, bez scrollu a bez čekání na snímek.
+  root.__dz = { go(q) { p = q; setActive(clamp(Math.round(q), 0, N - 1)); glBox.__pv && glBox.__pv.show(q); if (ann.cardMode() && !isStatic) cardContent(); layout(); return active; } };
 
   return {
     goTo,
@@ -545,6 +603,7 @@ export function mountPodvozek(root, opts = {}) {
       root.removeEventListener('click', onDot); root.removeEventListener('keydown', onDotKey);
       root.removeEventListener('click', onPart); root.removeEventListener('focusin', onFocus); root.removeEventListener('keydown', onKey);
       root.removeEventListener('pointerover', onOver);
+      delete root.__dz;
       root.innerHTML = ''; root.classList.remove('pv', 'pv--static', 'pv--reduced', 'pv--compact');
     },
   };
@@ -612,7 +671,7 @@ async function createViewer(box, o, D, PARTS) {
       else console.warn('[podvozek] GLB nemá uzly', LAYERS.join(', '), '– použije se procedurální model.');
     } catch (e) { console.warn('[podvozek] GLB se nenačetl, použije se procedurální model.', e); }
   }
-  if (!model) model = buildProcedural(THREE, D);
+  if (!model) model = D.sauna ? buildSaunaPv(THREE, D) : buildProcedural(THREE, D);
   scene.add(model);
   const layers = LAYERS.map(n => model.getObjectByName(n));
 
@@ -665,18 +724,19 @@ async function createViewer(box, o, D, PARTS) {
   line([-H, g0, zL], [H, g0, zL]); tick([-H, g0, zL], [0.7, 0, 0.7]); tick([H, g0, zL], [0.7, 0, 0.7]);
   line([-H, g0, zT], [D.hitch, g0, zT]); tick([-H, g0, zT], [0.7, 0, 0.7]); tick([D.hitch, g0, zT], [0.7, 0, 0.7]);
   // šířka přes střechu u zádi (2,55 m)
-  line([-H - 0.15, g0, 1.275], [xW - 0.12, g0, 1.275]); line([-H - 0.15, g0, -1.275], [xW - 0.12, g0, -1.275]);
-  line([xW, g0, -1.275], [xW, g0, 1.275]); tick([xW, g0, 1.275], [0.7, 0, 0.7]); tick([xW, g0, -1.275], [0.7, 0, 0.7]);
+  const rw = D.RW / 2;
+  line([-H - 0.15, g0, rw], [xW - 0.12, g0, rw]); line([-H - 0.15, g0, -rw], [xW - 0.12, g0, -rw]);
+  line([xW, g0, -rw], [xW, g0, rw]); tick([xW, g0, rw], [0.7, 0, 0.7]); tick([xW, g0, -rw], [0.7, 0, 0.7]);
   // výška u zádi
   line([-H - 0.2, D.ridge, 0], [xW - 0.12, D.ridge, 0]); line([-H - 0.05, g0, 0], [xW - 0.12, g0, 0]);
   line([xW, 0, 0], [xW, D.ridge, 0]); tick([xW, D.ridge, 0], [0.7, 0.7, 0]); tick([xW, 0, 0], [0.7, 0.7, 0]);
   const dimGeo = new THREE.BufferGeometry(); dimGeo.setAttribute('position', new THREE.Float32BufferAttribute(seg, 3));
   dimGroup.add(new THREE.LineSegments(dimGeo, dimMat));
   const dimLabels = [
-    { t: `délka domu ${T.length}`, at: new THREE.Vector3(-H * 0.45, g0, zL) },
+    { t: `${D.sauna ? 'délka' : 'délka domu'} ${T.length}`, at: new THREE.Vector3(-H * 0.45, g0, zL) },
     { t: `celkem s ojí ${T.total}`, at: new THREE.Vector3(H * 0.62, g0, zT) },
     { t: `šířka ${T.width}`, at: new THREE.Vector3(xW, g0, -0.55) },
-    { t: `výška ${T.height}`, at: new THREE.Vector3(xW, 2.0, 0) },
+    { t: `${D.sauna ? 'výška s komínem' : 'výška'} ${T.height}`, at: new THREE.Vector3(xW, 2.0, 0) },
     { t: `celkem ${T.weight}`, at: new THREE.Vector3(0.6, D.ridge + 0.55, 0), cls: 'pv-dl--tag' },
   ];
   const stageEl = box.closest('.pv-stage');
@@ -1271,6 +1331,207 @@ function buildProcedural(THREE, D) {
   return root;
 }
 
+/* ---------------------------------------------- sauna na podvozku (variant: 'sauna') */
+// Přívěs stejným builderem jako domy (nápravy 1 300 / 2 100 od čela A, spojka 5 100), skelet z C profilů podle skladeb
+// v params (stěny C 89 à 600, krokve C 120, podlaha C 75 à 400), pultová střecha, plášť s okny, dveřmi a komínem.
+function buildSaunaPv(THREE, D) {
+  const V3 = THREE.Vector3, M4 = THREE.Matrix4, H = D.H, W2 = D.W / 2, F = D.ffl;
+  const tm = buildProcedural(THREE, D);
+  const root = new THREE.Group(); root.name = 'sauna_proc';
+  const TR = tm.getObjectByName('L_prives'); root.add(TR);
+  tm.traverse(m => { if (m.geometry) m.geometry.dispose(); });
+  const SK = new THREE.Group(); SK.name = 'L_skelet'; const SH = new THREE.Group(); SH.name = 'L_plast'; root.add(SK, SH);
+  /* materiály jako u domu */
+  const zn = zincTex(THREE), wt = woodTex(THREE);
+  const steel = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.4, roughness: 0.4, map: zn.fine });
+  const wood = new THREE.MeshStandardMaterial({ map: wt.map, bumpMap: wt.bump, bumpScale: 2.2, roughness: 0.8, metalness: 0 });
+  const trim = new THREE.MeshStandardMaterial({ color: 0xd9bfa3, map: wt.map, roughness: 0.78 });
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0x30342f, metalness: 0.3, roughness: 0.5 });
+  const roofMat = new THREE.MeshStandardMaterial({ color: 0x3b3f3a, metalness: 0.5, roughness: 0.48 });
+  const inox = new THREE.MeshStandardMaterial({ color: 0xc7cacb, metalness: 0.8, roughness: 0.3 });
+  const glass = new THREE.MeshStandardMaterial({ color: 0x24302b, metalness: 0.15, roughness: 0.04, envMapIntensity: 1.8, transparent: true, opacity: 0.8 });
+  glass.userData.noShadow = true;
+  const foil = new THREE.MeshStandardMaterial({ color: 0xdfe3e3, metalness: 0.85, roughness: 0.32, transparent: true, opacity: 0.78, side: THREE.DoubleSide });
+  foil.userData.noShadow = true;
+  /* sloučení geometrií po skupině × materiálu × dílu */
+  const buckets = new Map();
+  const add = (parent, mat, geo, part = '') => { const k = parent.uuid + '|' + mat.uuid + '|' + part; if (!buckets.has(k)) buckets.set(k, { parent, mat, part, geos: [] }); buckets.get(k).geos.push(geo.index ? geo.toNonIndexed() : geo); };
+  const flush = () => {
+    for (const b of buckets.values()) {
+      let n = 0; for (const g of b.geos) n += g.attributes.position.count;
+      const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3), uv = new Float32Array(n * 2); let at = 0;
+      for (const g of b.geos) { if (!g.attributes.normal) g.computeVertexNormals(); pos.set(g.attributes.position.array, at * 3); nor.set(g.attributes.normal.array, at * 3); if (g.attributes.uv) uv.set(g.attributes.uv.array, at * 2); at += g.attributes.position.count; g.dispose(); }
+      const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); geo.computeBoundingSphere();
+      const m = new THREE.Mesh(geo, b.mat); if (b.part) m.userData.part = b.part; b.parent.add(m);
+    }
+  };
+  const boxGeo = (w, h, d) => { const g = new THREE.BoxGeometry(w, h, d), uv = g.attributes.uv, sc = [[d, h], [d, h], [w, d], [w, d], [w, h], [w, h]]; for (let f = 0; f < 6; f++) for (let i = 0; i < 4; i++) { const k = f * 4 + i; uv.setXY(k, uv.getX(k) * sc[f][0], uv.getY(k) * sc[f][1]); } return g; };
+  const bm = (g, mat, x0, x1, y0, y1, z0, z1, part) => add(g, mat, boxGeo(Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0)).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), part);
+  const shape = (pts, holes = []) => { const sh = new THREE.Shape(pts.map(([u, v]) => new THREE.Vector2(u, v))); for (const [a, b, lo, hi] of holes) { const h = new THREE.Path(); h.moveTo(a, lo); h.lineTo(b, lo); h.lineTo(b, hi); h.lineTo(a, hi); h.closePath(); sh.holes.push(h); } return sh; };
+  const ext = (sh, d) => new THREE.ExtrudeGeometry(sh, { depth: d, bevelEnabled: false });
+  const grp = (name, ex) => { const g = new THREE.Group(); g.name = name; g.userData.pvExplode = new V3(...ex); SH.add(g); return g; };
+  const X = x => x / 1000 - H, Zy = y => y / 1000 - W2, Yz = z => F + z / 1000;
+
+  /* ---- L_skelet: C profily, instancované ---- */
+  const PROF = { c75: [0.075, 0.041], c89: [0.089, 0.041], c120: [0.12, 0.041] };
+  const lists = new Map();
+  const mem = (prof, part, a, b, hint) => {
+    const A = new V3(...a), B = new V3(...b), z = B.clone().sub(A), len = z.length(); z.divideScalar(len);
+    const x = new V3(...hint); x.addScaledVector(z, -x.dot(z)); if (x.lengthSq() < 1e-6) x.set(1, 0, 0).addScaledVector(z, -z.x); x.normalize();
+    const k = prof + '|' + part; if (!lists.has(k)) lists.set(k, []);
+    lists.get(k).push(new M4().makeBasis(x, new V3().crossVectors(z, x), z.multiplyScalar(len)).setPosition(A));
+  };
+  const deckTop = 0.62, yf = deckTop + 0.0375, fTop = deckTop + 0.075, h2 = 0.0205;
+  const wTop = x => D.roofTop(x) - 0.06 - 0.12 - 0.041;          // pod krokvemi (krytina + bednění + kontralatě ≈ 6 cm)
+  // podlaha: trámky C 75 à 400 napříč, obvodové profily
+  for (let x = -H + 0.04; x <= H - 0.03; x += 0.4) mem('c75', 'podlaha', [x, yf, -W2 + 0.04], [x, yf, W2 - 0.04], [0, 1, 0]);
+  mem('c75', 'podlaha', [H - 0.04, yf, -W2 + 0.04], [H - 0.04, yf, W2 - 0.04], [0, 1, 0]);
+  for (const sz of [1, -1]) mem('c75', 'podlaha', [-H + 0.02, yf, sz * (W2 - 0.06)], [H - 0.02, yf, sz * (W2 - 0.06)], [0, 1, 0]);
+  // stěny: sloupky à 600, práh, horní pás ve sklonu střechy, zdvojení a překlady u otvorů
+  const zSt = W2 - 0.045 - 0.0445, xSt = H - 0.045 - 0.0445;
+  const wall = (P, u0, u1, n, holes, topAt) => {
+    mem('c89', 'sloupky', P(u0, fTop + h2), P(u1, fTop + h2), n);
+    mem('c89', 'sloupky', P(u0, topAt(u0) - h2), P(u1, topAt(u1) - h2), n);
+    const posts = [u0 + h2, u1 - h2]; for (let u = u0 + 0.6; u < u1 - 0.1; u += 0.6) posts.push(u);
+    for (const u of posts) {
+      let segs = [[fTop + 0.041, topAt(u) - 0.041]];
+      for (const [a, b, lo, hi] of holes) if (u > a - 0.08 && u < b + 0.08) segs = [[fTop + 0.041, lo - 0.041], [hi + 0.082, topAt(u) - 0.041]];
+      for (const [y0, y1] of segs) if (y1 - y0 > 0.06) mem('c89', 'sloupky', P(u, y0), P(u, y1), n);
+    }
+    for (const [a, b, lo, hi] of holes) {
+      for (const u of [a - h2, b + h2]) mem('c89', 'sloupky', P(u, fTop + 0.041), P(u, topAt(u) - 0.041), n);
+      mem('c89', 'sloupky', P(a - 0.041, hi + h2), P(b + 0.041, hi + h2), n); mem('c89', 'sloupky', P(a - 0.041, hi + 0.0615), P(b + 0.041, hi + 0.0615), n);
+      if (lo > F + 0.1) mem('c89', 'sloupky', P(a, lo - h2), P(b, lo - h2), n);
+    }
+  };
+  for (const [side, sz] of [['R', 1], ['L', -1]]) {
+    const holes = D.open[side].map(([a, b, lo, hi]) => [X(a), X(b), Yz(lo), Yz(hi)]);
+    wall((u, y) => [u, y, sz * zSt], -H + 0.02, H - 0.02, [0, 0, sz], holes, wTop);
+  }
+  const door = [Zy(D.gableA.door[0]), Zy(D.gableA.door[1]), F, Yz(D.gableA.door[2])];
+  for (const [sx, holes] of [[-1, [door]], [1, []]]) {
+    const xg = sx * xSt;
+    wall((u, y) => [xg, y, u], -zSt + 0.045, zSt - 0.045, [sx, 0, 0], holes, () => wTop(xg));
+  }
+  // krokve C 120 ve spádu střechy (podél x), výměna kolem prostupu komína
+  const [fx, fz] = D.flue, rY = x => D.roofTop(x) - 0.06 - 0.06;
+  const rafterZ = [-zSt, -zSt / 2, 0, zSt / 2, zSt];
+  const x0r = -H - D.eaveA + 0.03, x1r = H + D.eaveB - 0.02;
+  for (const z of rafterZ) mem('c120', 'krokve', [x0r, rY(x0r), z], [x1r, rY(x1r), z], [0, 1, 0]);
+  for (const x of [-H + 0.04, H - 0.04]) mem('c120', 'krokve', [x, rY(x), -zSt - 0.02], [x, rY(x), zSt + 0.02], [0, 1, 0]);
+  for (const x of [fx - 0.17, fx + 0.17]) mem('c120', 'prostup', [x, rY(x), -zSt], [x, rY(x), -zSt / 2], [0, 1, 0]);
+  const cBase = Object.fromEntries(Object.entries(PROF).map(([k, [d, b]]) => [k, new THREE.ExtrudeGeometry(cShape(THREE, d, b, 0.012, 0.0028), { depth: 1, bevelEnabled: false })]));
+  const skGroups = { podlaha: new THREE.Group(), sloupky: new THREE.Group(), krokve: new THREE.Group(), prostup: null };
+  skGroups.podlaha.name = 'podlahovy_ram'; skGroups.sloupky.name = 'steny'; skGroups.krokve.name = 'krov'; skGroups.prostup = skGroups.krokve;
+  SK.add(skGroups.podlaha, skGroups.sloupky, skGroups.krokve);
+  bm(skGroups.podlaha, inox, -H + 0.02, H - 0.02, deckTop - 0.002, deckTop + 0.001, -W2 + 0.04, W2 - 0.04, 'podlaha');   // hliníkový plech pod podlahou
+  for (const [k, ms] of lists) {
+    const [prof, part] = k.split('|');
+    const im = new THREE.InstancedMesh(cBase[prof], steel, ms.length);
+    ms.forEach((m, i) => im.setMatrixAt(i, m)); im.instanceMatrix.needsUpdate = true; im.frustumCulled = false; im.userData.part = part; im.name = 'C_' + k;
+    skGroups[part].add(im);
+  }
+
+  /* ---- L_plast: obklad, okna, dveře se schůdky, střecha, komín, parozábrana ---- */
+  const E = 0.9, base = 0.6;
+  const gR = grp('stena_predni', [0, 0, E]), gL = grp('stena_zadni', [0, 0, -E]), gB = grp('stit_predni', [E, 0, 0]), gA = grp('stit_zadni', [-E, 0, 0]);
+  const gRoof = grp('strecha', [0, 0.9, 0]), gChim = grp('komin', [0, 1.35, 0]), gFoil = grp('parozabrana', [0, 0, 0]);
+  const frameX = (g, s, [a, b, lo, hi]) => {
+    const z = s * (W2 - 0.03), d = 0.07, fw = 0.06;
+    bm(g, frameMat, a, b, hi - fw, hi, z - d / 2, z + d / 2); bm(g, frameMat, a, b, lo, lo + fw, z - d / 2, z + d / 2);
+    bm(g, frameMat, a, a + fw, lo, hi, z - d / 2, z + d / 2); bm(g, frameMat, b - fw, b, lo, hi, z - d / 2, z + d / 2);
+    bm(g, glass, a + fw, b - fw, lo + fw, hi - fw, z - 0.006, z + 0.006);
+    bm(g, frameMat, a - 0.02, b + 0.02, lo - 0.015, lo, s * (W2 - 0.03), s * (W2 + 0.04));
+  };
+  for (const [side, s, g] of [['R', 1, gR], ['L', -1, gL]]) {
+    const holes = D.open[side].map(([a, b, lo, hi]) => [X(a), X(b), Yz(lo), Yz(hi)]);
+    add(g, wood, ext(shape([[-H, base], [H, base], [H, D.under(H)], [-H, D.under(-H)]], holes), 0.02).translate(0, 0, s > 0 ? W2 - 0.02 : -W2));
+    holes.forEach(h => frameX(g, s, h));
+    for (const sx of [-1, 1]) bm(g, trim, sx > 0 ? H - 0.095 : -H, sx > 0 ? H : -H + 0.095, base, D.under(sx * H), s > 0 ? W2 : -W2 - 0.022, s > 0 ? W2 + 0.022 : -W2);
+    // parozábrana za palubkami (fólie na vnitřní straně skeletu)
+    add(gFoil, foil, ext(shape([[-H + 0.14, F], [H - 0.14, F], [H - 0.14, D.ceil], [-H + 0.14, D.ceil]], holes), 0.002).translate(0, 0, s * (zSt - 0.046) - (s > 0 ? 0.002 : 0)), 'v-folie');
+  }
+  for (const [g, x0, holes] of [[gA, -H, [door]], [gB, H, []]]) {
+    add(g, wood, ext(shape([[-W2, base], [W2, base], [W2, D.under(x0)], [-W2, D.under(x0)]], holes), 0.02).rotateY(-Math.PI / 2).translate(x0 < 0 ? x0 + 0.02 : x0, 0, 0));
+    add(gFoil, foil, ext(shape([[-zSt + 0.05, F], [zSt - 0.05, F], [zSt - 0.05, D.ceil], [-zSt + 0.05, D.ceil]], holes), 0.002).rotateY(-Math.PI / 2).translate(x0 < 0 ? -xSt + 0.046 : xSt - 0.044, 0, 0), 'v-folie');
+    for (const sz of [-1, 1]) bm(g, trim, x0 < 0 ? x0 - 0.022 : x0, x0 < 0 ? x0 : x0 + 0.022, base, D.under(x0), sz > 0 ? W2 - 0.095 : -W2, sz > 0 ? W2 : -W2 + 0.095);
+  }
+  add(gFoil, foil, boxGeo(2 * xSt - 0.1, 0.002, 2 * zSt - 0.1).translate(0, D.ceil + 0.01, 0), 'v-folie');
+  // vstupní dveře v čele A s rámem a klikou, dva schůdky na bočnicích
+  {
+    const [a, b, lo, hi] = door, x = -H - 0.01, fw = 0.06;
+    bm(gA, frameMat, x - 0.035, x + 0.035, hi - fw, hi, a, b); bm(gA, frameMat, x - 0.035, x + 0.035, lo, hi, a, a + fw); bm(gA, frameMat, x - 0.035, x + 0.035, lo, hi, b - fw, b);
+    bm(gA, trim, x - 0.02, x + 0.02, lo + 0.01, hi - fw, a + fw, b - fw);
+    bm(gA, inox, x - 0.08, x - 0.03, lo + 1.0, lo + 1.02, b - fw - 0.2, b - fw - 0.06);
+    for (let k = 0; k < 2; k++) bm(gA, trim, -H - 0.32 - k * 0.28, -H - 0.04 - k * 0.28, F - 0.03 - (k + 1) * (F / 3), F - (k + 1) * (F / 3), a - 0.12, b + 0.12);
+    for (const zz of [a - 0.1, b + 0.07]) add(gA, trim, ext(shape([[0, 0], [0.62, 0], [0.62, 0.07], [0.04, F - F / 3 - 0.02], [0, F - F / 3 - 0.02]]), 0.035).rotateY(Math.PI).translate(-H - 0.02, 0, zz + 0.035));
+  }
+  // pultová střecha s přesahy, drážky krytiny ve spádu, oplechování; prostup komína s manžetou
+  {
+    const x0 = -H - D.eaveA, x1 = H + D.eaveB, rw = D.RW, ang = Math.atan(D.tan), len = (x1 - x0) / Math.cos(ang), xc = (x0 + x1) / 2, yc = D.roofTop(xc) - 0.1;
+    add(gRoof, roofMat, boxGeo(len, 0.2, rw).rotateZ(-ang).translate(xc, yc, 0));
+    for (let z = -rw / 2 + 0.25; z < rw / 2 - 0.1; z += 0.5) add(gRoof, roofMat, new THREE.BoxGeometry(len, 0.028, 0.012).rotateZ(-ang).translate(xc, yc + 0.114, z));
+    for (const sz of [1, -1]) add(gRoof, frameMat, new THREE.BoxGeometry(len, 0.24, 0.014).rotateZ(-ang).translate(xc, yc, sz * (rw / 2 + 0.007)));
+    for (const xe of [x0, x1]) bm(gRoof, frameMat, xe - 0.007, xe + 0.007, D.roofTop(xe) - 0.22, D.roofTop(xe) + 0.01, -rw / 2, rw / 2);
+    const ty = D.roofTop(fx);
+    add(gRoof, inox, new THREE.CylinderGeometry(D.flue[2] + 0.06, D.flue[2] + 0.13, 0.12, 24).translate(fx, ty + 0.04, fz), 'prostup');
+    add(gChim, inox, new THREE.CylinderGeometry(D.flue[2] + 0.05, D.flue[2] + 0.05, D.flue[3] + 0.32, 24).translate(fx, ty + (D.flue[3] - 0.32) / 2, fz));
+    add(gChim, inox, new THREE.ConeGeometry(D.flue[2] * 2.3, 0.12, 24).translate(fx, ty + D.flue[3] + 0.12, fz));
+    add(gChim, inox, new THREE.CylinderGeometry(0.006, 0.006, 0.1, 6).translate(fx, ty + D.flue[3] + 0.04, fz));
+  }
+  flush();
+  return root;
+}
+
+// Statická kresba sauny: pohled na pravou stěnu (+Z), oj vpravo, pultová střecha výš u čela A (vlevo), komín.
+function saunaDrawing(D, PARTS) {
+  const S = 112, H = D.H, X = m => +(150 + (m + H + 0.45) * S).toFixed(1), Y = m => +(530 - m * S).toFixed(1);
+  const T = dimText(D);
+  const r = (x0, y0, x1, y1, cls = '') => `<rect x="${X(x0)}" y="${Y(y1)}" width="${(X(x1) - X(x0)).toFixed(1)}" height="${(Y(y0) - Y(y1)).toFixed(1)}"${cls ? ` class="${cls}"` : ''}/>`;
+  const l = (x0, y0, x1, y1, cls = '') => `<line x1="${X(x0)}" y1="${Y(y0)}" x2="${X(x1)}" y2="${Y(y1)}"${cls ? ` class="${cls}"` : ''}/>`;
+  const poly = (pts, cls) => `<path class="${cls}" d="M${pts.map(([x, y]) => `${X(x)} ${Y(y)}`).join('L')}Z"/>`;
+  const F = D.ffl, holes = D.open.R.map(([a, b, lo, hi]) => [a / 1000 - H, b / 1000 - H, F + lo / 1000, F + hi / 1000]);
+  const wt = x => D.under(x) - 0.04;
+  const studs = []; for (let x = -H + 0.05; x <= H - 0.04; x += 0.6) studs.push(x); studs.push(H - 0.05);
+  const stud = x => { let segs = [[0.7, wt(x)]]; for (const [a, b, lo, hi] of holes) if (x > a - 0.06 && x < b + 0.06) segs = [[0.7, lo], [hi + 0.08, wt(x)]]; return segs.map(s2 => l(x, s2[0], x, s2[1])).join(''); };
+  const nb = Math.round(D.L / 0.14), boards = Array.from({ length: nb - 1 }, (_, i) => { const x = -H + (i + 1) * 0.14; return l(x, 0.6, x, D.under(x), 'pv-s-board'); }).join('');
+  const P = Object.fromEntries(PARTS.map(p => [p.id, p]));
+  const mk = (id, y) => { const p = P[id]; return `<g class="pv-s-mk" data-ch="${p.ch}"><circle cx="${X(p.at[0])}" cy="${Y(y ?? p.at[1])}" r="11"/><text x="${X(p.at[0])}" y="${Y(y ?? p.at[1]) + 4}">${p.n}</text></g>`; };
+  const wheel = x => `<circle cx="${X(x)}" cy="${Y(0.2625)}" r="${0.2625 * S}" class="pv-s-tyre"/><circle cx="${X(x)}" cy="${Y(0.2625)}" r="${0.165 * S}" class="pv-s-rim"/>`;
+  const [fx] = D.flue, x0 = -H - D.eaveA, x1 = H + D.eaveB, hy = D.hitch;
+  return `<svg class="pv-svg" viewBox="0 0 960 600" role="img" aria-label="Bokorys sauny na podvozku">
+  <g class="pv-s-ground">${l(-H - 0.5, 0, hy + 0.3, 0)}</g>
+  <g class="pv-s-tr">
+    <g data-part="ram">${r(-H, 0.54, H, 0.62, 'pv-s-steel')}${r(-H + 0.02, 0.39, H, 0.54, 'pv-s-steel')}</g>
+    <g data-part="napravy">${wheel(D.axleX - 0.4)}${wheel(D.axleX + 0.4)}</g>
+    <g data-part="oj"><path class="pv-s-steel" d="M${X(H - 0.6)} ${Y(0.52)}L${X(hy - 0.3)} ${Y(0.52)}L${X(hy)} ${Y(0.47)}L${X(hy - 0.3)} ${Y(0.42)}L${X(H - 0.6)} ${Y(0.42)}Z"/></g>
+    <g data-part="kolecko" class="pv-s-stow">${r(H + 0.93, 0.18, H + 0.97, 0.78, 'pv-s-steel')}<circle cx="${X(H + 0.95)}" cy="${Y(0.1)}" r="${0.1 * S}" class="pv-s-tyre"/></g>
+    <g data-part="nohy">${[-H + 0.3, H - 0.3].map(x => `<g class="pv-s-stow">${r(x - 0.03, 0.03, x + 0.03, 0.39, 'pv-s-steel')}</g>`).join('')}</g>
+  </g>
+  <g class="pv-s-sk"><g class="pv-s-skin">
+    <g data-part="podlaha">${r(-H + 0.04, 0.62, H - 0.04, 0.7, 'pv-s-frame')}</g>
+    <g data-part="sloupky" class="pv-s-studs">${studs.map(stud).join('')}${l(-H + 0.04, wt(-H), H - 0.04, wt(H))}</g>
+    <g data-part="krokve" class="pv-s-studs">${l(x0, D.under(x0) + 0.08, x1, D.under(x1) + 0.08)}</g>
+  </g></g>
+  <g class="pv-s-sh">
+    <g class="pv-s-wall">${poly([[-H, 0.6], [H, 0.6], [H, D.under(H)], [-H, D.under(-H)]], 'pv-s-wood')}${boards}${holes.map(([a, b, lo, hi]) => r(a, lo, b, hi, 'pv-s-glass')).join('')}</g>
+    <g class="pv-s-roof">${poly([[x0, D.roofTop(x0) - 0.22], [x0, D.roofTop(x0)], [x1, D.roofTop(x1)], [x1, D.roofTop(x1) - 0.22]], 'pv-s-roofp')}${r(fx - 0.075, D.roofTop(fx), fx + 0.075, D.ridge, 'pv-s-steel')}</g>
+  </g>
+  <g class="pv-s-dims">
+    ${l(-H, -0.08, -H, -0.36)}${l(H, -0.08, H, -0.36)}${l(-H, -0.26, H, -0.26)}
+    <text x="${X(0)}" y="${Y(-0.26) + 16}">délka ${T.length}</text>
+    ${l(hy, -0.08, hy, -0.72)}${l(-H, -0.36, -H, -0.72)}${l(-H, -0.62, hy, -0.62)}
+    <text x="${X((hy - H) / 2)}" y="${Y(-0.62) + 16}">celkem s ojí ${T.total}</text>
+    ${l(-H - 0.3, 0, -H - 0.55, 0)}${l(fx - 0.1, D.ridge, -H - 0.55, D.ridge)}${l(-H - 0.45, 0, -H - 0.45, D.ridge)}
+    <text x="${X(-H - 0.45) - 8}" y="${Y(1.9)}" transform="rotate(-90 ${X(-H - 0.45) - 8} ${Y(1.9)})">výška s komínem ${T.height}</text>
+    <text x="${X(H + 0.35)}" y="${Y(3.2)}" class="pv-s-note">šířka ${T.width}</text>
+    <text x="${X(H + 0.35)}" y="${Y(3.2) + 22}" class="pv-s-note">celkem ${T.weight}</text>
+  </g>
+  ${mk('podlaha')}${mk('sloupky')}${mk('krokve', D.under(0.75))}
+  ${mk('ram', 0.5)}${mk('napravy')}${mk('oj', 0.8)}${mk('kolecko', 0.45)}${mk('nohy', 0.7)}
+</svg>`;
+}
+
 // C profil s olemováním (lipped channel): hloubka d podél lokálního x, pásnice b podél y, otevřený směrem +y.
 function cShape(THREE, d, b, lip, t) {
   const D = d / 2, B = b / 2;
@@ -1485,6 +1746,7 @@ export function mountStena(root, opts = {}) {
     tbis.forEach((t, i) => t.classList.toggle('is-on', i === a + 1));
     $$('.st-list li').forEach((li, k) => li.classList.toggle('is-on', k <= a));
     mks.forEach((b, i) => b.classList.toggle('is-cur', i === a));
+    $$('.st-s-l').forEach(g => g.classList.toggle('is-cur', +g.dataset.l === a));   // statická kresba: aktuální vrstva
     const L = WALL[a];
     card.set('l' + a, L ? `<p class="pv-card-k">${pad(a + 1)} / ${pad(WN)} · ${L.t}</p><p class="pv-card-h"><span class="pv-num">${a + 1}</span>${L.name}</p><p class="pv-card-p">${L.text}</p>`
       : `<p class="pv-card-k">Zvenku dovnitř</p><p class="pv-card-h">Stěna v celku</p><p class="pv-card-p">Posouvejte stránkou a vrstvy se oddělí jedna po druhé.</p>`);
